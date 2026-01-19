@@ -23,7 +23,7 @@ except ImportError:
                 def create(**kwargs): pass
 
 # !!! API KEY BURAYA GİRİLECEK !!!
-API_KEY = "11d6037a2c294b00be404b7eccb75e1c.2G6yAIdvHgZRXZGJ"
+API_KEY = ""
 client = ZaiClient(api_key=API_KEY)
 
 # --- KÜTÜPHANE KONTROLLERİ ---
