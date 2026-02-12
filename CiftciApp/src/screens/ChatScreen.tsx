@@ -68,22 +68,32 @@ export default function ChatScreen({ navigation }: any) {
       try {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status === 'granted') {
-           const locationPromise = Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-           const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000));
-           const location: any = await Promise.race([locationPromise, timeoutPromise]);
+          const locationPromise = Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 5000));
+          const location: any = await Promise.race([locationPromise, timeoutPromise]);
 
-           if (location && location.coords) {
-             lat = location.coords.latitude;
-             lon = location.coords.longitude;
-           }
+          if (location && location.coords) {
+            lat = location.coords.latitude;
+            lon = location.coords.longitude;
+          }
         }
       } catch (e) {
         console.log("Konum alınamadı, devam ediliyor:", e);
       }
 
-      const response = await sendMessageToAI(userMsg.text, lat, lon);
-      const aiMsg: ChatMessage = { id: (Date.now() + 1).toString(), text: response, sender: 'ai' };
+      // 1. AI için boş bir mesaj oluştur
+      const aiMsgId = (Date.now() + 1).toString();
+      const aiMsg: ChatMessage = { id: aiMsgId, text: "...", sender: 'ai' };
       setMessages(prev => [...prev, aiMsg]);
+
+      // 2. Stream başlat
+      await sendMessageToAI(userMsg.text, lat, lon, (streamText) => {
+        setMessages(prev =>
+          prev.map(msg =>
+            msg.id === aiMsgId ? { ...msg, text: streamText } : msg
+          )
+        );
+      });
 
     } catch (e: any) {
       console.log("Sohbet Hatası:", e);
@@ -96,7 +106,7 @@ export default function ChatScreen({ navigation }: any) {
       }
 
       const errorMsgObj: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: (Date.now() + 2).toString(),
         text: errorMessage,
         sender: 'ai'
       };
@@ -179,7 +189,7 @@ export default function ChatScreen({ navigation }: any) {
                 onPress={handleSend}
                 disabled={loading || !text.trim()}
               >
-                {loading ? <ActivityIndicator color="#fff" size="small"/> : <Send size={20} color="#fff" />}
+                {loading ? <ActivityIndicator color="#fff" size="small" /> : <Send size={20} color="#fff" />}
               </TouchableOpacity>
             </View>
           </View>

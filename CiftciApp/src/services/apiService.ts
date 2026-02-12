@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import { AnalysisResult, WeatherData, Task } from '../types';
 
 // GÜVENLİK NOTU: Sunucu IP adresini buraya girin.
-const API_BASE_URL = "https://ciftciapp.nurullahkurnaz.com";
+const API_BASE_URL = "https://ciftciapp.nurullahkurnaz.com:8000";
 
 const TOKEN_KEY = 'auth_token';
 
@@ -21,6 +21,12 @@ async function getToken(): Promise<string | null> {
     return localStorage.getItem(TOKEN_KEY);
   }
   return await SecureStore.getItemAsync(TOKEN_KEY);
+}
+
+// Auto-login kontrolü için export
+export async function isLoggedIn(): Promise<boolean> {
+  const token = await getToken();
+  return token !== null && token.length > 0;
 }
 
 export async function removeToken() {
@@ -50,10 +56,10 @@ const handleApiError = async (response: Response, endpointName: string) => {
     }
     const text = await response.text();
     try {
-        const json = JSON.parse(text);
-        throw new Error(json.detail || `Sunucu hatası: ${response.status}`);
+      const json = JSON.parse(text);
+      throw new Error(json.detail || `Sunucu hatası: ${response.status}`);
     } catch (e) {
-        throw new Error(`Sunucu hatası (${response.status})`);
+      throw new Error(`Sunucu hatası (${response.status})`);
     }
   }
   return response.json();
@@ -168,27 +174,73 @@ export const clearChatHistory = async () => {
   return await handleApiError(response, 'ClearChatHistory');
 };
 
-export const sendMessageToAI = async (question: string, lat?: number | null, lon?: number | null) => {
-  const headers = await getAuthHeaders();
-  const response = await fetch(`${API_BASE_URL}/ask`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
+export const sendMessageToAI = async (
+  question: string,
+  lat?: number | null,
+  lon?: number | null,
+  onProgress?: (text: string) => void
+): Promise<string> => {
+  const token = await getToken();
+
+  if (!onProgress) {
+    // Eski yöntem (stream yoksa)
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+    const response = await fetch(`${API_BASE_URL}/ask`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        question,
+        lat: lat || null,
+        lon: lon || null
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API Hatası: ${response.status}`);
+    }
+    return await response.text();
+  }
+
+  // Streaming (XMLHttpRequest ile)
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `${API_BASE_URL}/ask`);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+    // Stream işleme
+    xhr.onprogress = () => {
+      // responseText tüm içeriği tutar (accumulated)
+      onProgress(xhr.responseText);
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.responseText);
+      } else {
+        reject(new Error(`API Hatası: ${xhr.status}`));
+      }
+    };
+
+    xhr.onerror = () => {
+      reject(new Error("Sunucuyla bağlantı kurulamadı."));
+    };
+
+    xhr.send(JSON.stringify({
       question,
       lat: lat || null,
       lon: lon || null
-    })
+    }));
   });
-
-  if (!response.ok) {
-      throw new Error(`API Hatası: ${response.status}`);
-  }
-  return await response.text();
 };
 
 export const getWeatherData = async (lat: number, lon: number): Promise<WeatherData> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/weather?lat=${lat}&lon=${lon}`);
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE_URL}/weather?lat=${lat}&lon=${lon}`, { headers });
     if (!response.ok) throw new Error("Hava durumu alınamadı");
     return await response.json();
   } catch (error) {
@@ -203,16 +255,56 @@ export const getWeatherData = async (lat: number, lon: number): Promise<WeatherD
 };
 
 export const uploadImageForAnalysis = async (imageUri: string): Promise<AnalysisResult> => {
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  return {
-    id: Date.now().toString(),
-    imageUri,
-    timestamp: new Date().toISOString(),
-    diseaseName: "Sağlıklı Bitki",
-    confidence: 0.98,
-    recommendation: "Bitkiniz sağlıklı görünüyor.",
-    status: 'healthy'
-  };
+  const token = await getToken();
+  const formData = new FormData();
+  formData.append('file', {
+    uri: imageUri,
+    name: 'photo.jpg',
+    type: 'image/jpeg',
+  } as any);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/tools/analyze-plant`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      // Eğer backend henüz hazır değilse, demo sonuç dön
+      if (response.status === 404 || response.status === 405) {
+        console.log('Analiz endpoint henüz hazır değil, demo sonuç dönülüyor.');
+        return {
+          id: Date.now().toString(),
+          imageUri,
+          timestamp: new Date().toISOString(),
+          diseaseName: "Sağlıklı Bitki",
+          confidence: 0.98,
+          recommendation: "Bitkiniz sağlıklı görünüyor. (Demo mod - Backend analiz servisi yapılandırılmamış)",
+          status: 'healthy'
+        };
+      }
+      throw new Error(`Analiz hatası: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    // Network hataları için graceful fallback
+    if (error.message?.includes('Network') || error.message?.includes('fetch')) {
+      return {
+        id: Date.now().toString(),
+        imageUri,
+        timestamp: new Date().toISOString(),
+        diseaseName: "Bağlantı Hatası",
+        confidence: 0,
+        recommendation: "Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin.",
+        status: 'warning'
+      };
+    }
+    throw error;
+  }
 };
 
 // --- BİLDİRİM (PUSH TOKEN) ---
