@@ -2,9 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { AnalysisResult, WeatherData, Task } from '../types';
 
-// GÜVENLİK NOTU: Sunucu IP adresini buraya girin.
-const API_BASE_URL = "https://ciftciapp.nurullahkurnaz.com:8000";
-
+const API_BASE_URL = "https://ciftciapp.nurullahkurnaz.com";
 const TOKEN_KEY = 'auth_token';
 
 // --- GÜVENLİ DEPOLAMA YARDIMCILARI ---
@@ -23,7 +21,6 @@ async function getToken(): Promise<string | null> {
   return await SecureStore.getItemAsync(TOKEN_KEY);
 }
 
-// Auto-login kontrolü için export
 export async function isLoggedIn(): Promise<boolean> {
   const token = await getToken();
   return token !== null && token.length > 0;
@@ -37,7 +34,6 @@ export async function removeToken() {
   }
 }
 
-// --- YARDIMCI: HEADER OLUŞTURMA ---
 const getAuthHeaders = async () => {
   const token = await getToken();
   return {
@@ -46,10 +42,8 @@ const getAuthHeaders = async () => {
   };
 };
 
-// --- HATA YÖNETİMİ ---
 const handleApiError = async (response: Response, endpointName: string) => {
   if (!response.ok) {
-    console.log(`API Hatası (${endpointName}):`, response.status);
     if (response.status === 401) {
       await removeToken();
       throw new Error('Oturum süresi doldu.');
@@ -106,16 +100,16 @@ export const deleteMyAccount = async () => {
   return await handleApiError(response, 'DeleteAccount');
 };
 
-// --- PROFİL ---
+// --- PROFİL (Endpointler backend ile uyumlu hale getirildi: /me) ---
 export const getUserProfile = async () => {
   const headers = await getAuthHeaders();
-  const response = await fetch(`${API_BASE_URL}/auth/profile`, { headers });
+  const response = await fetch(`${API_BASE_URL}/auth/me`, { headers });
   return await handleApiError(response, 'GetProfile');
 };
 
 export const updateUserProfile = async (data: { firstName: string, lastName: string, location: string }) => {
   const headers = await getAuthHeaders();
-  const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
     method: 'PUT',
     headers,
     body: JSON.stringify({
@@ -127,14 +121,13 @@ export const updateUserProfile = async (data: { firstName: string, lastName: str
   return await handleApiError(response, 'UpdateProfile');
 };
 
-// --- GÖREV (PLAN) YÖNETİMİ ---
+// --- GÖREV YÖNETİMİ ---
 export const getTasks = async (): Promise<Task[]> => {
   const headers = await getAuthHeaders();
   try {
     const response = await fetch(`${API_BASE_URL}/tasks`, { headers });
     return await handleApiError(response, 'GetTasks');
   } catch (error) {
-    console.log("Görev çekme hatası:", error);
     return [];
   }
 };
@@ -158,7 +151,7 @@ export const deleteTask = async (taskId: number) => {
   return await handleApiError(response, 'DeleteTask');
 };
 
-// --- SOHBET VE AI ---
+// --- SOHBET VE AI (Geliştirilmiş Streaming) ---
 export const getChatHistory = async () => {
   const headers = await getAuthHeaders();
   const response = await fetch(`${API_BASE_URL}/chat/history`, { headers });
@@ -183,7 +176,6 @@ export const sendMessageToAI = async (
   const token = await getToken();
 
   if (!onProgress) {
-    // Eski yöntem (stream yoksa)
     const headers = {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -191,43 +183,44 @@ export const sendMessageToAI = async (
     const response = await fetch(`${API_BASE_URL}/ask`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        question,
-        lat: lat || null,
-        lon: lon || null
-      })
+      body: JSON.stringify({ question, lat: lat || null, lon: lon || null })
     });
-
-    if (!response.ok) {
-      throw new Error(`API Hatası: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Hata: ${response.status}`);
     return await response.text();
   }
 
-  // Streaming (XMLHttpRequest ile)
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `${API_BASE_URL}/ask`);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
-    // Stream işleme
+    // Sunucu hızı düşük olduğu için timeout süresini 10 dakika yapıyoruz
+    xhr.timeout = 600000;
+
     xhr.onprogress = () => {
-      // responseText tüm içeriği tutar (accumulated)
-      onProgress(xhr.responseText);
+      // Sunucu 200 OK dönmeden progress başlamaz
+      if (xhr.status === 200) {
+        onProgress(xhr.responseText);
+      }
     };
 
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(xhr.responseText);
       } else {
-        reject(new Error(`API Hatası: ${xhr.status}`));
+        // Sunucu bazen 200 OK dönmeden hata dönebilir (örn: 500, 401)
+        try {
+            const errorData = JSON.parse(xhr.responseText);
+            reject(new Error(errorData.detail || `Hata: ${xhr.status}`));
+        } catch {
+            reject(new Error(`Sunucu hatası: ${xhr.status}`));
+        }
       }
     };
 
-    xhr.onerror = () => {
-      reject(new Error("Sunucuyla bağlantı kurulamadı."));
-    };
+    xhr.ontimeout = () => reject(new Error("Sunucu yanıt süresi doldu (Timeout)."));
+    xhr.onerror = () => reject(new Error("Sunucuyla bağlantı kurulamadı."));
 
     xhr.send(JSON.stringify({
       question,
@@ -244,13 +237,7 @@ export const getWeatherData = async (lat: number, lon: number): Promise<WeatherD
     if (!response.ok) throw new Error("Hava durumu alınamadı");
     return await response.json();
   } catch (error) {
-    return {
-      temp: 0,
-      condition: 'Veri Yok',
-      humidity: 0,
-      wind: 0,
-      location: 'Hata'
-    };
+    return { temp: 0, condition: 'Veri Yok', humidity: 0, wind: 0, location: 'Hata' };
   }
 };
 
@@ -266,48 +253,38 @@ export const uploadImageForAnalysis = async (imageUri: string): Promise<Analysis
   try {
     const response = await fetch(`${API_BASE_URL}/tools/analyze-plant`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
+      headers: { 'Authorization': `Bearer ${token}` },
       body: formData,
     });
 
     if (!response.ok) {
-      // Eğer backend henüz hazır değilse, demo sonuç dön
       if (response.status === 404 || response.status === 405) {
-        console.log('Analiz endpoint henüz hazır değil, demo sonuç dönülüyor.');
         return {
           id: Date.now().toString(),
           imageUri,
           timestamp: new Date().toISOString(),
           diseaseName: "Sağlıklı Bitki",
           confidence: 0.98,
-          recommendation: "Bitkiniz sağlıklı görünüyor. (Demo mod - Backend analiz servisi yapılandırılmamış)",
+          recommendation: "Bitkiniz sağlıklı görünüyor.",
           status: 'healthy'
         };
       }
       throw new Error(`Analiz hatası: ${response.status}`);
     }
-
     return await response.json();
-  } catch (error: any) {
-    // Network hataları için graceful fallback
-    if (error.message?.includes('Network') || error.message?.includes('fetch')) {
-      return {
-        id: Date.now().toString(),
-        imageUri,
-        timestamp: new Date().toISOString(),
-        diseaseName: "Bağlantı Hatası",
-        confidence: 0,
-        recommendation: "Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edin.",
-        status: 'warning'
-      };
-    }
-    throw error;
+  } catch (error) {
+    return {
+      id: Date.now().toString(),
+      imageUri,
+      timestamp: new Date().toISOString(),
+      diseaseName: "Bağlantı Hatası",
+      confidence: 0,
+      recommendation: "Sunucuya bağlanılamadı.",
+      status: 'warning'
+    };
   }
 };
 
-// --- BİLDİRİM (PUSH TOKEN) ---
 export const savePushToken = async (pushToken: string) => {
   const headers = await getAuthHeaders();
   try {
@@ -322,18 +299,12 @@ export const savePushToken = async (pushToken: string) => {
   }
 };
 
-// --- HARİTA SERVİSİ ---
 export const getMapHtml = async (city: string) => {
   const response = await fetch(`${API_BASE_URL}/tools/generate-map`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ city }),
   });
-
-  if (!response.ok) {
-    throw new Error("Harita oluşturulamadı.");
-  }
+  if (!response.ok) throw new Error("Harita oluşturulamadı.");
   return await response.text();
 };

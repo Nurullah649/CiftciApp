@@ -4,7 +4,7 @@
     "slug": "CiftciApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon3.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -18,7 +18,8 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         }
-      }
+      },
+      "bundleIdentifier": "com.evie47.CiftciApp"
     },
     "android": {
       "adaptiveIcon": {
