@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, ScanLine, MessageSquare } from 'lucide-react-native';
+import { Sprout, Leaf, MessageCircle, CalendarRange } from 'lucide-react-native';
 import * as Notifications from 'expo-notifications';
 import { isLoggedIn } from './src/services/apiService';
+import { theme } from './src/theme/theme';
 
-// Ekranları Import Et
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
@@ -19,7 +19,6 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import ScheduleScreen from './src/screens/ScheduleScreen';
 import MapScreen from './src/screens/MapScreen';
 
-// Bildirim Ayarları
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
@@ -29,6 +28,20 @@ Notifications.setNotificationHandler({
   }),
 });
 
+const navTheme: Theme = {
+  ...DefaultTheme,
+  dark: false,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: theme.forestLight,
+    background: theme.bg,
+    card: theme.surface,
+    text: theme.ink,
+    border: theme.border,
+    notification: theme.accent,
+  },
+};
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -37,24 +50,51 @@ function MainTabs() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#16a34a',
-        tabBarStyle: { height: 65, paddingBottom: 10, paddingTop: 10 }
+        tabBarActiveTintColor: theme.tabActive,
+        tabBarInactiveTintColor: theme.tabInactive,
+        tabBarStyle: {
+          position: 'absolute',
+          left: 16,
+          right: 16,
+          bottom: Platform.OS === 'ios' ? 28 : 16,
+          height: 64,
+          paddingBottom: 10,
+          paddingTop: 10,
+          backgroundColor: theme.tabBarBg,
+          borderTopWidth: 0,
+          borderRadius: 20,
+          elevation: 24,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 10 },
+          shadowOpacity: 0.28,
+          shadowRadius: 20,
+        },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '800', letterSpacing: 0.4 },
+        tabBarItemStyle: { paddingVertical: 2 },
       }}
     >
       <Tab.Screen
         name="Dashboard"
         component={DashboardScreen}
         options={{
-          tabBarLabel: 'Ana Sayfa',
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />
+          tabBarLabel: 'Özet',
+          tabBarIcon: ({ color, focused }) => <Sprout size={22} color={color} strokeWidth={focused ? 2.5 : 2} />,
+        }}
+      />
+      <Tab.Screen
+        name="Schedule"
+        component={ScheduleScreen}
+        options={{
+          tabBarLabel: 'Takvim',
+          tabBarIcon: ({ color, focused }) => <CalendarRange size={22} color={color} strokeWidth={focused ? 2.5 : 2} />,
         }}
       />
       <Tab.Screen
         name="Analysis"
         component={AnalysisScreen}
         options={{
-          tabBarLabel: 'Analiz',
-          tabBarIcon: ({ color }) => <ScanLine size={24} color={color} />
+          tabBarLabel: 'Tarla',
+          tabBarIcon: ({ color, focused }) => <Leaf size={22} color={color} strokeWidth={focused ? 2.5 : 2} />,
         }}
       />
       <Tab.Screen
@@ -62,7 +102,7 @@ function MainTabs() {
         component={ChatScreen}
         options={{
           tabBarLabel: 'Asistan',
-          tabBarIcon: ({ color }) => <MessageSquare size={24} color={color} />
+          tabBarIcon: ({ color, focused }) => <MessageCircle size={22} color={color} strokeWidth={focused ? 2.5 : 2} />,
         }}
       />
     </Tab.Navigator>
@@ -73,29 +113,29 @@ export default function App() {
   const [initialRoute, setInitialRoute] = useState<string | null>(null);
 
   useEffect(() => {
-    checkAuthStatus();
+    (async () => {
+      try {
+        const loggedIn = await isLoggedIn();
+        setInitialRoute(loggedIn ? 'Main' : 'Login');
+      } catch {
+        setInitialRoute('Login');
+      }
+    })();
   }, []);
 
-  const checkAuthStatus = async () => {
-    try {
-      const loggedIn = await isLoggedIn();
-      setInitialRoute(loggedIn ? 'Main' : 'Login');
-    } catch (error) {
-      setInitialRoute('Login');
-    }
-  };
-
-  // Splash / Loading ekranı
   if (!initialRoute) {
     return (
       <View style={styles.splash}>
-        <ActivityIndicator size="large" color="#16a34a" />
+        <View style={styles.splashInner}>
+          <ActivityIndicator size="large" color={theme.tabActive} />
+        </View>
+        <View style={styles.splashFoot} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRoute}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
@@ -103,7 +143,6 @@ export default function App() {
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="ChatHistory" component={ChatHistoryScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
-        <Stack.Screen name="Schedule" component={ScheduleScreen} />
         <Stack.Screen name="Map" component={MapScreen} />
       </Stack.Navigator>
     </NavigationContainer>
@@ -113,8 +152,28 @@ export default function App() {
 const styles = StyleSheet.create({
   splash: {
     flex: 1,
+    backgroundColor: theme.forest,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f9fafb',
+  },
+  splashInner: {
+    width: 96,
+    height: 96,
+    borderRadius: 28,
+    borderWidth: 3,
+    borderColor: theme.tabActive,
+    backgroundColor: 'rgba(217,249,157,0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  splashFoot: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 120,
+    backgroundColor: theme.bg,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
   },
 });

@@ -14,10 +14,12 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   StatusBar,
-  Image // <--- 1. Image import edildi
+  Image,
 } from 'react-native';
-import { Eye, EyeOff } from 'lucide-react-native'; // Tractor kaldırıldı
+import { Eye, EyeOff } from 'lucide-react-native';
 import { loginUser } from '../services/apiService';
+import { getApiBaseUrl } from '../config/apiBaseUrl';
+import { theme } from '../theme/theme';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
@@ -27,120 +29,88 @@ export default function LoginScreen({ navigation }: any) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("Uyarı", "Lütfen e-posta ve şifrenizi giriniz.");
+      Alert.alert('Eksik bilgi', 'E-posta ve şifre girin.');
       return;
     }
 
     setLoading(true);
     try {
       await loginUser(email, password);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
+      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
     } catch (error: any) {
-      const message = error.message === 'Network request failed'
-        ? 'Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.'
-        : 'Giriş yapılamadı. E-posta veya şifre hatalı olabilir.';
-
-      Alert.alert("Giriş Başarısız", message);
+      const net = error?.message === 'Network request failed';
+      const base = getApiBaseUrl();
+      const hint = __DEV__ ? ` API: ${base}` : '';
+      Alert.alert(
+        'Giriş yapılamadı',
+        net ? `Sunucuya ulaşılamadı.${hint}` : error?.message || 'E-posta veya şifre hatalı olabilir.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.forest} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
+          <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+            <View style={styles.hero}>
+              <View style={styles.heroGlow} />
+              <Text style={styles.brand}>ÇİFTÇİ</Text>
+              <Text style={styles.heroLine}>Asistan</Text>
+              <Text style={styles.heroSub}>Hava, tarla ve takvim — tek yerde</Text>
+            </View>
 
-            <View style={styles.content}>
-              {/* Logo Alanı */}
-              <View style={styles.headerContainer}>
-                <View style={styles.iconContainer}>
-                  {/* 2. Traktör yerine Logo Resmi */}
-                  <Image
-                    source={require('../../assets/icon.png')}
-                    style={styles.logoImage}
-                  />
-                </View>
-                <Text style={styles.title}>Hoş Geldiniz</Text>
-                <Text style={styles.subtitle}>Güvenli Çiftçi Asistanınız</Text>
+            <View style={styles.sheet}>
+              <View style={styles.logoWrap}>
+                <Image source={require('../../assets/icon.png')} style={styles.logo} />
               </View>
+              <Text style={styles.title}>Giriş</Text>
+              <Text style={styles.sub}>Hesabınla devam et</Text>
 
-              {/* Form Alanı */}
               <View style={styles.form}>
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>E-posta</Text>
+                <Text style={styles.label}>E-posta</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="ornek@email.com"
+                  placeholderTextColor={theme.muted}
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  autoCorrect={false}
+                />
+
+                <Text style={styles.label}>Şifre</Text>
+                <View style={styles.passRow}>
                   <TextInput
-                    style={styles.input}
-                    placeholder="ornek@email.com"
-                    placeholderTextColor="#9ca3af"
-                    value={email}
-                    onChangeText={setEmail}
+                    style={styles.passInput}
+                    placeholder="••••••••"
+                    placeholderTextColor={theme.muted}
+                    secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={setPassword}
                     autoCapitalize="none"
-                    keyboardType="email-address"
-                    autoCorrect={false}
                   />
+                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)} hitSlop={12}>
+                    {showPassword ? <EyeOff size={22} color={theme.muted} /> : <Eye size={22} color={theme.muted} />}
+                  </TouchableOpacity>
                 </View>
 
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Şifre</Text>
-                  <View style={styles.passwordContainer}>
-                    <TextInput
-                      style={styles.passwordInput}
-                      placeholder="••••••"
-                      placeholderTextColor="#9ca3af"
-                      secureTextEntry={!showPassword}
-                      value={password}
-                      onChangeText={setPassword}
-                      autoCapitalize="none"
-                    />
-                    <TouchableOpacity
-                      onPress={() => setShowPassword(!showPassword)}
-                      style={styles.eyeIcon}
-                      hitSlop={{top: 15, bottom: 15, left: 15, right: 15}}
-                    >
-                      {showPassword ? (
-                        <EyeOff size={22} color="#6b7280" />
-                      ) : (
-                        <Eye size={22} color="#6b7280" />
-                      )}
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={[styles.button, loading && styles.buttonDisabled]}
-                  onPress={handleLogin}
-                  disabled={loading}
-                  activeOpacity={0.8}
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.buttonText}>Giriş Yap</Text>
-                  )}
+                <TouchableOpacity style={[styles.cta, loading && { opacity: 0.75 }]} onPress={handleLogin} disabled={loading}>
+                  {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>Giriş yap</Text>}
                 </TouchableOpacity>
               </View>
 
-              {/* Kayıt Ol Linki */}
-              <View style={styles.registerRow}>
-                <Text style={styles.registerText}>Hesabınız yok mu? </Text>
+              <View style={styles.footerRow}>
+                <Text style={styles.footerMuted}>Hesabın yok mu? </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                    <Text style={styles.registerLink}>Hemen Kayıt Olun</Text>
+                  <Text style={styles.footerLink}>Kayıt ol</Text>
                 </TouchableOpacity>
               </View>
             </View>
-
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -149,100 +119,91 @@ export default function LoginScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
-  keyboardView: { flex: 1 },
-  scrollContent: { flexGrow: 1, justifyContent: 'center' },
-  content: { flex: 1, padding: 30, justifyContent: 'center' },
-
-  headerContainer: { alignItems: 'center', marginBottom: 40 },
-  iconContainer: {
-    width: 110, // Biraz büyüttük
-    height: 110,
-    backgroundColor: '#fff', // Logo zemini beyaz olsun (PNG transparan değilse şık durur)
-    borderRadius: 55,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-    // Hafif gölge
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+  safe: { flex: 1, backgroundColor: theme.bg },
+  scroll: { flexGrow: 1, paddingBottom: 40 },
+  hero: {
+    minHeight: 220,
+    backgroundColor: theme.forest,
+    paddingHorizontal: 28,
+    paddingTop: 28,
+    paddingBottom: 56,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
+    justifyContent: 'flex-end',
+  },
+  heroGlow: {
+    position: 'absolute',
+    top: 20,
+    right: -40,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: 'rgba(13,148,136,0.2)',
+  },
+  brand: { color: theme.tabActive, fontSize: 12, fontWeight: '900', letterSpacing: 4 },
+  heroLine: { color: '#fff', fontSize: 34, fontWeight: '900', marginTop: 8 },
+  heroSub: { color: 'rgba(255,255,255,0.75)', fontSize: 15, marginTop: 10, maxWidth: 280 },
+  sheet: {
+    marginTop: -44,
+    marginHorizontal: 20,
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusLg,
+    paddingHorizontal: 22,
+    paddingTop: 26,
+    paddingBottom: 28,
     borderWidth: 1,
-    borderColor: '#f3f4f6'
+    borderColor: theme.border,
+    shadowColor: theme.shadow,
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 1,
+    shadowRadius: 28,
+    elevation: 10,
   },
-  // 3. Logo Stili
-  logoImage: {
-    width: '70%',
-    height: '70%',
-    resizeMode: 'contain', // Resim bozulmadan sığsın
-  },
-  title: { fontSize: 30, fontWeight: '800', color: '#111827', marginBottom: 8, letterSpacing: -0.5 },
-  subtitle: { fontSize: 16, color: '#6b7280', fontWeight: '500' },
-
-  form: { gap: 20 },
-  inputGroup: { gap: 8 },
-  label: { fontSize: 14, fontWeight: '600', color: '#374151', marginLeft: 4 },
-
-  input: {
-    backgroundColor: '#f3f4f6',
-    borderRadius: 18,
-    padding: 18,
-    fontSize: 16,
-    color: '#1f2937',
-    fontWeight: '500'
-  },
-
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 18,
-    paddingHorizontal: 18,
-  },
-  passwordInput: {
-    flex: 1,
-    paddingVertical: 18,
-    fontSize: 16,
-    color: '#1f2937',
-    fontWeight: '500'
-  },
-  eyeIcon: {
-    padding: 4,
-  },
-
-  button: {
-    backgroundColor: '#16a34a',
-    padding: 20,
-    borderRadius: 18,
-    alignItems: 'center',
-    marginTop: 12,
-    shadowColor: "#16a34a",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  buttonDisabled: {
-    backgroundColor: '#86efac',
-    shadowOpacity: 0.1,
-  },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-
-  registerRow: {
-    flexDirection: 'row',
+  logoWrap: {
+    alignSelf: 'center',
+    width: 76,
+    height: 76,
+    borderRadius: 22,
+    backgroundColor: theme.skyTint,
     justifyContent: 'center',
-    marginTop: 32
+    alignItems: 'center',
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: theme.forestLight,
   },
-  registerText: {
-    color: '#6b7280',
-    fontSize: 15,
-    fontWeight: '500'
+  logo: { width: '55%', height: '55%', resizeMode: 'contain' },
+  title: { fontSize: 26, fontWeight: '900', color: theme.ink, textAlign: 'center' },
+  sub: { fontSize: 15, color: theme.muted, textAlign: 'center', marginTop: 6, marginBottom: 4 },
+  form: { gap: 2 },
+  label: { fontSize: 12, fontWeight: '800', color: theme.inkSecondary, marginBottom: 4, marginTop: 12 },
+  input: {
+    backgroundColor: theme.bg,
+    borderRadius: theme.radiusMd,
+    padding: 15,
+    fontSize: 16,
+    color: theme.ink,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
-  registerLink: {
-    color: '#16a34a',
-    fontWeight: '700',
-    fontSize: 15
-  }
+  passRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.bg,
+    borderRadius: theme.radiusMd,
+    borderWidth: 1,
+    borderColor: theme.border,
+    paddingRight: 12,
+  },
+  passInput: { flex: 1, padding: 15, fontSize: 16, color: theme.ink },
+  cta: {
+    backgroundColor: theme.accent,
+    paddingVertical: 16,
+    borderRadius: theme.radiusMd,
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  ctaText: { color: '#fff', fontSize: 17, fontWeight: '900' },
+  footerRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 22 },
+  footerMuted: { color: theme.muted, fontSize: 15 },
+  footerLink: { color: theme.forestLight, fontSize: 15, fontWeight: '900' },
 });

@@ -1,9 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+  StatusBar,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Camera, Upload, X, CheckCircle, AlertOctagon, Info } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadImageForAnalysis } from '../services/apiService';
 import { AnalysisResult } from '../types';
+import { theme } from '../theme/theme';
+
+const TAB_PAD = 118;
 
 export default function AnalysisScreen() {
   const [image, setImage] = useState<string | null>(null);
@@ -11,35 +25,31 @@ export default function AnalysisScreen() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
   const pickImage = async (useCamera: boolean) => {
-    // İzin İste
     const { status } = useCamera
       ? await ImagePicker.requestCameraPermissionsAsync()
       : await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
-      Alert.alert("İzin Gerekli", "Bu özelliği kullanmak için izin vermelisiniz.");
+      Alert.alert('İzin', 'Fotoğraf için izin gerekli.');
       return;
     }
 
-    let result;
-    if (useCamera) {
-      result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 4],
-        quality: 0.7,
-      });
-    } else {
-      result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 4],
-        quality: 0.7,
-      });
-    }
+    const res = useCamera
+      ? await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 4],
+          quality: 0.72,
+        })
+      : await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [4, 4],
+          quality: 0.72,
+        });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+    if (!res.canceled) {
+      setImage(res.assets[0].uri);
       setResult(null);
     }
   };
@@ -50,8 +60,8 @@ export default function AnalysisScreen() {
     try {
       const data = await uploadImageForAnalysis(image);
       setResult(data);
-    } catch (error) {
-      Alert.alert("Hata", "Analiz sırasında bir sorun oluştu.");
+    } catch {
+      Alert.alert('Hata', 'Analiz tamamlanamadı.');
     } finally {
       setAnalyzing(false);
     }
@@ -63,116 +73,195 @@ export default function AnalysisScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {!image ? (
-        <View style={styles.uploadArea}>
-          <View style={styles.iconCircle}>
-            <Camera size={48} color="#16a34a" />
-          </View>
-          <Text style={styles.title}>Bitki Analizi</Text>
-          <Text style={styles.subtitle}>
-            Hastalık teşhisi için bitkinin etkilenen bölgesinin net bir fotoğrafını yükleyin.
-          </Text>
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.forest} />
+      <View style={styles.head}>
+        <Text style={styles.kicker}>TARLA</Text>
+        <Text style={styles.title}>Fotoğraf analizi</Text>
+        <Text style={styles.sub}>Etkilenen bitkiyi net ve aydınlık çekin; sonuç sunucudan gelir.</Text>
+      </View>
 
-          <TouchableOpacity style={styles.btnPrimary} onPress={() => pickImage(true)}>
-            <Camera size={20} color="#fff" style={{marginRight:8}} />
-            <Text style={styles.btnText}>Fotoğraf Çek</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.btnSecondary} onPress={() => pickImage(false)}>
-            <Upload size={20} color="#16a34a" style={{marginRight:8}} />
-            <Text style={[styles.btnText, {color: '#16a34a'}]}>Galeriden Seç</Text>
-          </TouchableOpacity>
-
-          <View style={styles.infoRow}>
-            <Info size={16} color="#9ca3af" />
-            <Text style={styles.infoText}>İyi Işık • Net Odak • Yakın Çekim</Text>
-          </View>
-        </View>
-      ) : (
-        <View style={styles.resultArea}>
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: image }} style={styles.previewImage} />
-            {!analyzing && !result && (
-              <TouchableOpacity style={styles.closeBtn} onPress={reset}>
-                <X size={20} color="#fff" />
-              </TouchableOpacity>
-            )}
-
-            {analyzing && (
-              <View style={styles.loadingOverlay}>
-                <ActivityIndicator size="large" color="#fff" />
-                <Text style={styles.loadingText}>Yapay Zeka İnceliyor...</Text>
-              </View>
-            )}
-          </View>
-
-          {!result && !analyzing && (
-            <TouchableOpacity style={styles.analyzeBtn} onPress={handleAnalyze}>
-              <Upload size={20} color="#fff" style={{marginRight:8}} />
-              <Text style={styles.btnText}>Analizi Başlat</Text>
-            </TouchableOpacity>
-          )}
-
-          {result && (
-            <View style={[styles.card, result.status === 'healthy' ? styles.cardGreen : styles.cardRed]}>
-              <View style={styles.cardHeader}>
-                {result.status === 'healthy' ? (
-                  <CheckCircle size={32} color="#22c55e" />
-                ) : (
-                  <AlertOctagon size={32} color="#ef4444" />
-                )}
-                <View style={{marginLeft: 12, flex: 1}}>
-                  <Text style={styles.diseaseName}>{result.diseaseName}</Text>
-                  <Text style={styles.confidence}>%{Math.round(result.confidence * 100)} Doğruluk</Text>
-                </View>
-              </View>
-
-              <View style={styles.recBox}>
-                <Text style={styles.recTitle}>Öneri ve Tedavi:</Text>
-                <Text style={styles.recText}>{result.recommendation}</Text>
-              </View>
-
-              <TouchableOpacity style={styles.newBtn} onPress={reset}>
-                <Text style={styles.newBtnText}>Yeni Analiz Yap</Text>
-              </TouchableOpacity>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: TAB_PAD }]} showsVerticalScrollIndicator={false}>
+        {!image ? (
+          <View style={styles.drop}>
+            <View style={styles.dropRing}>
+              <Camera size={36} color={theme.forestLight} />
             </View>
-          )}
-        </View>
-      )}
-    </ScrollView>
+            <Text style={styles.dropTitle}>Çek veya seç</Text>
+            <Text style={styles.dropSub}>Yaprak veya dal yakın planı idealdir.</Text>
+
+            <TouchableOpacity style={styles.btnPrimary} onPress={() => pickImage(true)} activeOpacity={0.9}>
+              <Camera size={20} color="#fff" style={{ marginRight: 10 }} />
+              <Text style={styles.btnPrimaryTxt}>Kamera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btnGhost} onPress={() => pickImage(false)} activeOpacity={0.9}>
+              <Upload size={20} color={theme.forestLight} style={{ marginRight: 10 }} />
+              <Text style={styles.btnGhostTxt}>Galeri</Text>
+            </TouchableOpacity>
+
+            <View style={styles.hint}>
+              <Info size={16} color={theme.forestLight} />
+              <Text style={styles.hintText}>İyi ışık · gölgesiz kare</Text>
+            </View>
+          </View>
+        ) : (
+          <View>
+            <View style={styles.previewBox}>
+              <Image source={{ uri: image }} style={styles.preview} />
+              {!analyzing && !result && (
+                <TouchableOpacity style={styles.close} onPress={reset}>
+                  <X size={20} color="#fff" />
+                </TouchableOpacity>
+              )}
+              {analyzing && (
+                <View style={styles.overlay}>
+                  <ActivityIndicator size="large" color={theme.tabActive} />
+                  <Text style={styles.overlayText}>İnceleniyor...</Text>
+                </View>
+              )}
+            </View>
+
+            {!result && !analyzing && (
+              <TouchableOpacity style={styles.runBtn} onPress={handleAnalyze} activeOpacity={0.92}>
+                <Text style={styles.runBtnText}>Analizi başlat</Text>
+              </TouchableOpacity>
+            )}
+
+            {result && (
+              <View style={[styles.result, result.status === 'healthy' ? styles.resultOk : styles.resultBad]}>
+                <View style={styles.resultHead}>
+                  {result.status === 'healthy' ? (
+                    <CheckCircle size={32} color={theme.success} />
+                  ) : (
+                    <AlertOctagon size={32} color={theme.danger} />
+                  )}
+                  <View style={{ marginLeft: 14, flex: 1 }}>
+                    <Text style={styles.resultName}>{result.diseaseName}</Text>
+                    <Text style={styles.resultConf}>%{Math.round(result.confidence * 100)} güven</Text>
+                  </View>
+                </View>
+                <View style={styles.rec}>
+                  <Text style={styles.recTitle}>Öneri</Text>
+                  <Text style={styles.recBody}>{result.recommendation}</Text>
+                </View>
+                <TouchableOpacity style={styles.again} onPress={reset}>
+                  <Text style={styles.againText}>Yeni fotoğraf</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: '#f9fafb', padding: 20 },
-  uploadArea: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: 24, padding: 32, borderStyle: 'dashed', borderWidth: 2, borderColor: '#d1d5db' },
-  iconCircle: { width: 90, height: 90, backgroundColor: '#f0fdf4', borderRadius: 45, justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#111', marginBottom: 8 },
-  subtitle: { textAlign: 'center', color: '#6b7280', marginBottom: 32, lineHeight: 22 },
-  btnPrimary: { flexDirection: 'row', backgroundColor: '#16a34a', width: '100%', padding: 16, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginBottom: 12, elevation: 2 },
-  btnSecondary: { flexDirection: 'row', backgroundColor: '#fff', width: '100%', padding: 16, borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#16a34a' },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', marginTop: 32, gap: 8, opacity: 0.7 },
-  infoText: { color: '#6b7280', fontSize: 13, fontWeight: '500' },
-
-  resultArea: { flex: 1 },
-  imageContainer: { height: 350, borderRadius: 24, overflow: 'hidden', marginBottom: 24, backgroundColor: '#e5e7eb', position: 'relative', elevation: 3 },
-  previewImage: { width: '100%', height: '100%' },
-  closeBtn: { position: 'absolute', top: 16, right: 16, backgroundColor: 'rgba(0,0,0,0.6)', padding: 8, borderRadius: 20 },
-  loadingOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center' },
-  loadingText: { color: '#fff', marginTop: 16, fontWeight: 'bold', fontSize: 16 },
-  analyzeBtn: { flexDirection: 'row', backgroundColor: '#16a34a', padding: 18, borderRadius: 16, justifyContent: 'center', alignItems: 'center', elevation: 3 },
-
-  card: { backgroundColor: '#fff', borderRadius: 24, padding: 24, borderLeftWidth: 6, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 },
-  cardGreen: { borderLeftColor: '#22c55e' },
-  cardRed: { borderLeftColor: '#ef4444' },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  diseaseName: { fontSize: 20, fontWeight: 'bold', color: '#1f2937' },
-  confidence: { color: '#6b7280', fontSize: 14, fontWeight: '600', marginTop: 2 },
-  recBox: { backgroundColor: '#f3f4f6', padding: 16, borderRadius: 16, marginBottom: 20 },
-  recTitle: { fontWeight: 'bold', color: '#111', marginBottom: 8, fontSize: 15 },
-  recText: { color: '#374151', lineHeight: 22, fontSize: 15 },
-  newBtn: { padding: 16, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 14, alignItems: 'center', backgroundColor: '#fafafa' },
-  newBtnText: { color: '#4b5563', fontWeight: 'bold', fontSize: 15 }
+  safe: { flex: 1, backgroundColor: theme.bg },
+  head: {
+    backgroundColor: theme.forest,
+    paddingHorizontal: 22,
+    paddingTop: 8,
+    paddingBottom: 22,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+  },
+  kicker: { color: theme.tabActive, fontSize: 10, fontWeight: '900', letterSpacing: 2 },
+  title: { fontSize: 26, fontWeight: '900', color: '#fff', marginTop: 8 },
+  sub: { fontSize: 14, color: 'rgba(255,255,255,0.75)', marginTop: 8, lineHeight: 20 },
+  scroll: { padding: 20 },
+  drop: {
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusLg,
+    padding: 28,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: theme.border,
+  },
+  dropRing: {
+    width: 88,
+    height: 88,
+    borderRadius: 28,
+    backgroundColor: theme.skyTint,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: theme.forestLight,
+  },
+  dropTitle: { fontSize: 21, fontWeight: '900', color: theme.ink },
+  dropSub: { textAlign: 'center', color: theme.muted, marginTop: 8, marginBottom: 22, lineHeight: 20 },
+  btnPrimary: {
+    flexDirection: 'row',
+    width: '100%',
+    backgroundColor: theme.accent,
+    padding: 16,
+    borderRadius: theme.radiusMd,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  btnPrimaryTxt: { color: '#fff', fontWeight: '900', fontSize: 16 },
+  btnGhost: {
+    flexDirection: 'row',
+    width: '100%',
+    backgroundColor: theme.bgElevated,
+    padding: 16,
+    borderRadius: theme.radiusMd,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: theme.forestLight,
+  },
+  btnGhostTxt: { color: theme.forestLight, fontWeight: '800', fontSize: 16 },
+  hint: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 22 },
+  hintText: { color: theme.muted, fontSize: 13 },
+  previewBox: {
+    height: 300,
+    borderRadius: theme.radiusLg,
+    overflow: 'hidden',
+    backgroundColor: theme.border,
+    marginBottom: 18,
+  },
+  preview: { width: '100%', height: '100%' },
+  close: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    padding: 10,
+    borderRadius: 22,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(15,45,38,0.72)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlayText: { color: '#fff', marginTop: 14, fontWeight: '700' },
+  runBtn: {
+    backgroundColor: theme.forest,
+    padding: 17,
+    borderRadius: theme.radiusMd,
+    alignItems: 'center',
+  },
+  runBtnText: { color: '#fff', fontWeight: '900', fontSize: 16 },
+  result: {
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusLg,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
+  resultOk: { borderLeftWidth: 5, borderLeftColor: theme.success },
+  resultBad: { borderLeftWidth: 5, borderLeftColor: theme.danger },
+  resultHead: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+  resultName: { fontSize: 18, fontWeight: '900', color: theme.ink },
+  resultConf: { color: theme.muted, marginTop: 2, fontWeight: '600' },
+  rec: { backgroundColor: theme.bg, padding: 16, borderRadius: theme.radiusSm, marginBottom: 14 },
+  recTitle: { fontWeight: '900', color: theme.ink, marginBottom: 6 },
+  recBody: { color: theme.inkSecondary, lineHeight: 22 },
+  again: { padding: 14, alignItems: 'center', borderRadius: theme.radiusSm, borderWidth: 1, borderColor: theme.border },
+  againText: { fontWeight: '800', color: theme.forestLight },
 });

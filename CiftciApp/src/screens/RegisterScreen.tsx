@@ -12,133 +12,110 @@ import {
   Platform,
   ScrollView,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  StatusBar,
 } from 'react-native';
 import { UserPlus, ArrowLeft } from 'lucide-react-native';
 import { registerUser } from '../services/apiService';
+import { theme } from '../theme/theme';
 
 export default function RegisterScreen({ navigation }: any) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    password: ''
+    password: '',
   });
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    // Basit Validasyon
     if (!formData.email || !formData.password || !formData.firstName) {
-      Alert.alert("Eksik Bilgi", "Lütfen en az Ad, E-posta ve Şifre alanlarını doldurun.");
+      Alert.alert('Eksik bilgi', 'Ad, e-posta ve şifre gerekli.');
       return;
     }
 
     setLoading(true);
     try {
       await registerUser(formData);
-      Alert.alert(
-        "Kayıt Başarılı",
-        "Hesabınız oluşturuldu. Şimdi giriş yapabilirsiniz.",
-        [{ text: "Giriş Yap", onPress: () => navigation.navigate('Login') }]
-      );
+      Alert.alert('Kayıt tamam', 'Giriş yapabilirsiniz.', [{ text: 'Tamam', onPress: () => navigation.navigate('Login') }]);
     } catch (error: any) {
-      // Hata mesajını backend'den veya genel hatadan al
-      const msg = error.message || "Kayıt işlemi başarısız.";
-      Alert.alert("Hata", msg);
+      Alert.alert('Hata', error?.message || 'Kayıt başarısız.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.forest} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Geri Dön Butonu */}
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-                <ArrowLeft size={24} color="#374151" />
-            </TouchableOpacity>
-
-            <View style={styles.content}>
-              <View style={styles.iconContainer}>
-                <UserPlus size={40} color="#16a34a" />
+          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+            <View style={styles.curve}>
+              <TouchableOpacity onPress={() => navigation.goBack()} style={styles.back}>
+                <ArrowLeft size={22} color="#fff" />
+              </TouchableOpacity>
+              <Text style={styles.kicker}>HESAP</Text>
+              <View style={styles.heroIcon}>
+                <UserPlus size={32} color={theme.forest} />
               </View>
-              <Text style={styles.title}>Hesap Oluştur</Text>
-              <Text style={styles.subtitle}>Çiftçi Asistanına Katılın</Text>
-
-              <View style={styles.form}>
-                <View style={styles.row}>
-                    <View style={{flex:1, marginRight:8}}>
-                        <Text style={styles.label}>Ad</Text>
-                        <TextInput
-                        style={styles.input}
-                        placeholder="Ali"
-                        placeholderTextColor="#9ca3af"
-                        value={formData.firstName}
-                        onChangeText={(t) => setFormData({...formData, firstName: t})}
-                        />
-                    </View>
-                    <View style={{flex:1, marginLeft:8}}>
-                        <Text style={styles.label}>Soyad</Text>
-                        <TextInput
-                        style={styles.input}
-                        placeholder="Yılmaz"
-                        placeholderTextColor="#9ca3af"
-                        value={formData.lastName}
-                        onChangeText={(t) => setFormData({...formData, lastName: t})}
-                        />
-                    </View>
-                </View>
-
-                <Text style={styles.label}>E-posta</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="ornek@email.com"
-                  placeholderTextColor="#9ca3af"
-                  value={formData.email}
-                  onChangeText={(t) => setFormData({...formData, email: t})}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-
-                <Text style={styles.label}>Şifre</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="••••••"
-                  placeholderTextColor="#9ca3af"
-                  secureTextEntry
-                  value={formData.password}
-                  onChangeText={(t) => setFormData({...formData, password: t})}
-                />
-
-                <TouchableOpacity
-                  style={[styles.button, loading && styles.buttonDisabled]}
-                  onPress={handleRegister}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.buttonText}>Kayıt Ol</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.loginRow}>
-                <Text style={styles.loginText}>Zaten hesabınız var mı? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                  <Text style={styles.loginLink}>Giriş Yap</Text>
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.heroTitle}>Kayıt ol</Text>
+              <Text style={styles.heroSub}>Birkaç alanla başlayın</Text>
             </View>
 
+            <View style={styles.sheet}>
+              <View style={styles.row}>
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <Text style={styles.label}>Ad</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Ali"
+                    placeholderTextColor={theme.muted}
+                    value={formData.firstName}
+                    onChangeText={(t) => setFormData({ ...formData, firstName: t })}
+                  />
+                </View>
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <Text style={styles.label}>Soyad</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Yılmaz"
+                    placeholderTextColor={theme.muted}
+                    value={formData.lastName}
+                    onChangeText={(t) => setFormData({ ...formData, lastName: t })}
+                  />
+                </View>
+              </View>
+
+              <Text style={styles.label}>E-posta</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="ornek@email.com"
+                placeholderTextColor={theme.muted}
+                value={formData.email}
+                onChangeText={(t) => setFormData({ ...formData, email: t })}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+
+              <Text style={styles.label}>Şifre</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="••••••"
+                placeholderTextColor={theme.muted}
+                secureTextEntry
+                value={formData.password}
+                onChangeText={(t) => setFormData({ ...formData, password: t })}
+              />
+
+              <TouchableOpacity style={[styles.cta, loading && { opacity: 0.75 }]} onPress={handleRegister} disabled={loading}>
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>Hesap oluştur</Text>}
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginLink}>
+                <Text style={styles.loginLinkText}>Zaten hesabım var</Text>
+              </TouchableOpacity>
+            </View>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -147,45 +124,63 @@ export default function RegisterScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
-  keyboardView: { flex: 1 },
-  scrollContent: { flexGrow: 1, padding: 24 },
-  backBtn: { marginBottom: 20 },
-  content: { flex: 1, justifyContent: 'center' },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    backgroundColor: '#dcfce7',
+  safe: { flex: 1, backgroundColor: theme.bg },
+  scroll: { flexGrow: 1, paddingBottom: 36 },
+  curve: {
+    backgroundColor: theme.forest,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
+    paddingHorizontal: 22,
+    paddingTop: 4,
+    paddingBottom: 96,
+  },
+  back: { alignSelf: 'flex-start', padding: 10, marginBottom: 4 },
+  kicker: { color: theme.tabActive, fontSize: 10, fontWeight: '900', letterSpacing: 2 },
+  heroIcon: {
+    width: 64,
+    height: 64,
     borderRadius: 20,
+    backgroundColor: theme.tabActive,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
-    alignSelf: 'center'
+    marginTop: 12,
+    marginBottom: 14,
   },
-  title: { fontSize: 28, fontWeight: 'bold', color: '#111', marginBottom: 8, textAlign: 'center' },
-  subtitle: { fontSize: 16, color: '#6b7280', marginBottom: 32, textAlign: 'center' },
-  form: { gap: 16 },
-  row: { flexDirection: 'row' },
-  label: { fontSize: 14, fontWeight: '500', color: '#374151', marginBottom: 4 },
-  input: {
-    backgroundColor: '#f9fafb',
+  heroTitle: { fontSize: 30, fontWeight: '900', color: '#fff' },
+  heroSub: { fontSize: 15, color: 'rgba(255,255,255,0.78)', marginTop: 8 },
+  sheet: {
+    marginTop: -68,
+    marginHorizontal: 20,
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusLg,
+    padding: 20,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 16,
+    borderColor: theme.border,
+    shadowColor: theme.shadow,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 1,
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  row: { flexDirection: 'row', marginBottom: 4 },
+  label: { fontSize: 12, fontWeight: '800', color: theme.inkSecondary, marginBottom: 6, marginTop: 10 },
+  input: {
+    backgroundColor: theme.bg,
+    borderRadius: theme.radiusMd,
+    padding: 14,
     fontSize: 16,
-    color: '#1f2937'
+    color: theme.ink,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
-  button: {
-    backgroundColor: '#16a34a',
-    padding: 18,
-    borderRadius: 12,
+  cta: {
+    backgroundColor: theme.accent,
+    paddingVertical: 16,
+    borderRadius: theme.radiusMd,
     alignItems: 'center',
-    marginTop: 16
+    marginTop: 20,
   },
-  buttonDisabled: { backgroundColor: '#86efac' },
-  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  loginRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
-  loginText: { color: '#6b7280', fontSize: 15 },
-  loginLink: { color: '#16a34a', fontWeight: 'bold', fontSize: 15 }
+  ctaText: { color: '#fff', fontSize: 17, fontWeight: '900' },
+  loginLink: { alignItems: 'center', marginTop: 18 },
+  loginLinkText: { color: theme.forestLight, fontWeight: '900', fontSize: 15 },
 });

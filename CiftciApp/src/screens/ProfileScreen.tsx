@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, User, LogOut, Save } from 'lucide-react-native';
+import { User, LogOut, Save } from 'lucide-react-native';
 import { getUserProfile, updateUserProfile, logoutUser, deleteMyAccount } from '../services/apiService';
+import { theme } from '../theme/theme';
+import { StackHeader } from '../components/StackHeader';
 
 export default function ProfileScreen({ navigation }: any) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -28,8 +29,8 @@ export default function ProfileScreen({ navigation }: any) {
         email: data.email || '',
         location: data.location || '',
       });
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('Oturum')) {
+    } catch (e: any) {
+      if (e?.message?.includes('Oturum')) {
         handleLogout();
       }
     } finally {
@@ -41,130 +42,106 @@ export default function ProfileScreen({ navigation }: any) {
     setSaving(true);
     try {
       await updateUserProfile(formData);
-      Alert.alert("Başarılı", "Profil bilgileriniz güncellendi.");
-    } catch (error) {
-      Alert.alert("Hata", "Güncelleme yapılamadı.");
+      Alert.alert('Kaydedildi', 'Profiliniz güncellendi.');
+    } catch {
+      Alert.alert('Hata', 'Güncellenemedi.');
     } finally {
       setSaving(false);
     }
   };
 
-  // Güvenli Çıkış İşlemi
   const handleLogout = async () => {
     try {
       await logoutUser();
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Login' }],
-      });
-    } catch (e) {
+      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+    } catch {
       navigation.replace('Login');
     }
   };
 
-  // Hesap Silme İşlemi
   const handleDeleteAccount = () => {
-    Alert.alert(
-      "Hesabı Sil",
-      "Hesabınız ve tüm verileriniz kalıcı olarak silinecek. Bu işlem geri alınamaz!",
-      [
-        { text: "Vazgeç", style: "cancel" },
-        {
-          text: "Evet, Hesabımı Sil",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteMyAccount();
-              Alert.alert("Hesap Silindi", "Hesabınız başarıyla silindi.", [
-                { text: "Tamam", onPress: () => handleLogout() }
-              ]);
-            } catch (error) {
-              Alert.alert("Hata", "Hesap silinemedi. Lütfen tekrar deneyin.");
-            }
+    Alert.alert('Hesabı sil', 'Tüm verileriniz sunucudan silinecek.', [
+      { text: 'Vazgeç', style: 'cancel' },
+      {
+        text: 'Sil',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteMyAccount();
+            Alert.alert('Tamam', 'Hesap silindi.', [{ text: 'OK', onPress: () => handleLogout() }]);
+          } catch {
+            Alert.alert('Hata', 'İşlem başarısız.');
           }
-        }
-      ]
-    );
+        },
+      },
+    ]);
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#16a34a" /></View>;
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color={theme.forestLight} />
+      </View>
+    );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <ArrowLeft size={24} color="#374151" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profilim</Text>
-      </View>
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <StackHeader title="Profil" onBack={() => navigation.goBack()} />
 
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
-        <View style={styles.avatarSection}>
-          <View style={styles.avatarCircle}>
-            <User size={40} color="#16a34a" />
+      <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
+        <View style={styles.hero}>
+          <View style={styles.avatar}>
+            <User size={40} color={theme.forest} />
           </View>
-          <Text style={styles.name}>{formData.firstName || 'İsimsiz'} {formData.lastName || 'Çiftçi'}</Text>
-          <Text style={styles.role}>Çiftçi</Text>
+          <Text style={styles.name}>
+            {formData.firstName || 'Çiftçi'} {formData.lastName || ''}
+          </Text>
+          <Text style={styles.role}>Hesap bilgileriniz</Text>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Kişisel Bilgiler</Text>
-          <View style={styles.formCard}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Ad</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.firstName}
-                onChangeText={(t) => setFormData({ ...formData, firstName: t })}
-                placeholder="Adınız"
-                placeholderTextColor="#9ca3af"
-              />
-            </View>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Soyad</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.lastName}
-                onChangeText={(t) => setFormData({ ...formData, lastName: t })}
-                placeholder="Soyadınız"
-                placeholderTextColor="#9ca3af"
-              />
-            </View>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Konum</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.location}
-                onChangeText={(t) => setFormData({ ...formData, location: t })}
-                placeholder="Örn: Selçuklu, Konya"
-                placeholderTextColor="#9ca3af"
-              />
-            </View>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>E-posta</Text>
-              <TextInput
-                style={[styles.input, { backgroundColor: '#f3f4f6', color: '#9ca3af' }]}
-                value={formData.email}
-                editable={false}
-              />
-            </View>
-          </View>
+        <Text style={styles.sectionLabel}>Kişisel</Text>
+        <View style={styles.card}>
+          <Text style={styles.label}>Ad</Text>
+          <TextInput
+            style={styles.input}
+            value={formData.firstName}
+            onChangeText={(t) => setFormData({ ...formData, firstName: t })}
+            placeholder="Ad"
+            placeholderTextColor={theme.muted}
+          />
+          <Text style={styles.label}>Soyad</Text>
+          <TextInput
+            style={styles.input}
+            value={formData.lastName}
+            onChangeText={(t) => setFormData({ ...formData, lastName: t })}
+            placeholder="Soyad"
+            placeholderTextColor={theme.muted}
+          />
+          <Text style={styles.label}>Konum</Text>
+          <TextInput
+            style={styles.input}
+            value={formData.location}
+            onChangeText={(t) => setFormData({ ...formData, location: t })}
+            placeholder="İl / ilçe"
+            placeholderTextColor={theme.muted}
+          />
+          <Text style={styles.label}>E-posta</Text>
+          <TextInput style={[styles.input, styles.inputDisabled]} value={formData.email} editable={false} />
         </View>
 
-        <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={saving}>
+        <TouchableOpacity style={styles.save} onPress={handleSave} disabled={saving} activeOpacity={0.9}>
           {saving ? <ActivityIndicator color="#fff" /> : <Save size={20} color="#fff" />}
-          <Text style={styles.saveText}>{saving ? "Kaydediliyor..." : "Kaydet"}</Text>
+          <Text style={styles.saveText}>{saving ? 'Kaydediliyor...' : 'Kaydet'}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <LogOut size={20} color="#ef4444" />
-          <Text style={styles.logoutText}>Çıkış Yap</Text>
+        <TouchableOpacity style={styles.logout} onPress={handleLogout} activeOpacity={0.9}>
+          <LogOut size={20} color={theme.danger} />
+          <Text style={styles.logoutText}>Çıkış yap</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.deleteAccountBtn} onPress={handleDeleteAccount}>
-          <Text style={styles.deleteAccountText}>Hesabımı Sil</Text>
+        <TouchableOpacity onPress={handleDeleteAccount} style={styles.del}>
+          <Text style={styles.delText}>Hesabı kalıcı sil</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -172,25 +149,72 @@ export default function ProfileScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', padding: 20, backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#f3f4f6' },
-  backBtn: { marginRight: 16 },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#1f2937' },
-  avatarSection: { alignItems: 'center', marginBottom: 32, marginTop: 10 },
-  avatarCircle: { width: 100, height: 100, borderRadius: 50, backgroundColor: '#dcfce7', justifyContent: 'center', alignItems: 'center', marginBottom: 12, borderWidth: 4, borderColor: '#fff', shadowColor: "#000", shadowOpacity: 0.1, elevation: 5 },
-  name: { fontSize: 22, fontWeight: 'bold', color: '#1f2937' },
-  role: { fontSize: 14, color: '#6b7280' },
-  section: { marginBottom: 24 },
-  sectionTitle: { fontSize: 14, fontWeight: 'bold', color: '#6b7280', marginBottom: 12, marginLeft: 4, textTransform: 'uppercase' },
-  formCard: { backgroundColor: '#fff', borderRadius: 16, padding: 16, elevation: 2 },
-  inputGroup: { marginBottom: 16 },
-  label: { fontSize: 12, color: '#6b7280', marginBottom: 6, fontWeight: '600' },
-  input: { backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10, padding: 12, fontSize: 16, color: '#1f2937' },
-  saveBtn: { flexDirection: 'row', backgroundColor: '#16a34a', padding: 16, borderRadius: 16, justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 12, elevation: 3 },
-  saveText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  logoutBtn: { flexDirection: 'row', backgroundColor: '#fef2f2', padding: 16, borderRadius: 16, justifyContent: 'center', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: '#fee2e2' },
-  logoutText: { color: '#ef4444', fontWeight: 'bold', fontSize: 16 },
-  deleteAccountBtn: { padding: 16, alignItems: 'center', marginTop: 20, marginBottom: 40 },
-  deleteAccountText: { color: '#9ca3af', fontSize: 14, textDecorationLine: 'underline' }
+  safe: { flex: 1, backgroundColor: theme.bg },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.bg },
+  hero: { alignItems: 'center', marginBottom: 26, marginTop: 8 },
+  avatar: {
+    width: 96,
+    height: 96,
+    borderRadius: 30,
+    backgroundColor: theme.skyTint,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 14,
+    borderWidth: 3,
+    borderColor: theme.forestLight,
+  },
+  name: { fontSize: 22, fontWeight: '900', color: theme.ink },
+  role: { fontSize: 14, color: theme.muted, marginTop: 4 },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: theme.muted,
+    marginBottom: 10,
+    marginLeft: 4,
+    letterSpacing: 1,
+  },
+  card: {
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusMd,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: theme.border,
+    marginBottom: 16,
+  },
+  label: { fontSize: 12, fontWeight: '800', color: theme.inkSecondary, marginBottom: 6, marginTop: 10 },
+  input: {
+    backgroundColor: theme.bg,
+    borderRadius: theme.radiusSm,
+    padding: 14,
+    fontSize: 16,
+    color: theme.ink,
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
+  inputDisabled: { color: theme.muted },
+  save: {
+    flexDirection: 'row',
+    backgroundColor: theme.accent,
+    padding: 16,
+    borderRadius: theme.radiusMd,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
+  },
+  saveText: { color: '#fff', fontWeight: '900', fontSize: 16 },
+  logout: {
+    flexDirection: 'row',
+    backgroundColor: theme.surface,
+    padding: 16,
+    borderRadius: theme.radiusMd,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
+  logoutText: { color: theme.danger, fontWeight: '900', fontSize: 16 },
+  del: { alignItems: 'center', marginTop: 24 },
+  delText: { color: theme.muted, textDecorationLine: 'underline', fontSize: 14 },
 });

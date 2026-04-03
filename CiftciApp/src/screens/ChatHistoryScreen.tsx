@@ -10,67 +10,56 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
-  StatusBar
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Trash2, ChevronDown, ChevronUp, Calendar, MessageCircle } from 'lucide-react-native';
+import { Trash2, ChevronDown, ChevronUp, Calendar, MessageCircle } from 'lucide-react-native';
 import { getChatHistory, clearChatHistory } from '../services/apiService';
+import { theme } from '../theme/theme';
+import { StackHeader } from '../components/StackHeader';
 
-// Android için animasyon aktivasyonu
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-// Mesaj Tipleri
 interface HistoryItem {
-  id: string;
+  id: number | string;
   role: 'user' | 'ai';
   message: string;
   created_at: string;
 }
 
-// --- Alt Bileşen: Tarih Grubu Kartı ---
-const DateGroup = ({ title, messages }: { title: string, messages: HistoryItem[] }) => {
+const DateGroup = ({ title, messages }: { title: string; messages: HistoryItem[] }) => {
   const [expanded, setExpanded] = useState(false);
-
   const toggleExpand = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpanded(!expanded);
   };
 
   return (
-    <View style={styles.groupContainer}>
-      {/* Tarih Başlığı (Tıklanabilir Kart) */}
-      <TouchableOpacity
-        onPress={toggleExpand}
-        style={[styles.groupHeader, expanded && styles.groupHeaderActive]}
-        activeOpacity={0.7}
-      >
-        <View style={styles.headerLeft}>
-          <View style={[styles.iconBox, expanded ? styles.iconBoxActive : styles.iconBoxInactive]}>
-             <Calendar size={20} color={expanded ? "#fff" : "#16a34a"} />
+    <View style={styles.group}>
+      <TouchableOpacity onPress={toggleExpand} style={[styles.groupHead, expanded && styles.groupHeadOn]} activeOpacity={0.75}>
+        <View style={styles.groupHeadLeft}>
+          <View style={[styles.calIcon, expanded && styles.calIconOn]}>
+            <Calendar size={20} color={expanded ? '#fff' : theme.forestLight} />
           </View>
           <View>
-             <Text style={styles.groupTitle}>{title}</Text>
-             <Text style={styles.groupSubtitle}>{messages.length} Mesaj</Text>
+            <Text style={styles.groupTitle}>{title}</Text>
+            <Text style={styles.groupSub}>{messages.length} mesaj</Text>
           </View>
         </View>
-        {expanded ? <ChevronUp size={20} color="#6b7280" /> : <ChevronDown size={20} color="#9ca3af" />}
+        {expanded ? <ChevronUp size={20} color={theme.muted} /> : <ChevronDown size={20} color={theme.border} />}
       </TouchableOpacity>
 
-      {/* Mesajlar Listesi (Sadece expanded ise görünür) */}
       {expanded && (
-        <View style={styles.messagesList}>
+        <View style={styles.msgBlock}>
           {messages.map((item, index) => {
             const isUser = item.role === 'user';
             return (
-              <View key={item.id || index} style={[styles.msgRow, isUser ? styles.rowUser : styles.rowAi]}>
+              <View key={String(item.id ?? index)} style={[styles.msgRow, isUser ? styles.rowUser : styles.rowAi]}>
                 <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAi]}>
-                  <Text style={[styles.msgText, isUser ? styles.textUser : styles.textAi]}>
-                    {item.message}
-                  </Text>
-                  <Text style={[styles.timeText, isUser ? styles.timeUser : styles.timeAi]}>
-                    {new Date(item.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute:'2-digit' })}
+                  <Text style={[styles.msgText, isUser ? styles.textUser : styles.textAi]}>{item.message}</Text>
+                  <Text style={[styles.time, isUser ? styles.timeUser : styles.timeAi]}>
+                    {new Date(item.created_at).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                   </Text>
                 </View>
               </View>
@@ -93,46 +82,42 @@ export default function ChatHistoryScreen({ navigation }: any) {
   const loadHistory = async () => {
     try {
       const data = await getChatHistory();
-      setHistory(data);
-    } catch (error) {
-      console.log("Geçmiş yüklenemedi:", error);
+      const arr: HistoryItem[] = Array.isArray(data) ? data : [];
+      arr.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      setHistory(arr);
+    } catch {
+      setHistory([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleClearHistory = () => {
-    Alert.alert(
-      "Geçmişi Temizle",
-      "Tüm sohbet kayıtlarınız silinecek. Bu işlem geri alınamaz.",
-      [
-        { text: "Vazgeç", style: "cancel" },
-        {
-          text: "Evet, Sil",
-          style: "destructive",
-          onPress: async () => {
-            setLoading(true);
-            try {
-              await clearChatHistory();
-              setHistory([]); // Listeyi boşalt
-            } catch (error) {
-              Alert.alert("Hata", "Geçmiş temizlenemedi.");
-            } finally {
-              setLoading(false);
-            }
+  const handleClear = () => {
+    Alert.alert('Geçmişi sil', 'Sunucudaki sohbet kayıtları silinecek.', [
+      { text: 'Vazgeç', style: 'cancel' },
+      {
+        text: 'Sil',
+        style: 'destructive',
+        onPress: async () => {
+          setLoading(true);
+          try {
+            await clearChatHistory();
+            setHistory([]);
+          } catch {
+            Alert.alert('Hata', 'Temizlenemedi.');
+          } finally {
+            setLoading(false);
           }
-        }
-      ]
-    );
+        },
+      },
+    ]);
   };
 
-  // Veriyi Tarihe Göre Grupla
-  const groupedHistory = useMemo(() => {
+  const grouped = useMemo(() => {
     if (!history.length) return [];
-
-    const grouped: { title: string; data: HistoryItem[] }[] = [];
-    let currentTitle = "";
-    let currentData: HistoryItem[] = [];
+    const out: { title: string; data: HistoryItem[] }[] = [];
+    let curTitle = '';
+    let cur: HistoryItem[] = [];
 
     history.forEach((item) => {
       const date = new Date(item.created_at);
@@ -141,66 +126,55 @@ export default function ChatHistoryScreen({ navigation }: any) {
       yesterday.setDate(today.getDate() - 1);
 
       let title = date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+      const isToday =
+        date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+      const isYesterday =
+        date.getDate() === yesterday.getDate() &&
+        date.getMonth() === yesterday.getMonth() &&
+        date.getFullYear() === yesterday.getFullYear();
+      if (isToday) title = 'Bugün';
+      else if (isYesterday) title = 'Dün';
 
-      const isToday = date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
-      const isYesterday = date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear();
-
-      if (isToday) title = "Bugün";
-      else if (isYesterday) title = "Dün";
-
-      if (title !== currentTitle) {
-        if (currentTitle) {
-          grouped.push({ title: currentTitle, data: currentData });
-        }
-        currentTitle = title;
-        currentData = [item];
+      if (title !== curTitle) {
+        if (curTitle) out.push({ title: curTitle, data: cur });
+        curTitle = title;
+        cur = [item];
       } else {
-        currentData.push(item);
+        cur.push(item);
       }
     });
-
-    if (currentTitle) {
-      grouped.push({ title: currentTitle, data: currentData });
-    }
-
-    return grouped;
+    if (curTitle) out.push({ title: curTitle, data: cur });
+    return out;
   }, [history]);
 
+  const headerRight =
+    history.length > 0 ? (
+      <TouchableOpacity onPress={handleClear} style={styles.trashBtn}>
+        <Trash2 size={20} color={theme.danger} />
+      </TouchableOpacity>
+    ) : undefined;
+
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <ArrowLeft size={24} color="#1f2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Sohbet Geçmişi</Text>
-
-        {history.length > 0 && (
-          <TouchableOpacity onPress={handleClearHistory} style={styles.clearBtn}>
-            <Trash2 size={22} color="#ef4444" />
-          </TouchableOpacity>
-        )}
-      </View>
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <StackHeader title="Sohbet geçmişi" onBack={() => navigation.goBack()} right={headerRight} />
 
       {loading ? (
-        <View style={styles.center}><ActivityIndicator size="large" color="#16a34a"/></View>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={theme.forestLight} />
+        </View>
       ) : (
         <FlatList
-          data={groupedHistory}
-          keyExtractor={(item, index) => index.toString()}
+          data={grouped}
+          keyExtractor={(_, i) => String(i)}
           contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
-          renderItem={({ item }) => (
-            <DateGroup title={item.title} messages={item.data} />
-          )}
+          renderItem={({ item }) => <DateGroup title={item.title} messages={item.data} />}
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <View style={styles.emptyIconBox}>
-                 <MessageCircle size={48} color="#9ca3af" />
+            <View style={styles.empty}>
+              <View style={styles.emptyIcon}>
+                <MessageCircle size={44} color={theme.forestLight} />
               </View>
-              <Text style={styles.emptyTitle}>Henüz Sohbet Yok</Text>
-              <Text style={styles.emptyText}>Asistanla yaptığınız konuşmalar burada tarihe göre gruplanarak saklanır.</Text>
+              <Text style={styles.emptyTitle}>Kayıt yok</Text>
+              <Text style={styles.emptySub}>Asistan ile konuştukça mesajlar burada listelenir.</Text>
             </View>
           }
         />
@@ -210,115 +184,63 @@ export default function ChatHistoryScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
+  safe: { flex: 1, backgroundColor: theme.bg },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6'
-  },
-  backBtn: { padding: 4, marginRight: 12 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1f2937', flex: 1 },
-  clearBtn: { padding: 8, backgroundColor: '#fef2f2', borderRadius: 8 },
-
-  // Date Group Card
-  groupContainer: {
-    marginBottom: 16,
-    backgroundColor: '#fff',
-    borderRadius: 20,
+  trashBtn: { padding: 10, backgroundColor: 'rgba(190,18,60,0.12)', borderRadius: 12 },
+  group: {
+    marginBottom: 14,
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusMd,
     overflow: 'hidden',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
     borderWidth: 1,
-    borderColor: '#f3f4f6'
+    borderColor: theme.border,
   },
-  groupHeader: {
+  groupHead: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#fff'
   },
-  groupHeaderActive: {
-    backgroundColor: '#f8fafc', // Açılınca hafif renk değişsin
-  },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  iconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  groupHeadOn: { backgroundColor: theme.skyTint },
+  groupHeadLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  calIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: theme.bg,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.border,
   },
-  iconBoxInactive: { backgroundColor: '#dcfce7' },
-  iconBoxActive: { backgroundColor: '#16a34a' },
-
-  groupTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
-  groupSubtitle: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-
-  // Messages List inside Group
-  messagesList: {
-    padding: 16,
-    paddingTop: 0,
-    backgroundColor: '#f8fafc',
-    borderTopWidth: 1,
-    borderTopColor: '#f1f5f9'
-  },
-
-  // Mesaj Baloncukları (ChatScreen ile uyumlu Modern Tasarım)
+  calIconOn: { backgroundColor: theme.forest, borderColor: theme.forest },
+  groupTitle: { fontSize: 16, fontWeight: '900', color: theme.ink },
+  groupSub: { fontSize: 12, color: theme.muted, marginTop: 2 },
+  msgBlock: { padding: 14, paddingTop: 0, backgroundColor: theme.bg, borderTopWidth: 1, borderTopColor: theme.border },
   msgRow: { marginVertical: 6, width: '100%' },
   rowUser: { alignItems: 'flex-end' },
   rowAi: { alignItems: 'flex-start' },
-
-  bubble: {
-    maxWidth: '85%',
-    padding: 12,
-    borderRadius: 18,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  bubbleUser: {
-    backgroundColor: '#16a34a',
-    borderBottomRightRadius: 2
-  },
-  bubbleAi: {
-    backgroundColor: '#fff',
-    borderBottomLeftRadius: 2,
-    borderWidth: 1,
-    borderColor: '#e2e8f0'
-  },
-
+  bubble: { maxWidth: '86%', padding: 12, borderRadius: 16 },
+  bubbleUser: { backgroundColor: theme.forestLight, borderBottomRightRadius: 4 },
+  bubbleAi: { backgroundColor: theme.surface, borderBottomLeftRadius: 4, borderWidth: 1, borderColor: theme.border },
   msgText: { fontSize: 14, lineHeight: 20 },
   textUser: { color: '#fff' },
-  textAi: { color: '#334155' },
-
-  timeText: { fontSize: 10, marginTop: 4, alignSelf: 'flex-end' },
-  timeUser: { color: 'rgba(255,255,255,0.8)' },
-  timeAi: { color: '#94a3b8' },
-
-  // Empty State
-  emptyContainer: { alignItems: 'center', marginTop: 80, paddingHorizontal: 40 },
-  emptyIconBox: {
-    width: 100,
-    height: 100,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 50,
+  textAi: { color: theme.ink },
+  time: { fontSize: 10, marginTop: 4, alignSelf: 'flex-end' },
+  timeUser: { color: 'rgba(255,255,255,0.9)' },
+  timeAi: { color: theme.muted },
+  empty: { alignItems: 'center', marginTop: 64, paddingHorizontal: 36 },
+  emptyIcon: {
+    width: 96,
+    height: 96,
+    borderRadius: 28,
+    backgroundColor: theme.skyTint,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
-  emptyTitle: { fontSize: 20, fontWeight: 'bold', color: '#1f2937', marginBottom: 8 },
-  emptyText: { color: '#6b7280', fontSize: 15, textAlign: 'center', lineHeight: 22 }
+  emptyTitle: { fontSize: 20, fontWeight: '900', color: theme.ink, marginBottom: 8 },
+  emptySub: { fontSize: 15, color: theme.muted, textAlign: 'center', lineHeight: 22 },
 });

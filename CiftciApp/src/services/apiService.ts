@@ -1,8 +1,9 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 import { AnalysisResult, WeatherData, Task } from '../types';
+import { getApiBaseUrl } from '../config/apiBaseUrl';
 
-const API_BASE_URL = "https://ciftciapp.nurullahkurnaz.com";
+const API_BASE_URL = getApiBaseUrl();
 const TOKEN_KEY = 'auth_token';
 
 // --- GÜVENLİ DEPOLAMA YARDIMCILARI ---
@@ -49,12 +50,15 @@ const handleApiError = async (response: Response, endpointName: string) => {
       throw new Error('Oturum süresi doldu.');
     }
     const text = await response.text();
+    let msg = `Sunucu hatası (${response.status})`;
     try {
       const json = JSON.parse(text);
-      throw new Error(json.detail || `Sunucu hatası: ${response.status}`);
-    } catch (e) {
-      throw new Error(`Sunucu hatası (${response.status})`);
+      if (typeof json?.detail === 'string') msg = json.detail;
+      else if (Array.isArray(json?.detail)) msg = json.detail.map((d: { msg?: string }) => d?.msg).filter(Boolean).join(' ') || msg;
+    } catch {
+      /* gövde JSON değil */
     }
+    throw new Error(msg);
   }
   return response.json();
 };

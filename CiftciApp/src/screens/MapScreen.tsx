@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Alert, Keyboard, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Alert, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
-import { ArrowLeft, Search, Map as MapIcon, Locate, Navigation } from 'lucide-react-native';
+import { Search, Map as MapIcon, Navigation } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import { getMapHtml, getUserProfile } from '../services/apiService';
+import { theme } from '../theme/theme';
+import { StackHeader } from '../components/StackHeader';
 
 export default function MapScreen({ navigation }: any) {
   const [city, setCity] = useState('');
@@ -22,130 +24,103 @@ export default function MapScreen({ navigation }: any) {
         setCity(profile.location);
         fetchMap(profile.location);
       }
-    } catch (e) {
-      // Profil çekilemezse varsayılan boş kalır
+    } catch {
+      /* ignore */
     }
   };
 
   const fetchMap = async (locationName: string) => {
     if (!locationName.trim()) return;
-
     Keyboard.dismiss();
     setLoading(true);
     try {
       const html = await getMapHtml(locationName);
       setMapHtml(html);
-    } catch (error) {
-      Alert.alert("Hata", "Harita yüklenirken bir sorun oluştu.");
+    } catch {
+      Alert.alert('Hata', 'Harita yüklenemedi.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Konumumu Bul Fonksiyonu
   const handleCurrentLocation = async () => {
     setLoading(true);
     Keyboard.dismiss();
     try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('İzin Reddedildi', 'Konumunuzu bulabilmek için izin vermeniz gerekiyor.');
+        Alert.alert('İzin', 'Konum için izin gerekli.');
         setLoading(false);
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      let address = await Location.reverseGeocodeAsync({
+      const location = await Location.getCurrentPositionAsync({});
+      const address = await Location.reverseGeocodeAsync({
         latitude: location.coords.latitude,
-        longitude: location.coords.longitude
+        longitude: location.coords.longitude,
       });
 
       if (address && address.length > 0) {
         const place = address[0];
-        // Adres önceliği: İlçe -> Şehir -> Bölge
         const locationName = place.subregion || place.city || place.region;
-
         if (locationName) {
-            setCity(locationName);
-            fetchMap(locationName);
+          setCity(locationName);
+          fetchMap(locationName);
         } else {
-            Alert.alert('Hata', 'Konum ismi tespit edilemedi.');
-            setLoading(false);
+          Alert.alert('Hata', 'Konum adı bulunamadı.');
+          setLoading(false);
         }
       }
-    } catch (error) {
-      Alert.alert('Hata', 'GPS konumu alınamadı.');
+    } catch {
+      Alert.alert('Hata', 'GPS alınamadı.');
       setLoading(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StackHeader title="Parsel haritası" onBack={() => navigation.goBack()} />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <ArrowLeft size={24} color="#1f2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tarla Haritası</Text>
-      </View>
-
-      {/* Arama Alanı */}
-      <View style={styles.searchContainer}>
-        <View style={styles.inputWrapper}>
+      <View style={styles.searchBlock}>
+        <View style={styles.inputWrap}>
           <TextInput
             style={styles.input}
-            placeholder="Şehir/İlçe Ara..."
+            placeholder="İl / ilçe ara..."
             value={city}
             onChangeText={setCity}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={theme.muted}
+            onSubmitEditing={() => fetchMap(city)}
           />
         </View>
-
-        {/* Konumumu Bul Butonu (Mavi) */}
-        <TouchableOpacity
-          style={[styles.iconBtn, styles.locationBtn]}
-          onPress={handleCurrentLocation}
-          disabled={loading}
-        >
+        <TouchableOpacity style={[styles.btn, styles.btnGps]} onPress={handleCurrentLocation} disabled={loading}>
           {loading ? <ActivityIndicator color="#fff" size="small" /> : <Navigation size={22} color="#fff" />}
         </TouchableOpacity>
-
-        {/* Ara Butonu (Yeşil) */}
-        <TouchableOpacity
-          style={[styles.iconBtn, styles.searchBtn]}
-          onPress={() => fetchMap(city)}
-          disabled={loading}
-        >
+        <TouchableOpacity style={[styles.btn, styles.btnSearch]} onPress={() => fetchMap(city)} disabled={loading}>
           <Search size={22} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {/* Harita Alanı */}
-      <View style={styles.mapContainer}>
+      <View style={styles.mapBox}>
         {mapHtml ? (
           <WebView
             originWhitelist={['*']}
             source={{ html: mapHtml }}
             style={styles.webview}
-            startInLoadingState={true}
+            startInLoadingState
             renderLoading={() => (
-                <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color="#16a34a" />
-                    <Text style={styles.loadingText}>Uydu görüntüleri yükleniyor...</Text>
-                </View>
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color={theme.forestLight} />
+                <Text style={styles.loadingText}>Harita açılıyor...</Text>
+              </View>
             )}
           />
         ) : (
           <View style={styles.placeholder}>
             <View style={styles.iconCircle}>
-                <MapIcon size={56} color="#16a34a" />
+              <MapIcon size={48} color={theme.forestLight} />
             </View>
-            <Text style={styles.placeholderTitle}>Konum Seçin</Text>
-            <Text style={styles.placeholderText}>
-              Haritayı görüntülemek için bir yer arayın veya konumunuzu kullanın.
-            </Text>
+            <Text style={styles.placeholderTitle}>Konum seçin</Text>
+            <Text style={styles.placeholderText}>Arama veya GPS ile bölgenizi yükleyin. OSM karosu kullanılır.</Text>
           </View>
         )}
       </View>
@@ -154,104 +129,65 @@ export default function MapScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#fff',
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#f3f4f6'
-  },
-  backBtn: { padding: 4, marginRight: 12 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: '#1f2937' },
-
-  // Arama Alanı
-  searchContainer: {
+  container: { flex: 1, backgroundColor: theme.bg },
+  searchBlock: {
     flexDirection: 'row',
     paddingHorizontal: 20,
-    paddingBottom: 20,
-    paddingTop: 4,
+    paddingTop: 16,
+    paddingBottom: 14,
     gap: 10,
-    alignItems: 'center'
+    alignItems: 'center',
   },
-  inputWrapper: {
+  inputWrap: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    // Hafif gölge ve gri zemin alternatifi
-    backgroundColor: '#f3f4f6',
-    height: 48,
-    justifyContent: 'center'
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusMd,
+    height: 50,
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.border,
   },
-  input: {
-    paddingHorizontal: 20,
-    fontSize: 15,
-    color: '#1f2937',
-    height: '100%'
-  },
-
-  // Butonlar
-  iconBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  input: { paddingHorizontal: 16, fontSize: 16, color: theme.ink, height: '100%' },
+  btn: {
+    width: 50,
+    height: 50,
+    borderRadius: theme.radiusSm,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 4,
   },
-  locationBtn: { backgroundColor: '#3b82f6' }, // Mavi
-  searchBtn: { backgroundColor: '#16a34a' },   // Yeşil
-
-  // Harita Kutusu
-  mapContainer: {
+  btnGps: { backgroundColor: theme.info },
+  btnSearch: { backgroundColor: theme.forestLight },
+  mapBox: {
     flex: 1,
     marginHorizontal: 20,
     marginBottom: 20,
-    backgroundColor: '#fff',
-    borderRadius: 28,
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusLg,
     overflow: 'hidden',
-    // Modern Gölge
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   webview: { flex: 1 },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#fff',
+    backgroundColor: theme.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10
+    zIndex: 10,
   },
-  loadingText: { marginTop: 12, color: '#6b7280', fontWeight: '500' },
-
-  // Boş Durum (Placeholder)
-  placeholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 40,
-    backgroundColor: '#fff'
-  },
+  loadingText: { marginTop: 12, color: theme.muted, fontWeight: '600' },
+  placeholder: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
   iconCircle: {
     width: 100,
     height: 100,
-    borderRadius: 50,
-    backgroundColor: '#dcfce7',
+    borderRadius: 32,
+    backgroundColor: theme.skyTint,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24
+    marginBottom: 18,
+    borderWidth: 2,
+    borderColor: theme.forestLight,
   },
-  placeholderTitle: { fontSize: 20, fontWeight: 'bold', color: '#111827', marginBottom: 8 },
-  placeholderText: { fontSize: 15, color: '#6b7280', textAlign: 'center', lineHeight: 22 }
+  placeholderTitle: { fontSize: 20, fontWeight: '900', color: theme.ink, marginBottom: 8 },
+  placeholderText: { fontSize: 15, color: theme.muted, textAlign: 'center', lineHeight: 22 },
 });
