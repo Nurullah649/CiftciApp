@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DEPLOY_BRANCH="${DEPLOY_BRANCH:-refs/heads/live}"
+DEPLOY_DIR="${DEPLOY_DIR:-/home/nurullah/rag-api}"
+VENV_DIR="${VENV_DIR:-/home/nurullah/rag-api/venv}"
+UVICORN_MATCH="${UVICORN_MATCH:-/home/nurullah/rag-api/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000}"
+LOG_FILE="${LOG_FILE:-/home/nurullah/rag-api/logs/deploy.log}"
+
+mkdir -p "$(dirname "$LOG_FILE")"
+
+while read -r oldrev newrev refname; do
+  if [ "$refname" != "$DEPLOY_BRANCH" ]; then
+    echo "Skipping $refname; deploy branch is $DEPLOY_BRANCH"
+    continue
+  fi
+
+  worktree="$(mktemp -d /tmp/rag-api-deploy.XXXXXX)"
+  cleanup() {
+    rm -rf "$worktree"
+  }
+  trap cleanup EXIT
+
+  {
+    echo "[$(date -Iseconds)] Starting deploy for $newrev"
+
+    git archive "$newrev" app requirements.txt .env.example | tar -x -C "$worktree"
+
+    rsync -a --delete "$worktree/app/" "$DEPLOY_DIR/app/"
+    install -m 644 "$worktree/requirements.txt" "$DEPLOY_DIR/requirements.txt"
+    install -m 644 "$worktree/.env.example" "$DEPLOY_DIR/.env.example"
+
+    if [ -x "$VENV_DIR/bin/pip" ]; then
+      "$VENV_DIR/bin/pip" install -r "$DEPLOY_DIR/requirements.txt"
+    fi
+
+    pkill -f "$UVICORN_MATCH" || true
+    sleep 3
+
+    if ! pgrep -af "$UVICORN_MATCH" >/dev/null; then
+      echo "Deploy failed: uvicorn process did not come back"
+      exit 1
+    fi
+
+    echo "[$(date -Iseconds)] Deploy finished successfully"
+  } >>"$LOG_FILE" 2>&1
+
+  trap - EXIT
+  cleanup
+done
