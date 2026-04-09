@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
 import {
-  View,
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   TouchableWithoutFeedback,
-  Keyboard,
-  StatusBar,
+  View,
 } from 'react-native';
-import { UserPlus, ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft, UserPlus } from 'lucide-react-native';
 import { registerUser } from '../services/apiService';
 import { theme } from '../theme/theme';
+import { AmbientBackdrop } from '../components/AmbientBackdrop';
+import { AppButton } from '../components/AppButton';
 
 export default function RegisterScreen({ navigation }: any) {
   const [formData, setFormData] = useState({
@@ -47,25 +48,28 @@ export default function RegisterScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.forest} />
+      <StatusBar barStyle="dark-content" backgroundColor={theme.bg} />
+      <AmbientBackdrop />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-            <View style={styles.curve}>
-              <TouchableOpacity onPress={() => navigation.goBack()} style={styles.back}>
-                <ArrowLeft size={22} color="#fff" />
-              </TouchableOpacity>
-              <Text style={styles.kicker}>HESAP</Text>
-              <View style={styles.heroIcon}>
-                <UserPlus size={32} color={theme.forest} />
-              </View>
-              <Text style={styles.heroTitle}>Kayıt ol</Text>
-              <Text style={styles.heroSub}>Birkaç alanla başlayın</Text>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <ArrowLeft size={20} color={theme.ink} />
+            </TouchableOpacity>
+
+            <View style={styles.hero}>
+              <Text style={styles.heroEyebrow}>YENİ HESAP</Text>
+              <Text style={styles.heroTitle}>Sisteme birkaç adımda katılın.</Text>
+              <Text style={styles.heroSub}>Temel bilgileri girin, kalan ayarlar uygulama içinde düzenlenebilir.</Text>
             </View>
 
-            <View style={styles.sheet}>
+            <View style={styles.card}>
+              <View style={styles.iconWrap}>
+                <UserPlus size={26} color={theme.accent} />
+              </View>
+
               <View style={styles.row}>
-                <View style={{ flex: 1, marginRight: 8 }}>
+                <View style={styles.col}>
                   <Text style={styles.label}>Ad</Text>
                   <TextInput
                     style={styles.input}
@@ -75,7 +79,7 @@ export default function RegisterScreen({ navigation }: any) {
                     onChangeText={(t) => setFormData({ ...formData, firstName: t })}
                   />
                 </View>
-                <View style={{ flex: 1, marginLeft: 8 }}>
+                <View style={styles.col}>
                   <Text style={styles.label}>Soyad</Text>
                   <TextInput
                     style={styles.input}
@@ -108,9 +112,12 @@ export default function RegisterScreen({ navigation }: any) {
                 onChangeText={(t) => setFormData({ ...formData, password: t })}
               />
 
-              <TouchableOpacity style={[styles.cta, loading && { opacity: 0.75 }]} onPress={handleRegister} disabled={loading}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>Hesap oluştur</Text>}
-              </TouchableOpacity>
+              <AppButton
+                label="Hesabı oluştur"
+                onPress={handleRegister}
+                loading={loading}
+                style={styles.submitButton}
+              />
 
               <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.loginLink}>
                 <Text style={styles.loginLinkText}>Zaten hesabım var</Text>
@@ -125,62 +132,64 @@ export default function RegisterScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
-  scroll: { flexGrow: 1, paddingBottom: 36 },
-  curve: {
-    backgroundColor: theme.forest,
-    borderBottomLeftRadius: 36,
-    borderBottomRightRadius: 36,
-    paddingHorizontal: 22,
-    paddingTop: 4,
-    paddingBottom: 96,
-  },
-  back: { alignSelf: 'flex-start', padding: 10, marginBottom: 4 },
-  kicker: { color: theme.tabActive, fontSize: 10, fontWeight: '900', letterSpacing: 2 },
-  heroIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 20,
-    backgroundColor: theme.tabActive,
+  scroll: { flexGrow: 1, padding: 20 },
+  backButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 16,
+    backgroundColor: theme.surface,
+    borderWidth: 1,
+    borderColor: theme.border,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 12,
-    marginBottom: 14,
+    marginBottom: 18,
   },
-  heroTitle: { fontSize: 30, fontWeight: '900', color: '#fff' },
-  heroSub: { fontSize: 15, color: 'rgba(255,255,255,0.78)', marginTop: 8 },
-  sheet: {
-    marginTop: -68,
-    marginHorizontal: 20,
+  hero: { marginBottom: 18 },
+  heroEyebrow: { color: theme.muted, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
+  heroTitle: { color: theme.ink, fontSize: 32, lineHeight: 36, fontWeight: '900', marginTop: 10, maxWidth: 290 },
+  heroSub: { color: theme.inkSoft, fontSize: 16, lineHeight: 24, marginTop: 10, maxWidth: 300 },
+  card: {
     backgroundColor: theme.surface,
-    borderRadius: theme.radiusLg,
+    borderRadius: theme.radiusXl,
     padding: 20,
     borderWidth: 1,
     borderColor: theme.border,
-    shadowColor: theme.shadow,
+    shadowColor: theme.shadowStrong,
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 1,
     shadowRadius: 24,
     elevation: 8,
   },
-  row: { flexDirection: 'row', marginBottom: 4 },
-  label: { fontSize: 12, fontWeight: '800', color: theme.inkSecondary, marginBottom: 6, marginTop: 10 },
+  iconWrap: {
+    width: 58,
+    height: 58,
+    borderRadius: 18,
+    backgroundColor: theme.accentSoft,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  row: { flexDirection: 'row', gap: 12 },
+  col: { flex: 1 },
+  label: {
+    color: theme.inkSecondary,
+    fontSize: 12,
+    fontWeight: '900',
+    marginTop: 14,
+    marginBottom: 8,
+    letterSpacing: 0.4,
+  },
   input: {
-    backgroundColor: theme.bg,
+    backgroundColor: theme.surfaceMuted,
     borderRadius: theme.radiusMd,
-    padding: 14,
-    fontSize: 16,
-    color: theme.ink,
     borderWidth: 1,
     borderColor: theme.border,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    color: theme.ink,
+    fontSize: 16,
   },
-  cta: {
-    backgroundColor: theme.accent,
-    paddingVertical: 16,
-    borderRadius: theme.radiusMd,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  ctaText: { color: '#fff', fontSize: 17, fontWeight: '900' },
+  submitButton: { marginTop: 22 },
   loginLink: { alignItems: 'center', marginTop: 18 },
-  loginLinkText: { color: theme.forestLight, fontWeight: '900', fontSize: 15 },
+  loginLinkText: { color: theme.accent, fontWeight: '900', fontSize: 15 },
 });

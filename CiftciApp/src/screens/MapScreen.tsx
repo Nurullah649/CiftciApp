@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Alert, Keyboard } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Keyboard, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView as SafeArea } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
-import { Search, Map as MapIcon, Navigation } from 'lucide-react-native';
+import { Map as MapIcon, Navigation, Search } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import { getMapHtml, getUserProfile } from '../services/apiService';
 import { theme } from '../theme/theme';
 import { StackHeader } from '../components/StackHeader';
+import { AmbientBackdrop } from '../components/AmbientBackdrop';
 
 export default function MapScreen({ navigation }: any) {
   const [city, setCity] = useState('');
@@ -78,91 +79,101 @@ export default function MapScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StackHeader title="Parsel haritası" onBack={() => navigation.goBack()} />
+    <SafeArea style={styles.safe} edges={['top']}>
+      <AmbientBackdrop />
+      <StackHeader title="Harita" eyebrow="PARSEL GÖRÜNÜMÜ" onBack={() => navigation.goBack()} />
 
-      <View style={styles.searchBlock}>
-        <View style={styles.inputWrap}>
-          <TextInput
-            style={styles.input}
-            placeholder="İl / ilçe ara..."
-            value={city}
-            onChangeText={setCity}
-            placeholderTextColor={theme.muted}
-            onSubmitEditing={() => fetchMap(city)}
-          />
-        </View>
-        <TouchableOpacity style={[styles.btn, styles.btnGps]} onPress={handleCurrentLocation} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" size="small" /> : <Navigation size={22} color="#fff" />}
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.btn, styles.btnSearch]} onPress={() => fetchMap(city)} disabled={loading}>
-          <Search size={22} color="#fff" />
-        </TouchableOpacity>
-      </View>
+      <View style={styles.content}>
+        <View style={styles.searchCard}>
+          <Text style={styles.searchTitle}>Konum seçin</Text>
+          <Text style={styles.searchSub}>İl, ilçe veya mevcut profil konumu ile haritayı açabilirsiniz.</Text>
 
-      <View style={styles.mapBox}>
-        {mapHtml ? (
-          <WebView
-            originWhitelist={['*']}
-            source={{ html: mapHtml }}
-            style={styles.webview}
-            startInLoadingState
-            renderLoading={() => (
-              <View style={styles.loadingOverlay}>
-                <ActivityIndicator size="large" color={theme.forestLight} />
-                <Text style={styles.loadingText}>Harita açılıyor...</Text>
-              </View>
-            )}
-          />
-        ) : (
-          <View style={styles.placeholder}>
-            <View style={styles.iconCircle}>
-              <MapIcon size={48} color={theme.forestLight} />
+          <View style={styles.searchRow}>
+            <View style={styles.inputWrap}>
+              <TextInput
+                style={styles.input}
+                placeholder="İl / ilçe ara..."
+                value={city}
+                onChangeText={setCity}
+                placeholderTextColor={theme.muted}
+                onSubmitEditing={() => fetchMap(city)}
+              />
             </View>
-            <Text style={styles.placeholderTitle}>Konum seçin</Text>
-            <Text style={styles.placeholderText}>Arama veya GPS ile bölgenizi yükleyin. OSM karosu kullanılır.</Text>
+            <TouchableOpacity style={[styles.btn, styles.btnGps]} onPress={handleCurrentLocation} disabled={loading}>
+              {loading ? <ActivityIndicator color="#fff" size="small" /> : <Navigation size={20} color="#fff" />}
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.btn, styles.btnSearch]} onPress={() => fetchMap(city)} disabled={loading}>
+              <Search size={20} color="#fff" />
+            </TouchableOpacity>
           </View>
-        )}
+        </View>
+
+        <View style={styles.mapBox}>
+          {mapHtml ? (
+            <WebView
+              originWhitelist={['*']}
+              source={{ html: mapHtml }}
+              style={styles.webview}
+              startInLoadingState
+              renderLoading={() => (
+                <View style={styles.loadingOverlay}>
+                  <ActivityIndicator size="large" color={theme.accent} />
+                  <Text style={styles.loadingText}>Harita açılıyor...</Text>
+                </View>
+              )}
+            />
+          ) : (
+            <View style={styles.placeholder}>
+              <View style={styles.iconCircle}>
+                <MapIcon size={42} color={theme.accent} />
+              </View>
+              <Text style={styles.placeholderTitle}>Harita hazır bekliyor</Text>
+              <Text style={styles.placeholderText}>Yukarıdan bir bölge seçin veya GPS ile konum alın.</Text>
+            </View>
+          )}
+        </View>
       </View>
-    </SafeAreaView>
+    </SafeArea>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.bg },
-  searchBlock: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 14,
-    gap: 10,
-    alignItems: 'center',
-  },
-  inputWrap: {
-    flex: 1,
+  safe: { flex: 1, backgroundColor: theme.bg },
+  content: { flex: 1, paddingHorizontal: 20, paddingBottom: 20 },
+  searchCard: {
     backgroundColor: theme.surface,
-    borderRadius: theme.radiusMd,
-    height: 50,
-    justifyContent: 'center',
+    borderRadius: theme.radiusLg,
+    padding: 16,
     borderWidth: 1,
     borderColor: theme.border,
+    marginBottom: 14,
   },
-  input: { paddingHorizontal: 16, fontSize: 16, color: theme.ink, height: '100%' },
+  searchTitle: { color: theme.ink, fontSize: 20, fontWeight: '900' },
+  searchSub: { color: theme.inkSoft, fontSize: 14, lineHeight: 20, marginTop: 8 },
+  searchRow: { flexDirection: 'row', gap: 10, alignItems: 'center', marginTop: 14 },
+  inputWrap: {
+    flex: 1,
+    backgroundColor: theme.surfaceMuted,
+    borderRadius: theme.radiusMd,
+    borderWidth: 1,
+    borderColor: theme.border,
+    height: 52,
+    justifyContent: 'center',
+  },
+  input: { paddingHorizontal: 15, color: theme.ink, fontSize: 16, height: '100%' },
   btn: {
-    width: 50,
-    height: 50,
-    borderRadius: theme.radiusSm,
+    width: 52,
+    height: 52,
+    borderRadius: theme.radiusMd,
     justifyContent: 'center',
     alignItems: 'center',
   },
   btnGps: { backgroundColor: theme.info },
-  btnSearch: { backgroundColor: theme.forestLight },
+  btnSearch: { backgroundColor: theme.accent },
   mapBox: {
     flex: 1,
-    marginHorizontal: 20,
-    marginBottom: 20,
     backgroundColor: theme.surface,
-    borderRadius: theme.radiusLg,
+    borderRadius: theme.radiusXl,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: theme.border,
@@ -176,18 +187,16 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   loadingText: { marginTop: 12, color: theme.muted, fontWeight: '600' },
-  placeholder: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 40 },
+  placeholder: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30 },
   iconCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 32,
-    backgroundColor: theme.skyTint,
+    width: 88,
+    height: 88,
+    borderRadius: 28,
+    backgroundColor: theme.accentSoft,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 18,
-    borderWidth: 2,
-    borderColor: theme.forestLight,
+    marginBottom: 16,
   },
-  placeholderTitle: { fontSize: 20, fontWeight: '900', color: theme.ink, marginBottom: 8 },
-  placeholderText: { fontSize: 15, color: theme.muted, textAlign: 'center', lineHeight: 22 },
+  placeholderTitle: { color: theme.ink, fontSize: 22, fontWeight: '900' },
+  placeholderText: { color: theme.inkSoft, fontSize: 14, lineHeight: 20, textAlign: 'center', marginTop: 8, maxWidth: 250 },
 });

@@ -1,14 +1,14 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, RefreshControl, StatusBar } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Calendar, CheckCircle, Circle, Clock, ThumbsUp, Trash2 } from 'lucide-react-native';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, RefreshControl, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Calendar, CheckCircle, Clock, ThumbsUp, Trash2 } from 'lucide-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import { getTasks, updateTaskStatus, deleteTask } from '../services/apiService';
 import { Task } from '../types';
 import { theme } from '../theme/theme';
+import { AmbientBackdrop } from '../components/AmbientBackdrop';
 
-const TAB_PAD = 118;
+const TAB_PAD = 120;
 
 export default function ScheduleScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -94,163 +94,168 @@ export default function ScheduleScreen() {
     }
   };
 
-  const renderItem = ({ item }: { item: Task }) => {
-    let iconColor = theme.border;
-    let IconComponent = Circle;
-    let statusText = '';
-    const pending = item.status === 'pending';
+  const summary = {
+    pending: tasks.filter((task) => task.status === 'pending').length,
+    approved: tasks.filter((task) => task.status === 'approved').length,
+    completed: tasks.filter((task) => task.status === 'completed').length,
+  };
 
-    if (item.status === 'completed') {
-      iconColor = theme.success;
-      IconComponent = CheckCircle;
-    } else if (item.status === 'approved') {
-      iconColor = theme.info;
-      IconComponent = Clock;
-    } else if (pending) {
-      iconColor = theme.accentDark;
-      IconComponent = ThumbsUp;
-      statusText = 'Onay bekliyor';
-    }
+  const renderItem = ({ item }: { item: Task }) => {
+    const meta =
+      item.status === 'completed'
+        ? { Icon: CheckCircle, color: theme.success, chipBg: theme.successSoft, chipText: 'Tamamlandı' }
+        : item.status === 'approved'
+          ? { Icon: Clock, color: theme.info, chipBg: theme.infoSoft, chipText: 'Planlandı' }
+          : { Icon: ThumbsUp, color: theme.gold, chipBg: theme.chipAmber, chipText: 'Onay bekliyor' };
 
     return (
-      <TouchableOpacity
-        style={[styles.card, pending && styles.cardPending]}
-        onPress={() => handleStatusChange(item)}
-        activeOpacity={0.88}
-      >
-        <View style={[styles.iconSlot, { backgroundColor: pending ? theme.chipAmber : theme.bg }]}>
-          <IconComponent size={24} color={iconColor} />
+      <TouchableOpacity style={styles.taskCard} onPress={() => handleStatusChange(item)} activeOpacity={0.88}>
+        <View style={[styles.taskIconWrap, { backgroundColor: meta.chipBg }]}>
+          <meta.Icon size={20} color={meta.color} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.taskTitle, item.status === 'completed' && styles.taskDone, pending && styles.taskPending]}>
-            {item.title}
-          </Text>
-          <View style={styles.meta}>
+          <Text style={[styles.taskTitle, item.status === 'completed' && styles.taskDone]}>{item.title}</Text>
+          <View style={styles.taskMeta}>
             <Calendar size={14} color={theme.muted} />
-            <Text style={styles.date}>{item.date_text}</Text>
-            {pending && (
-              <View style={styles.badgeWrap}>
-                <Text style={styles.badge}>{statusText}</Text>
-              </View>
-            )}
+            <Text style={styles.taskDate}>{item.date_text}</Text>
+          </View>
+          <View style={[styles.statusChip, { backgroundColor: meta.chipBg }]}>
+            <Text style={[styles.statusChipText, { color: meta.color }]}>{meta.chipText}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.trash} onPress={() => handleDelete(item)}>
-          <Trash2 size={20} color={theme.danger} />
+        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
+          <Trash2 size={18} color={theme.danger} />
         </TouchableOpacity>
       </TouchableOpacity>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.forest} />
-      <View style={styles.header}>
-        <Text style={styles.kicker}>TAKVİM</Text>
-        <Text style={styles.headerTitle}>İş planı</Text>
-        <Text style={styles.headerSub}>Asistan önerileri ve durumlarınız</Text>
-      </View>
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" backgroundColor={theme.bg} />
+      <AmbientBackdrop />
 
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={theme.forestLight} />
-        </View>
-      ) : (
-        <FlatList
-          data={tasks}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ padding: 20, paddingBottom: TAB_PAD }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                setRefreshing(true);
-                fetchTasks();
-              }}
-              tintColor={theme.forestLight}
-            />
-          }
-          renderItem={renderItem}
-          ListEmptyComponent={
-            <View style={styles.empty}>
-              <View style={styles.emptyRing}>
-                <Clock size={40} color={theme.forestLight} />
-              </View>
-              <Text style={styles.emptyTitle}>Henüz görev yok</Text>
-              <Text style={styles.emptySub}>Asistan ile [GÖREV: ...] formatında öneri alabilirsiniz.</Text>
+      <FlatList
+        data={loading ? [] : tasks}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{ padding: 20, paddingBottom: TAB_PAD }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetchTasks();
+            }}
+            tintColor={theme.accent}
+          />
+        }
+        ListHeaderComponent={
+          <>
+            <View style={styles.header}>
+              <Text style={styles.headerEyebrow}>TAKVİM</Text>
+              <Text style={styles.headerTitle}>Görevleri tek listede yönetin.</Text>
             </View>
-          }
-        />
-      )}
+
+            <View style={styles.summaryRow}>
+              <View style={styles.summaryCard}>
+                <Text style={styles.summaryValue}>{summary.pending}</Text>
+                <Text style={styles.summaryLabel}>Bekleyen</Text>
+              </View>
+              <View style={styles.summaryCard}>
+                <Text style={styles.summaryValue}>{summary.approved}</Text>
+                <Text style={styles.summaryLabel}>Planlı</Text>
+              </View>
+              <View style={styles.summaryCard}>
+                <Text style={styles.summaryValue}>{summary.completed}</Text>
+                <Text style={styles.summaryLabel}>Biten</Text>
+              </View>
+            </View>
+
+            {loading && (
+              <View style={styles.center}>
+                <ActivityIndicator size="large" color={theme.accent} />
+              </View>
+            )}
+          </>
+        }
+        renderItem={renderItem}
+        ListEmptyComponent={
+          !loading ? (
+            <View style={styles.empty}>
+              <Clock size={34} color={theme.accent} />
+              <Text style={styles.emptyTitle}>Henüz görev yok</Text>
+              <Text style={styles.emptyText}>Asistan görev önerdiğinde burada listelenecek.</Text>
+            </View>
+          ) : null
+        }
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.bg },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: {
-    backgroundColor: theme.forest,
-    paddingHorizontal: 22,
-    paddingTop: 8,
-    paddingBottom: 20,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-  },
-  kicker: { color: theme.tabActive, fontSize: 10, fontWeight: '900', letterSpacing: 2 },
-  headerTitle: { fontSize: 28, fontWeight: '900', color: '#fff', marginTop: 8 },
-  headerSub: { fontSize: 14, color: 'rgba(255,255,255,0.72)', marginTop: 6 },
-  card: {
-    flexDirection: 'row',
+  safe: { flex: 1, backgroundColor: theme.bg },
+  header: { marginBottom: 16 },
+  headerEyebrow: { color: theme.muted, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
+  headerTitle: { color: theme.ink, fontSize: 30, lineHeight: 34, fontWeight: '900', marginTop: 10, maxWidth: 260 },
+  summaryRow: { flexDirection: 'row', gap: 10, marginBottom: 18 },
+  summaryCard: {
+    flex: 1,
     backgroundColor: theme.surface,
-    padding: 16,
-    borderRadius: theme.radiusMd,
-    marginBottom: 12,
-    alignItems: 'center',
-    gap: 14,
+    borderRadius: theme.radiusLg,
+    padding: 14,
     borderWidth: 1,
     borderColor: theme.border,
-    shadowColor: theme.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-    elevation: 2,
   },
-  cardPending: { borderLeftWidth: 4, borderLeftColor: theme.accent },
-  iconSlot: {
-    width: 48,
-    height: 48,
+  summaryValue: { color: theme.ink, fontSize: 28, fontWeight: '900' },
+  summaryLabel: { color: theme.muted, fontSize: 13, marginTop: 6 },
+  center: { paddingVertical: 30 },
+  taskCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusLg,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: theme.border,
+    marginBottom: 12,
+  },
+  taskIconWrap: {
+    width: 42,
+    height: 42,
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  taskTitle: { fontWeight: '800', color: theme.ink, fontSize: 16 },
+  taskTitle: { color: theme.ink, fontSize: 16, lineHeight: 21, fontWeight: '900' },
   taskDone: { textDecorationLine: 'line-through', color: theme.muted },
-  taskPending: { color: theme.accentDark },
-  meta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' },
-  date: { color: theme.muted, fontSize: 13 },
-  badgeWrap: { marginLeft: 'auto' },
-  badge: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: theme.accentDark,
-    backgroundColor: theme.chipAmber,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    overflow: 'hidden',
+  taskMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+  taskDate: { color: theme.inkSoft, fontSize: 13 },
+  statusChip: {
+    alignSelf: 'flex-start',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    marginTop: 10,
   },
-  trash: { padding: 8 },
-  empty: { alignItems: 'center', marginTop: 56, padding: 20 },
-  emptyRing: {
-    width: 88,
-    height: 88,
-    borderRadius: 28,
-    backgroundColor: theme.skyTint,
+  statusChipText: { fontSize: 12, fontWeight: '900' },
+  deleteButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: theme.dangerSoft,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
   },
-  emptyTitle: { fontSize: 18, fontWeight: '900', color: theme.ink },
-  emptySub: { color: theme.muted, textAlign: 'center', marginTop: 10, lineHeight: 20 },
+  empty: {
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusXl,
+    padding: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.border,
+  },
+  emptyTitle: { color: theme.ink, fontSize: 20, fontWeight: '900', marginTop: 14 },
+  emptyText: { color: theme.inkSoft, fontSize: 14, lineHeight: 20, marginTop: 8, textAlign: 'center' },
 });

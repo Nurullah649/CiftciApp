@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform, Text } from 'react-native';
 import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -44,67 +44,68 @@ const navTheme: Theme = {
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const TAB_META = {
+  Dashboard: { label: 'Merkez', icon: Sprout },
+  Schedule: { label: 'Plan', icon: CalendarRange },
+  Analysis: { label: 'Tarla', icon: Leaf },
+  Chat: { label: 'Asistan', icon: MessageCircle },
+} as const;
 
 function MainTabs() {
   return (
     <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: theme.tabActive,
-        tabBarInactiveTintColor: theme.tabInactive,
-        tabBarStyle: {
-          position: 'absolute',
-          left: 16,
-          right: 16,
-          bottom: Platform.OS === 'ios' ? 28 : 16,
-          height: 64,
-          paddingBottom: 10,
-          paddingTop: 10,
-          backgroundColor: theme.tabBarBg,
-          borderTopWidth: 0,
-          borderRadius: 20,
-          elevation: 24,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 10 },
-          shadowOpacity: 0.28,
-          shadowRadius: 20,
-        },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '800', letterSpacing: 0.4 },
-        tabBarItemStyle: { paddingVertical: 2 },
+      screenOptions={({ route }) => {
+        const meta = TAB_META[route.name as keyof typeof TAB_META];
+        const isPrimary = route.name === 'Analysis';
+
+        return {
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarHideOnKeyboard: true,
+          sceneStyle: { backgroundColor: theme.bg },
+          tabBarStyle: {
+            position: 'absolute',
+            left: 18,
+            right: 18,
+            bottom: Platform.OS === 'ios' ? 26 : 16,
+            height: 74,
+            paddingHorizontal: 10,
+            paddingBottom: 10,
+            paddingTop: 10,
+            backgroundColor: theme.tabBarBg,
+            borderTopWidth: 1,
+            borderTopColor: theme.border,
+            borderRadius: 24,
+            elevation: 0,
+            shadowColor: theme.shadowStrong,
+            shadowOffset: { width: 0, height: 10 },
+            shadowOpacity: 1,
+            shadowRadius: 20,
+          },
+          tabBarItemStyle: { paddingVertical: 2 },
+          tabBarIcon: ({ focused }) => {
+            const Icon = meta.icon;
+            const textColor = focused ? theme.tabActive : theme.tabInactive;
+
+            return (
+              <View
+                style={[
+                  styles.tabItem,
+                  focused && styles.tabItemActive,
+                ]}
+              >
+                <Icon size={focused ? 19 : 18} color={textColor} strokeWidth={focused ? 2.4 : 2} />
+                {focused && <Text style={[styles.tabLabel, { color: textColor }]}>{meta.label}</Text>}
+              </View>
+            );
+          },
+        };
       }}
     >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          tabBarLabel: 'Özet',
-          tabBarIcon: ({ color, focused }) => <Sprout size={22} color={color} strokeWidth={focused ? 2.5 : 2} />,
-        }}
-      />
-      <Tab.Screen
-        name="Schedule"
-        component={ScheduleScreen}
-        options={{
-          tabBarLabel: 'Takvim',
-          tabBarIcon: ({ color, focused }) => <CalendarRange size={22} color={color} strokeWidth={focused ? 2.5 : 2} />,
-        }}
-      />
-      <Tab.Screen
-        name="Analysis"
-        component={AnalysisScreen}
-        options={{
-          tabBarLabel: 'Tarla',
-          tabBarIcon: ({ color, focused }) => <Leaf size={22} color={color} strokeWidth={focused ? 2.5 : 2} />,
-        }}
-      />
-      <Tab.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          tabBarLabel: 'Asistan',
-          tabBarIcon: ({ color, focused }) => <MessageCircle size={22} color={color} strokeWidth={focused ? 2.5 : 2} />,
-        }}
-      />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Schedule" component={ScheduleScreen} />
+      <Tab.Screen name="Analysis" component={AnalysisScreen} />
+      <Tab.Screen name="Chat" component={ChatScreen} />
     </Tab.Navigator>
   );
 }
@@ -152,28 +153,39 @@ export default function App() {
 const styles = StyleSheet.create({
   splash: {
     flex: 1,
-    backgroundColor: theme.forest,
+    backgroundColor: theme.bg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   splashInner: {
-    width: 96,
-    height: 96,
-    borderRadius: 28,
-    borderWidth: 3,
-    borderColor: theme.tabActive,
-    backgroundColor: 'rgba(217,249,157,0.08)',
+    width: 112,
+    height: 112,
+    borderRadius: 34,
+    borderWidth: 1,
+    borderColor: theme.border,
+    backgroundColor: theme.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   splashFoot: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 120,
-    backgroundColor: theme.bg,
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
+    display: 'none',
+  },
+  tabItem: {
+    minWidth: 56,
+    height: 50,
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  tabItemActive: {
+    backgroundColor: theme.accentSoft,
+  },
+  tabLabel: {
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 0.3,
   },
 });

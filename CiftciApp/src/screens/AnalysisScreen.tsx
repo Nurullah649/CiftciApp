@@ -1,23 +1,24 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  ActivityIndicator,
   Alert,
+  Image,
+  SafeAreaView,
+  ScrollView,
   StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Camera, Upload, X, CheckCircle, AlertOctagon, Info } from 'lucide-react-native';
+import { Camera, CheckCircle, Info, Upload, X } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadImageForAnalysis } from '../services/apiService';
 import { AnalysisResult } from '../types';
 import { theme } from '../theme/theme';
+import { AmbientBackdrop } from '../components/AmbientBackdrop';
+import { AppButton } from '../components/AppButton';
 
-const TAB_PAD = 118;
+const TAB_PAD = 126;
 
 export default function AnalysisScreen() {
   const [image, setImage] = useState<string | null>(null);
@@ -39,13 +40,13 @@ export default function AnalysisScreen() {
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           aspect: [4, 4],
-          quality: 0.72,
+          quality: 0.55,
         })
       : await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
           allowsEditing: true,
           aspect: [4, 4],
-          quality: 0.72,
+          quality: 0.55,
         });
 
     if (!res.canceled) {
@@ -72,95 +73,118 @@ export default function AnalysisScreen() {
     setResult(null);
   };
 
+  const statusMeta = useMemo(() => {
+    if (!result) return null;
+    if (result.status === 'healthy') {
+      return { label: 'Sağlıklı görünüm', bg: theme.successSoft, fg: theme.success };
+    }
+    if (result.status === 'critical') {
+      return { label: 'Öncelikli kontrol', bg: theme.dangerSoft, fg: theme.danger };
+    }
+    return { label: 'İzleme önerilir', bg: theme.chipAmber, fg: theme.gold };
+  }, [result]);
+
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.forest} />
-      <View style={styles.head}>
-        <Text style={styles.kicker}>TARLA</Text>
-        <Text style={styles.title}>Fotoğraf analizi</Text>
-        <Text style={styles.sub}>Etkilenen bitkiyi net ve aydınlık çekin; sonuç sunucudan gelir.</Text>
-      </View>
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" backgroundColor={theme.bg} />
+      <AmbientBackdrop />
 
       <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: TAB_PAD }]} showsVerticalScrollIndicator={false}>
-        {!image ? (
-          <View style={styles.drop}>
-            <View style={styles.dropRing}>
-              <Camera size={36} color={theme.forestLight} />
-            </View>
-            <Text style={styles.dropTitle}>Çek veya seç</Text>
-            <Text style={styles.dropSub}>Yaprak veya dal yakın planı idealdir.</Text>
+        <View style={styles.header}>
+          <Text style={styles.headerEyebrow}>BİTKİ TARAMASI</Text>
+          <Text style={styles.headerTitle}>Fotoğrafı yükleyin, teşhisi alın.</Text>
+          <Text style={styles.headerSub}>
+            Uygulama yüklemeden önce fotoğrafı sıkıştırır. Bu sayede 413 boyut hatası büyük ölçüde engellenir.
+          </Text>
+        </View>
 
-            <TouchableOpacity style={styles.btnPrimary} onPress={() => pickImage(true)} activeOpacity={0.9}>
-              <Camera size={20} color="#fff" style={{ marginRight: 10 }} />
-              <Text style={styles.btnPrimaryTxt}>Kamera</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btnGhost} onPress={() => pickImage(false)} activeOpacity={0.9}>
-              <Upload size={20} color={theme.forestLight} style={{ marginRight: 10 }} />
-              <Text style={styles.btnGhostTxt}>Galeri</Text>
-            </TouchableOpacity>
+        <View style={styles.card}>
+          {!image ? (
+            <>
+              <View style={styles.placeholder}>
+                <Camera size={34} color={theme.accent} />
+              </View>
+              <Text style={styles.cardTitle}>Yakın plan ve net odak kullanın</Text>
+              <Text style={styles.cardSub}>Tek yaprak, iyi ışık ve gereksiz arka plan olmadan çekilen fotoğraflar daha iyi sonuç verir.</Text>
 
-            <View style={styles.hint}>
-              <Info size={16} color={theme.forestLight} />
-              <Text style={styles.hintText}>İyi ışık · gölgesiz kare</Text>
-            </View>
-          </View>
-        ) : (
-          <View>
-            <View style={styles.previewBox}>
-              <Image source={{ uri: image }} style={styles.preview} />
-              {!analyzing && !result && (
-                <TouchableOpacity style={styles.close} onPress={reset}>
-                  <X size={20} color="#fff" />
-                </TouchableOpacity>
-              )}
-              {analyzing && (
-                <View style={styles.overlay}>
-                  <ActivityIndicator size="large" color={theme.tabActive} />
-                  <Text style={styles.overlayText}>İnceleniyor...</Text>
-                </View>
-              )}
-            </View>
+              <AppButton
+                label="Kamera ile çek"
+                onPress={() => pickImage(true)}
+                leftIcon={<Camera size={18} color="#fff" />}
+                style={styles.primaryAction}
+              />
+              <AppButton
+                label="Galeriden seç"
+                onPress={() => pickImage(false)}
+                variant="secondary"
+                leftIcon={<Upload size={18} color={theme.ink} />}
+                style={styles.secondaryAction}
+              />
 
-            {!result && !analyzing && (
-              <TouchableOpacity style={styles.runBtn} onPress={handleAnalyze} activeOpacity={0.92}>
-                <Text style={styles.runBtnText}>Analizi başlat</Text>
-              </TouchableOpacity>
-            )}
-
-            {result && (
-              <View style={[styles.result, result.status === 'healthy' ? styles.resultOk : styles.resultBad]}>
-                <View style={styles.resultHead}>
-                  {result.status === 'healthy' ? (
-                    <CheckCircle size={32} color={theme.success} />
-                  ) : (
-                    <AlertOctagon size={32} color={theme.danger} />
-                  )}
-                  <View style={{ marginLeft: 14, flex: 1 }}>
-                    <Text style={styles.resultName}>{result.diseaseName}</Text>
-                    <Text style={styles.resultConf}>%{Math.round(result.confidence * 100)} güven</Text>
-                  </View>
-                </View>
-                <View style={styles.rec}>
-                  <Text style={styles.recTitle}>Öneri</Text>
-                  <Text style={styles.recBody}>{result.recommendation}</Text>
-                </View>
-                {!!result.treatmentTitles?.length && (
-                  <View style={styles.tagsWrap}>
-                    <Text style={styles.tagsTitle}>Tedavi başlıkları</Text>
-                    <View style={styles.tagsRow}>
-                      {result.treatmentTitles.map((title) => (
-                        <View key={title} style={styles.tag}>
-                          <Text style={styles.tagText}>{title}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
+              <View style={styles.tip}>
+                <Info size={16} color={theme.accent} />
+                <Text style={styles.tipText}>Büyük fotoğraflar analiz öncesi otomatik küçültülür.</Text>
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={styles.imageWrap}>
+                <Image source={{ uri: image }} style={styles.previewImage} />
+                {!analyzing && (
+                  <TouchableOpacity style={styles.close} onPress={reset}>
+                    <X size={18} color="#fff" />
+                  </TouchableOpacity>
                 )}
-                <TouchableOpacity style={styles.again} onPress={reset}>
-                  <Text style={styles.againText}>Yeni fotoğraf</Text>
-                </TouchableOpacity>
+              </View>
+
+              <AppButton
+                label={analyzing ? 'Analiz ediliyor...' : 'Analizi başlat'}
+                onPress={handleAnalyze}
+                loading={analyzing}
+                style={styles.primaryAction}
+              />
+            </>
+          )}
+        </View>
+
+        {result && (
+          <View style={styles.resultCard}>
+            <View style={styles.resultHead}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.resultEyebrow}>SONUÇ</Text>
+                <Text style={styles.resultTitle}>{result.diseaseName}</Text>
+              </View>
+              <View style={[styles.statusChip, { backgroundColor: statusMeta?.bg }]}>
+                <Text style={[styles.statusChipText, { color: statusMeta?.fg }]}>{statusMeta?.label}</Text>
+              </View>
+            </View>
+
+            <View style={styles.resultInfo}>
+              <View style={styles.confidenceBox}>
+                <CheckCircle size={20} color={theme.accent} />
+                <Text style={styles.confidenceLabel}>Güven</Text>
+                <Text style={styles.confidenceValue}>%{Math.round(result.confidence * 100)}</Text>
+              </View>
+              <View style={styles.summaryBox}>
+                <Text style={styles.summaryTitle}>Öneri</Text>
+                <Text style={styles.summaryText}>{result.recommendation}</Text>
+              </View>
+            </View>
+
+            {!!result.treatmentTitles?.length && (
+              <View style={styles.tagsWrap}>
+                <Text style={styles.tagsTitle}>Tedavi başlıkları</Text>
+                <View style={styles.tagsRow}>
+                  {result.treatmentTitles.map((title) => (
+                    <View key={title} style={styles.tag}>
+                      <Text style={styles.tagText}>{title}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
             )}
+
+            <AppButton label="Yeni fotoğraf seç" onPress={reset} variant="secondary" style={styles.secondaryAction} />
           </View>
         )}
       </ScrollView>
@@ -170,122 +194,93 @@ export default function AnalysisScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
-  head: {
-    backgroundColor: theme.forest,
-    paddingHorizontal: 22,
-    paddingTop: 8,
-    paddingBottom: 22,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-  },
-  kicker: { color: theme.tabActive, fontSize: 10, fontWeight: '900', letterSpacing: 2 },
-  title: { fontSize: 26, fontWeight: '900', color: '#fff', marginTop: 8 },
-  sub: { fontSize: 14, color: 'rgba(255,255,255,0.75)', marginTop: 8, lineHeight: 20 },
   scroll: { padding: 20 },
-  drop: {
+  header: { marginBottom: 16 },
+  headerEyebrow: { color: theme.muted, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
+  headerTitle: { color: theme.ink, fontSize: 30, lineHeight: 34, fontWeight: '900', marginTop: 10, maxWidth: 260 },
+  headerSub: { color: theme.inkSoft, fontSize: 15, lineHeight: 22, marginTop: 10, maxWidth: 310 },
+  card: {
     backgroundColor: theme.surface,
-    borderRadius: theme.radiusLg,
-    padding: 28,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderStyle: 'dashed',
+    borderRadius: theme.radiusXl,
+    padding: 18,
+    borderWidth: 1,
     borderColor: theme.border,
   },
-  dropRing: {
-    width: 88,
-    height: 88,
-    borderRadius: 28,
-    backgroundColor: theme.skyTint,
+  placeholder: {
+    width: 72,
+    height: 72,
+    borderRadius: 24,
+    backgroundColor: theme.accentSoft,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
-    borderWidth: 2,
-    borderColor: theme.forestLight,
   },
-  dropTitle: { fontSize: 21, fontWeight: '900', color: theme.ink },
-  dropSub: { textAlign: 'center', color: theme.muted, marginTop: 8, marginBottom: 22, lineHeight: 20 },
-  btnPrimary: {
+  cardTitle: { color: theme.ink, fontSize: 22, lineHeight: 28, fontWeight: '900' },
+  cardSub: { color: theme.inkSoft, fontSize: 15, lineHeight: 22, marginTop: 10, marginBottom: 18 },
+  primaryAction: { marginTop: 0 },
+  secondaryAction: { marginTop: 10 },
+  tip: {
     flexDirection: 'row',
-    width: '100%',
-    backgroundColor: theme.accent,
-    padding: 16,
-    borderRadius: theme.radiusMd,
-    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
-  },
-  btnPrimaryTxt: { color: '#fff', fontWeight: '900', fontSize: 16 },
-  btnGhost: {
-    flexDirection: 'row',
-    width: '100%',
-    backgroundColor: theme.bgElevated,
-    padding: 16,
+    gap: 8,
+    backgroundColor: theme.surfaceStrong,
     borderRadius: theme.radiusMd,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: theme.forestLight,
+    padding: 12,
+    marginTop: 14,
   },
-  btnGhostTxt: { color: theme.forestLight, fontWeight: '800', fontSize: 16 },
-  hint: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 22 },
-  hintText: { color: theme.muted, fontSize: 13 },
-  previewBox: {
-    height: 300,
+  tipText: { flex: 1, color: theme.inkSoft, fontSize: 13, lineHeight: 19 },
+  imageWrap: {
+    height: 320,
     borderRadius: theme.radiusLg,
     overflow: 'hidden',
-    backgroundColor: theme.border,
-    marginBottom: 18,
+    backgroundColor: theme.bgMuted,
+    marginBottom: 16,
   },
-  preview: { width: '100%', height: '100%' },
+  previewImage: { width: '100%', height: '100%' },
   close: {
     position: 'absolute',
-    top: 14,
-    right: 14,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    padding: 10,
-    borderRadius: 22,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15,45,38,0.72)',
+    top: 12,
+    right: 12,
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  overlayText: { color: '#fff', marginTop: 14, fontWeight: '700' },
-  runBtn: {
-    backgroundColor: theme.forest,
-    padding: 17,
-    borderRadius: theme.radiusMd,
-    alignItems: 'center',
-  },
-  runBtnText: { color: '#fff', fontWeight: '900', fontSize: 16 },
-  result: {
+  resultCard: {
     backgroundColor: theme.surface,
-    borderRadius: theme.radiusLg,
-    padding: 20,
+    borderRadius: theme.radiusXl,
+    padding: 18,
     borderWidth: 1,
     borderColor: theme.border,
+    marginTop: 16,
   },
-  resultOk: { borderLeftWidth: 5, borderLeftColor: theme.success },
-  resultBad: { borderLeftWidth: 5, borderLeftColor: theme.danger },
-  resultHead: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  resultName: { fontSize: 18, fontWeight: '900', color: theme.ink },
-  resultConf: { color: theme.muted, marginTop: 2, fontWeight: '600' },
-  rec: { backgroundColor: theme.bg, padding: 16, borderRadius: theme.radiusSm, marginBottom: 14 },
-  recTitle: { fontWeight: '900', color: theme.ink, marginBottom: 6 },
-  recBody: { color: theme.inkSecondary, lineHeight: 22 },
-  tagsWrap: { marginBottom: 14 },
-  tagsTitle: { fontWeight: '900', color: theme.ink, marginBottom: 10 },
+  resultHead: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
+  resultEyebrow: { color: theme.muted, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
+  resultTitle: { color: theme.ink, fontSize: 24, lineHeight: 30, fontWeight: '900', marginTop: 8 },
+  statusChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
+  statusChipText: { fontSize: 12, fontWeight: '900' },
+  resultInfo: { flexDirection: 'row', gap: 12, marginTop: 16 },
+  confidenceBox: {
+    width: 110,
+    backgroundColor: theme.surfaceStrong,
+    borderRadius: theme.radiusLg,
+    padding: 14,
+  },
+  confidenceLabel: { color: theme.muted, fontSize: 12, marginTop: 10 },
+  confidenceValue: { color: theme.ink, fontSize: 28, fontWeight: '900', marginTop: 6 },
+  summaryBox: { flex: 1, backgroundColor: theme.surfaceMuted, borderRadius: theme.radiusLg, padding: 14 },
+  summaryTitle: { color: theme.ink, fontSize: 15, fontWeight: '900', marginBottom: 8 },
+  summaryText: { color: theme.inkSoft, fontSize: 14, lineHeight: 21 },
+  tagsWrap: { marginTop: 16 },
+  tagsTitle: { color: theme.ink, fontSize: 14, fontWeight: '900', marginBottom: 10 },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tag: {
-    backgroundColor: theme.bg,
-    borderWidth: 1,
-    borderColor: theme.border,
+    backgroundColor: theme.accentSoft,
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  tagText: { color: theme.forestLight, fontWeight: '800', fontSize: 13 },
-  again: { padding: 14, alignItems: 'center', borderRadius: theme.radiusSm, borderWidth: 1, borderColor: theme.border },
-  againText: { fontWeight: '800', color: theme.forestLight },
+  tagText: { color: theme.accent, fontSize: 13, fontWeight: '800' },
 });

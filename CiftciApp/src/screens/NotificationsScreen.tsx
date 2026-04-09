@@ -1,6 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, FlatList, RefreshControl, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { Bell, Calendar, Clock } from 'lucide-react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
@@ -8,6 +7,7 @@ import { getTasks } from '../services/apiService';
 import { Task } from '../types';
 import { theme } from '../theme/theme';
 import { StackHeader } from '../components/StackHeader';
+import { AmbientBackdrop } from '../components/AmbientBackdrop';
 
 export default function NotificationsScreen({ navigation }: any) {
   const [upcomingTasks, setUpcomingTasks] = useState<Task[]>([]);
@@ -30,12 +30,7 @@ export default function NotificationsScreen({ navigation }: any) {
       const filtered = allTasks.filter((t) => {
         try {
           const taskDate = new Date(t.date_text.replace(' ', 'T'));
-          return (
-            !isNaN(taskDate.getTime()) &&
-            taskDate >= now &&
-            taskDate <= nextWeek &&
-            (t.status === 'approved' || t.status === 'pending')
-          );
+          return !isNaN(taskDate.getTime()) && taskDate >= now && taskDate <= nextWeek && (t.status === 'approved' || t.status === 'pending');
         } catch {
           return false;
         }
@@ -77,22 +72,15 @@ export default function NotificationsScreen({ navigation }: any) {
   const renderItem = ({ item }: { item: Task }) => (
     <View style={styles.card}>
       <View style={[styles.iconBox, item.status === 'approved' ? styles.iconPlan : styles.iconWait]}>
-        {item.status === 'approved' ? <Clock size={22} color={theme.info} /> : <Bell size={22} color={theme.accentDark} />}
+        {item.status === 'approved' ? <Clock size={20} color={theme.info} /> : <Bell size={20} color={theme.gold} />}
       </View>
       <View style={{ flex: 1 }}>
-        <View style={styles.cardTop}>
-          <Text style={styles.cardTitle}>{item.title}</Text>
-          <Text style={styles.time}>
-            {new Date(item.date_text).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-          </Text>
-        </View>
+        <Text style={styles.cardTitle}>{item.title}</Text>
         <View style={styles.cardMeta}>
           <Calendar size={14} color={theme.muted} />
-          <Text style={styles.date}>
-            {new Date(item.date_text).toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </Text>
+          <Text style={styles.date}>{new Date(item.date_text).toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
         </View>
-        <Text style={[styles.status, { color: item.status === 'approved' ? theme.info : theme.accentDark }]}>
+        <Text style={[styles.status, { color: item.status === 'approved' ? theme.info : theme.gold }]}>
           {item.status === 'approved' ? 'Planlandı' : 'Onay bekliyor'}
         </Text>
       </View>
@@ -100,12 +88,13 @@ export default function NotificationsScreen({ navigation }: any) {
   );
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <StackHeader title="Yaklaşanlar" onBack={() => navigation.goBack()} />
+    <SafeAreaView style={styles.safe}>
+      <AmbientBackdrop />
+      <StackHeader title="Bildirimler" eyebrow="YAKLAŞAN GÖREVLER" onBack={() => navigation.goBack()} />
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color={theme.forestLight} />
+          <ActivityIndicator size="large" color={theme.accent} />
         </View>
       ) : (
         <FlatList
@@ -119,16 +108,21 @@ export default function NotificationsScreen({ navigation }: any) {
                 setRefreshing(true);
                 loadNotifications();
               }}
-              tintColor={theme.forestLight}
+              tintColor={theme.accent}
             />
+          }
+          ListHeaderComponent={
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryValue}>{upcomingTasks.length}</Text>
+              <Text style={styles.summaryText}>Önümüzdeki 7 gün içinde planlanan veya onay bekleyen kayıt</Text>
+            </View>
           }
           renderItem={renderItem}
           ListEmptyComponent={
             <View style={styles.empty}>
-              <View style={styles.emptyRing}>
-                <Bell size={36} color={theme.forestLight} />
-              </View>
-              <Text style={styles.emptyText}>Önümüzdeki hafta için kayıt yok.</Text>
+              <Bell size={34} color={theme.accent} />
+              <Text style={styles.emptyTitle}>Yaklaşan görev yok</Text>
+              <Text style={styles.emptyText}>Önümüzdeki hafta için planlanan kayıt görünmüyor.</Text>
             </View>
           }
         />
@@ -140,39 +134,41 @@ export default function NotificationsScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  summaryCard: {
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusLg,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: theme.border,
+    marginBottom: 14,
+  },
+  summaryValue: { color: theme.ink, fontSize: 30, fontWeight: '900' },
+  summaryText: { color: theme.inkSoft, fontSize: 14, lineHeight: 20, marginTop: 8 },
   card: {
     flexDirection: 'row',
+    gap: 12,
     backgroundColor: theme.surface,
+    borderRadius: theme.radiusLg,
     padding: 16,
-    borderRadius: theme.radiusMd,
+    borderWidth: 1,
+    borderColor: theme.border,
     marginBottom: 12,
-    gap: 14,
+  },
+  iconBox: { width: 42, height: 42, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },
+  iconPlan: { backgroundColor: theme.infoSoft },
+  iconWait: { backgroundColor: theme.chipAmber },
+  cardTitle: { color: theme.ink, fontSize: 16, lineHeight: 21, fontWeight: '900' },
+  cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+  date: { color: theme.inkSoft, fontSize: 13 },
+  status: { fontSize: 12, fontWeight: '900', marginTop: 10 },
+  empty: {
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusXl,
+    padding: 24,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: theme.border,
-    shadowColor: theme.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-    elevation: 2,
   },
-  iconBox: { width: 50, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  iconPlan: { backgroundColor: theme.chipMist },
-  iconWait: { backgroundColor: theme.chipAmber },
-  cardTop: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  cardTitle: { fontWeight: '800', color: theme.ink, fontSize: 16, flex: 1, paddingRight: 8 },
-  time: { color: theme.forestLight, fontWeight: '900', fontSize: 12 },
-  cardMeta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  date: { color: theme.muted, fontSize: 14 },
-  status: { fontSize: 12, marginTop: 6, fontWeight: '800' },
-  empty: { alignItems: 'center', marginTop: 48, gap: 14 },
-  emptyRing: {
-    width: 88,
-    height: 88,
-    borderRadius: 28,
-    backgroundColor: theme.skyTint,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: { color: theme.muted, fontSize: 16, textAlign: 'center', paddingHorizontal: 24 },
+  emptyTitle: { color: theme.ink, fontSize: 20, fontWeight: '900', marginTop: 14 },
+  emptyText: { color: theme.inkSoft, fontSize: 14, lineHeight: 20, marginTop: 8, textAlign: 'center' },
 });

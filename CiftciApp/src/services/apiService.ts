@@ -1,4 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import { Platform } from 'react-native';
 import { AnalysisResult, WeatherData, Task } from '../types';
 import { getApiBaseUrl } from '../config/apiBaseUrl';
@@ -247,12 +248,6 @@ export const getWeatherData = async (lat: number, lon: number): Promise<WeatherD
 
 export const uploadImageForAnalysis = async (imageUri: string): Promise<AnalysisResult> => {
   const token = await getToken();
-  const formData = new FormData();
-  formData.append('file', {
-    uri: imageUri,
-    name: 'photo.jpg',
-    type: 'image/jpeg',
-  } as any);
 
   const buildErrorResult = (diseaseName: string, recommendation: string): AnalysisResult => ({
     id: Date.now().toString(),
@@ -264,15 +259,53 @@ export const uploadImageForAnalysis = async (imageUri: string): Promise<Analysis
     status: 'warning'
   });
 
-  try {
-    const response = await fetch(`${API_BASE_URL}/tools/analyze-plant`, {
+  const prepareImageForUpload = async (sourceUri: string, aggressive = false) => {
+    const resizeWidth = aggressive ? 1200 : 1600;
+    const compress = aggressive ? 0.35 : 0.55;
+
+    try {
+      const manipulated = await manipulateAsync(
+        sourceUri,
+        [{ resize: { width: resizeWidth } }],
+        {
+          compress,
+          format: SaveFormat.JPEG,
+        }
+      );
+      return manipulated.uri;
+    } catch {
+      return sourceUri;
+    }
+  };
+
+  const postAnalysisImage = async (uri: string) => {
+    const formData = new FormData();
+    formData.append('file', {
+      uri,
+      name: 'photo.jpg',
+      type: 'image/jpeg',
+    } as any);
+
+    return fetch(`${API_BASE_URL}/tools/analyze-plant`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` },
       body: formData,
     });
+  };
+
+  try {
+    let preparedUri = await prepareImageForUpload(imageUri);
+    let response = await postAnalysisImage(preparedUri);
+
+    if (response.status === 413) {
+      preparedUri = await prepareImageForUpload(imageUri, true);
+      response = await postAnalysisImage(preparedUri);
+    }
 
     if (!response.ok) {
-      let message = `Analiz hatası (${response.status})`;
+      let message = response.status === 413
+        ? 'Fotoğraf boyutu çok büyük. Uygulama sıkıştırmayı denedi ama sunucu yine reddetti. Daha yakın ve daha küçük bir kare deneyin.'
+        : `Analiz hatası (${response.status})`;
       try {
         const errorData = await response.json();
         if (typeof errorData?.detail === 'string') {

@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
 import {
-  View,
+  Alert,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   TouchableWithoutFeedback,
-  Keyboard,
-  StatusBar,
-  Image,
+  View,
 } from 'react-native';
-import { Eye, EyeOff } from 'lucide-react-native';
+import { Eye, EyeOff, ShieldCheck } from 'lucide-react-native';
 import { loginUser } from '../services/apiService';
 import { getApiBaseUrl } from '../config/apiBaseUrl';
 import { theme } from '../theme/theme';
+import { AmbientBackdrop } from '../components/AmbientBackdrop';
+import { AppButton } from '../components/AppButton';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
@@ -52,60 +53,74 @@ export default function LoginScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.forest} />
+      <StatusBar barStyle="dark-content" backgroundColor={theme.bg} />
+      <AmbientBackdrop />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View style={styles.hero}>
-              <View style={styles.heroGlow} />
-              <Text style={styles.brand}>ÇİFTÇİ</Text>
-              <Text style={styles.heroLine}>Asistan</Text>
-              <Text style={styles.heroSub}>Hava, tarla ve takvim — tek yerde</Text>
+              <View style={styles.brandChip}>
+                <Text style={styles.brandChipText}>ÇİFTÇİ APP</Text>
+              </View>
+              <Text style={styles.heroTitle}>Tarla yönetimini sadeleştirin.</Text>
+              <Text style={styles.heroSub}>
+                Hastalık analizi, görev planı ve ziraat asistanı tek bir akışta.
+              </Text>
             </View>
 
-            <View style={styles.sheet}>
-              <View style={styles.logoWrap}>
-                <Image source={require('../../assets/icon.png')} style={styles.logo} />
-              </View>
-              <Text style={styles.title}>Giriş</Text>
-              <Text style={styles.sub}>Hesabınla devam et</Text>
-
-              <View style={styles.form}>
-                <Text style={styles.label}>E-posta</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="ornek@email.com"
-                  placeholderTextColor={theme.muted}
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  autoCorrect={false}
-                />
-
-                <Text style={styles.label}>Şifre</Text>
-                <View style={styles.passRow}>
-                  <TextInput
-                    style={styles.passInput}
-                    placeholder="••••••••"
-                    placeholderTextColor={theme.muted}
-                    secureTextEntry={!showPassword}
-                    value={password}
-                    onChangeText={setPassword}
-                    autoCapitalize="none"
-                  />
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)} hitSlop={12}>
-                    {showPassword ? <EyeOff size={22} color={theme.muted} /> : <Eye size={22} color={theme.muted} />}
-                  </TouchableOpacity>
+            <View style={styles.card}>
+              <View style={styles.cardHead}>
+                <View style={styles.logoWrap}>
+                  <Image source={require('../../assets/icon.png')} style={styles.logo} />
                 </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardEyebrow}>GÜVENLİ GİRİŞ</Text>
+                  <Text style={styles.cardTitle}>Hesabınıza devam edin</Text>
+                </View>
+              </View>
 
-                <TouchableOpacity style={[styles.cta, loading && { opacity: 0.75 }]} onPress={handleLogin} disabled={loading}>
-                  {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>Giriş yap</Text>}
+              <View style={styles.notice}>
+                <ShieldCheck size={16} color={theme.success} />
+                <Text style={styles.noticeText}>Cihaz, konum ve görev verileri hesabınızla eşlenir.</Text>
+              </View>
+
+              <Text style={styles.label}>E-posta</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="ornek@email.com"
+                placeholderTextColor={theme.muted}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                autoCorrect={false}
+              />
+
+              <Text style={styles.label}>Şifre</Text>
+              <View style={styles.passwordRow}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="••••••••"
+                  placeholderTextColor={theme.muted}
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={setPassword}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} hitSlop={12}>
+                  {showPassword ? <EyeOff size={20} color={theme.muted} /> : <Eye size={20} color={theme.muted} />}
                 </TouchableOpacity>
               </View>
 
+              <AppButton
+                label="Giriş yap"
+                onPress={handleLogin}
+                loading={loading}
+                style={styles.submitButton}
+              />
+
               <View style={styles.footerRow}>
-                <Text style={styles.footerMuted}>Hesabın yok mu? </Text>
+                <Text style={styles.footerText}>Hesabın yok mu? </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Register')}>
                   <Text style={styles.footerLink}>Kayıt ol</Text>
                 </TouchableOpacity>
@@ -120,90 +135,101 @@ export default function LoginScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
-  scroll: { flexGrow: 1, paddingBottom: 40 },
-  hero: {
-    minHeight: 220,
-    backgroundColor: theme.forest,
-    paddingHorizontal: 28,
-    paddingTop: 28,
-    paddingBottom: 56,
-    borderBottomLeftRadius: 36,
-    borderBottomRightRadius: 36,
-    justifyContent: 'flex-end',
+  scroll: { flexGrow: 1, padding: 20, justifyContent: 'center' },
+  hero: { marginBottom: 18 },
+  brandChip: {
+    alignSelf: 'flex-start',
+    backgroundColor: theme.accentSoft,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
-  heroGlow: {
-    position: 'absolute',
-    top: 20,
-    right: -40,
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'rgba(13,148,136,0.2)',
+  brandChipText: { color: theme.accent, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
+  heroTitle: {
+    color: theme.ink,
+    fontSize: 34,
+    lineHeight: 38,
+    fontWeight: '900',
+    marginTop: 16,
+    maxWidth: 280,
   },
-  brand: { color: theme.tabActive, fontSize: 12, fontWeight: '900', letterSpacing: 4 },
-  heroLine: { color: '#fff', fontSize: 34, fontWeight: '900', marginTop: 8 },
-  heroSub: { color: 'rgba(255,255,255,0.75)', fontSize: 15, marginTop: 10, maxWidth: 280 },
-  sheet: {
-    marginTop: -44,
-    marginHorizontal: 20,
+  heroSub: {
+    color: theme.inkSoft,
+    fontSize: 16,
+    lineHeight: 24,
+    marginTop: 12,
+    maxWidth: 300,
+  },
+  card: {
     backgroundColor: theme.surface,
-    borderRadius: theme.radiusLg,
-    paddingHorizontal: 22,
-    paddingTop: 26,
-    paddingBottom: 28,
+    borderRadius: theme.radiusXl,
+    padding: 20,
     borderWidth: 1,
     borderColor: theme.border,
-    shadowColor: theme.shadow,
-    shadowOffset: { width: 0, height: 14 },
+    shadowColor: theme.shadowStrong,
+    shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 1,
-    shadowRadius: 28,
-    elevation: 10,
+    shadowRadius: 24,
+    elevation: 8,
   },
+  cardHead: { flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 16 },
   logoWrap: {
-    alignSelf: 'center',
-    width: 76,
-    height: 76,
-    borderRadius: 22,
-    backgroundColor: theme.skyTint,
+    width: 64,
+    height: 64,
+    borderRadius: 18,
+    backgroundColor: theme.accentSoft,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: theme.forestLight,
   },
-  logo: { width: '55%', height: '55%', resizeMode: 'contain' },
-  title: { fontSize: 26, fontWeight: '900', color: theme.ink, textAlign: 'center' },
-  sub: { fontSize: 15, color: theme.muted, textAlign: 'center', marginTop: 6, marginBottom: 4 },
-  form: { gap: 2 },
-  label: { fontSize: 12, fontWeight: '800', color: theme.inkSecondary, marginBottom: 4, marginTop: 12 },
-  input: {
-    backgroundColor: theme.bg,
-    borderRadius: theme.radiusMd,
-    padding: 15,
-    fontSize: 16,
-    color: theme.ink,
-    borderWidth: 1,
-    borderColor: theme.border,
-  },
-  passRow: {
+  logo: { width: '54%', height: '54%', resizeMode: 'contain' },
+  cardEyebrow: { color: theme.muted, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
+  cardTitle: { color: theme.ink, fontSize: 24, fontWeight: '900', marginTop: 6 },
+  notice: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.bg,
+    gap: 8,
+    backgroundColor: theme.surfaceStrong,
+    borderRadius: theme.radiusMd,
+    padding: 12,
+    marginBottom: 6,
+  },
+  noticeText: { flex: 1, color: theme.inkSoft, fontSize: 13, lineHeight: 19 },
+  label: {
+    color: theme.inkSecondary,
+    fontSize: 12,
+    fontWeight: '900',
+    marginTop: 14,
+    marginBottom: 8,
+    letterSpacing: 0.4,
+  },
+  input: {
+    backgroundColor: theme.surfaceMuted,
     borderRadius: theme.radiusMd,
     borderWidth: 1,
     borderColor: theme.border,
-    paddingRight: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    color: theme.ink,
+    fontSize: 16,
   },
-  passInput: { flex: 1, padding: 15, fontSize: 16, color: theme.ink },
-  cta: {
-    backgroundColor: theme.accent,
-    paddingVertical: 16,
-    borderRadius: theme.radiusMd,
+  passwordRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 22,
+    backgroundColor: theme.surfaceMuted,
+    borderRadius: theme.radiusMd,
+    borderWidth: 1,
+    borderColor: theme.border,
+    paddingRight: 14,
   },
-  ctaText: { color: '#fff', fontSize: 17, fontWeight: '900' },
-  footerRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 22 },
-  footerMuted: { color: theme.muted, fontSize: 15 },
-  footerLink: { color: theme.forestLight, fontSize: 15, fontWeight: '900' },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    color: theme.ink,
+    fontSize: 16,
+  },
+  submitButton: { marginTop: 20 },
+  footerRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 18 },
+  footerText: { color: theme.muted, fontSize: 15 },
+  footerLink: { color: theme.accent, fontSize: 15, fontWeight: '900' },
 });

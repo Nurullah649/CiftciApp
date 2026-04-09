@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { User, LogOut, Save } from 'lucide-react-native';
-import { getUserProfile, updateUserProfile, logoutUser, deleteMyAccount } from '../services/apiService';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { User } from 'lucide-react-native';
+import { deleteMyAccount, getUserProfile, logoutUser, updateUserProfile } from '../services/apiService';
 import { theme } from '../theme/theme';
 import { StackHeader } from '../components/StackHeader';
+import { AmbientBackdrop } from '../components/AmbientBackdrop';
+import { AppButton } from '../components/AppButton';
 
 export default function ProfileScreen({ navigation }: any) {
   const [loading, setLoading] = useState(true);
@@ -80,28 +81,30 @@ export default function ProfileScreen({ navigation }: any) {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={theme.forestLight} />
+        <ActivityIndicator size="large" color={theme.accent} />
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
-      <StackHeader title="Profil" onBack={() => navigation.goBack()} />
+    <SafeAreaView style={styles.safe}>
+      <AmbientBackdrop />
+      <StackHeader title="Profil" eyebrow="HESAP AYARLARI" onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.hero}>
+        <View style={styles.heroCard}>
           <View style={styles.avatar}>
-            <User size={40} color={theme.forest} />
+            <User size={36} color={theme.accent} />
           </View>
           <Text style={styles.name}>
             {formData.firstName || 'Çiftçi'} {formData.lastName || ''}
           </Text>
-          <Text style={styles.role}>Hesap bilgileriniz</Text>
+          <Text style={styles.mail}>{formData.email}</Text>
         </View>
 
-        <Text style={styles.sectionLabel}>Kişisel</Text>
-        <View style={styles.card}>
+        <View style={styles.formCard}>
+          <Text style={styles.sectionTitle}>Kişisel bilgiler</Text>
+
           <Text style={styles.label}>Ad</Text>
           <TextInput
             style={styles.input}
@@ -110,6 +113,7 @@ export default function ProfileScreen({ navigation }: any) {
             placeholder="Ad"
             placeholderTextColor={theme.muted}
           />
+
           <Text style={styles.label}>Soyad</Text>
           <TextInput
             style={styles.input}
@@ -118,6 +122,7 @@ export default function ProfileScreen({ navigation }: any) {
             placeholder="Soyad"
             placeholderTextColor={theme.muted}
           />
+
           <Text style={styles.label}>Konum</Text>
           <TextInput
             style={styles.input}
@@ -126,23 +131,14 @@ export default function ProfileScreen({ navigation }: any) {
             placeholder="İl / ilçe"
             placeholderTextColor={theme.muted}
           />
+
           <Text style={styles.label}>E-posta</Text>
           <TextInput style={[styles.input, styles.inputDisabled]} value={formData.email} editable={false} />
         </View>
 
-        <TouchableOpacity style={styles.save} onPress={handleSave} disabled={saving} activeOpacity={0.9}>
-          {saving ? <ActivityIndicator color="#fff" /> : <Save size={20} color="#fff" />}
-          <Text style={styles.saveText}>{saving ? 'Kaydediliyor...' : 'Kaydet'}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.logout} onPress={handleLogout} activeOpacity={0.9}>
-          <LogOut size={20} color={theme.danger} />
-          <Text style={styles.logoutText}>Çıkış yap</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleDeleteAccount} style={styles.del}>
-          <Text style={styles.delText}>Hesabı kalıcı sil</Text>
-        </TouchableOpacity>
+        <AppButton label="Değişiklikleri kaydet" onPress={handleSave} loading={saving} style={styles.mainButton} />
+        <AppButton label="Çıkış yap" onPress={handleLogout} variant="secondary" style={styles.secondaryButton} />
+        <AppButton label="Hesabı kalıcı sil" onPress={handleDeleteAccount} variant="danger" />
       </ScrollView>
     </SafeAreaView>
   );
@@ -151,70 +147,46 @@ export default function ProfileScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: theme.bg },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.bg },
-  hero: { alignItems: 'center', marginBottom: 26, marginTop: 8 },
-  avatar: {
-    width: 96,
-    height: 96,
-    borderRadius: 30,
-    backgroundColor: theme.skyTint,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 14,
-    borderWidth: 3,
-    borderColor: theme.forestLight,
-  },
-  name: { fontSize: 22, fontWeight: '900', color: theme.ink },
-  role: { fontSize: 14, color: theme.muted, marginTop: 4 },
-  sectionLabel: {
-    fontSize: 11,
-    fontWeight: '900',
-    color: theme.muted,
-    marginBottom: 10,
-    marginLeft: 4,
-    letterSpacing: 1,
-  },
-  card: {
+  heroCard: {
     backgroundColor: theme.surface,
-    borderRadius: theme.radiusMd,
-    padding: 16,
+    borderRadius: theme.radiusXl,
+    padding: 20,
     borderWidth: 1,
     borderColor: theme.border,
+    alignItems: 'center',
     marginBottom: 16,
   },
-  label: { fontSize: 12, fontWeight: '800', color: theme.inkSecondary, marginBottom: 6, marginTop: 10 },
-  input: {
-    backgroundColor: theme.bg,
-    borderRadius: theme.radiusSm,
-    padding: 14,
-    fontSize: 16,
-    color: theme.ink,
+  avatar: {
+    width: 88,
+    height: 88,
+    borderRadius: 28,
+    backgroundColor: theme.accentSoft,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  name: { color: theme.ink, fontSize: 24, fontWeight: '900' },
+  mail: { color: theme.inkSoft, fontSize: 14, marginTop: 6 },
+  formCard: {
+    backgroundColor: theme.surface,
+    borderRadius: theme.radiusXl,
+    padding: 18,
     borderWidth: 1,
     borderColor: theme.border,
+  },
+  sectionTitle: { color: theme.ink, fontSize: 20, fontWeight: '900' },
+  label: { color: theme.inkSecondary, fontSize: 12, fontWeight: '900', marginTop: 14, marginBottom: 8, letterSpacing: 0.4 },
+  input: {
+    backgroundColor: theme.surfaceMuted,
+    borderRadius: theme.radiusMd,
+    borderWidth: 1,
+    borderColor: theme.border,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    color: theme.ink,
+    fontSize: 16,
   },
   inputDisabled: { color: theme.muted },
-  save: {
-    flexDirection: 'row',
-    backgroundColor: theme.accent,
-    padding: 16,
-    borderRadius: theme.radiusMd,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 12,
-  },
-  saveText: { color: '#fff', fontWeight: '900', fontSize: 16 },
-  logout: {
-    flexDirection: 'row',
-    backgroundColor: theme.surface,
-    padding: 16,
-    borderRadius: theme.radiusMd,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-    borderWidth: 1,
-    borderColor: theme.border,
-  },
-  logoutText: { color: theme.danger, fontWeight: '900', fontSize: 16 },
-  del: { alignItems: 'center', marginTop: 24 },
-  delText: { color: theme.muted, textDecorationLine: 'underline', fontSize: 14 },
+  mainButton: { marginTop: 16 },
+  secondaryButton: { marginTop: 10, marginBottom: 10 },
 });
