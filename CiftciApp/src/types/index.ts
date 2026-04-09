@@ -5,6 +5,7 @@ export interface AnalysisResult {
   diseaseName: string;
   confidence: number;
   recommendation: string;
+  treatmentTitles?: string[];
   status: 'healthy' | 'warning' | 'critical';
 }
 

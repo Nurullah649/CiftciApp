@@ -144,6 +144,18 @@ export default function AnalysisScreen() {
                   <Text style={styles.recTitle}>Öneri</Text>
                   <Text style={styles.recBody}>{result.recommendation}</Text>
                 </View>
+                {!!result.treatmentTitles?.length && (
+                  <View style={styles.tagsWrap}>
+                    <Text style={styles.tagsTitle}>Tedavi başlıkları</Text>
+                    <View style={styles.tagsRow}>
+                      {result.treatmentTitles.map((title) => (
+                        <View key={title} style={styles.tag}>
+                          <Text style={styles.tagText}>{title}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                )}
                 <TouchableOpacity style={styles.again} onPress={reset}>
                   <Text style={styles.againText}>Yeni fotoğraf</Text>
                 </TouchableOpacity>
@@ -262,6 +274,18 @@ const styles = StyleSheet.create({
   rec: { backgroundColor: theme.bg, padding: 16, borderRadius: theme.radiusSm, marginBottom: 14 },
   recTitle: { fontWeight: '900', color: theme.ink, marginBottom: 6 },
   recBody: { color: theme.inkSecondary, lineHeight: 22 },
+  tagsWrap: { marginBottom: 14 },
+  tagsTitle: { fontWeight: '900', color: theme.ink, marginBottom: 10 },
+  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  tag: {
+    backgroundColor: theme.bg,
+    borderWidth: 1,
+    borderColor: theme.border,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  tagText: { color: theme.forestLight, fontWeight: '800', fontSize: 13 },
   again: { padding: 14, alignItems: 'center', borderRadius: theme.radiusSm, borderWidth: 1, borderColor: theme.border },
   againText: { fontWeight: '800', color: theme.forestLight },
 });

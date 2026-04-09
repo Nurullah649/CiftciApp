@@ -254,6 +254,16 @@ export const uploadImageForAnalysis = async (imageUri: string): Promise<Analysis
     type: 'image/jpeg',
   } as any);
 
+  const buildErrorResult = (diseaseName: string, recommendation: string): AnalysisResult => ({
+    id: Date.now().toString(),
+    imageUri,
+    timestamp: new Date().toISOString(),
+    diseaseName,
+    confidence: 0,
+    recommendation,
+    status: 'warning'
+  });
+
   try {
     const response = await fetch(`${API_BASE_URL}/tools/analyze-plant`, {
       method: 'POST',
@@ -262,30 +272,26 @@ export const uploadImageForAnalysis = async (imageUri: string): Promise<Analysis
     });
 
     if (!response.ok) {
-      if (response.status === 404 || response.status === 405) {
-        return {
-          id: Date.now().toString(),
-          imageUri,
-          timestamp: new Date().toISOString(),
-          diseaseName: "Sağlıklı Bitki",
-          confidence: 0.98,
-          recommendation: "Bitkiniz sağlıklı görünüyor.",
-          status: 'healthy'
-        };
+      let message = `Analiz hatası (${response.status})`;
+      try {
+        const errorData = await response.json();
+        if (typeof errorData?.detail === 'string') {
+          message = errorData.detail;
+        }
+      } catch {
+        /* sunucu JSON dönmemiş olabilir */
       }
-      throw new Error(`Analiz hatası: ${response.status}`);
+      return buildErrorResult('Analiz Basarisiz', message);
     }
-    return await response.json();
-  } catch (error) {
+
+    const data = await response.json();
     return {
-      id: Date.now().toString(),
-      imageUri,
-      timestamp: new Date().toISOString(),
-      diseaseName: "Bağlantı Hatası",
-      confidence: 0,
-      recommendation: "Sunucuya bağlanılamadı.",
-      status: 'warning'
+      ...data,
+      imageUri: data?.imageUri || imageUri,
     };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Sunucuya bağlanılamadı.';
+    return buildErrorResult('Baglanti Hatasi', message);
   }
 };
 

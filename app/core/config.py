@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     # --- API Anahtarları ---
     WEATHER_API_KEY: str = ""
     GEOCODING_API_KEY: str = ""
+    PLANT_ID_API_KEY: str = ""
 
     # --- Vektör Veritabanı ---
     QDRANT_URL: str = "http://localhost:6333"

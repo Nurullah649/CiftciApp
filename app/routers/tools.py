@@ -1,19 +1,19 @@
 """
-Tools Router: Genel araçlar (health check, hava durumu, harita).
-3 endpoint: health, weather, generate-map
+Tools Router: Genel araçlar (health check, hava durumu, harita, fotograf analizi).
 """
 
 import folium
 from folium.plugins import MiniMap
 from geopy.geocoders import Nominatim
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse
 
 from app.core.security import get_current_user
 from app.core.config import settings
 from app.core.logging import logger
 from app.services.llm_service import llm_service
+from app.services.plant_id_service import analyze_plant_health
 from app.services.rag_service import rag_service
 from app.services.weather_service import (
     fetch_weather_and_location,
@@ -88,3 +88,31 @@ async def generate_map_html(req: MapRequest):
     except Exception as e:
         logger.error(f"Harita oluşturma hatası: {e}")
         raise HTTPException(status_code=500, detail="Harita oluşturulamadı")
+
+
+@router.post("/tools/analyze-plant")
+async def analyze_plant_endpoint(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user),
+):
+    """Yuklenen bitki fotografini Plant.id ile analiz eder."""
+    del current_user
+
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Sadece gorsel dosyalari kabul edilir.")
+
+    image_bytes = await file.read()
+    await file.close()
+
+    if not image_bytes:
+        raise HTTPException(status_code=400, detail="Bos dosya gonderildi.")
+
+    try:
+        return await analyze_plant_health(image_bytes)
+    except ValueError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception(f"Bitki analizi sirasinda beklenmeyen hata: {exc}")
+        raise HTTPException(status_code=500, detail="Bitki analizi yapilamadi.") from exc
