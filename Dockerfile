@@ -40,9 +40,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH" \
     TZ=Europe/Istanbul
 
-# Çalışma zamanı için gerekli sistem paketleri (OpenBLAS + libpq)
+# Çalışma zamanı için gerekli sistem paketleri
+# - libopenblas0 + libgomp1  : llama-cpp-python (BLAS + OpenMP)
+# - libpq5                    : psycopg2
+# - tzdata, curl              : saat dilimi + healthcheck
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libopenblas0 \
+        libgomp1 \
         libpq5 \
         tzdata \
         curl \
