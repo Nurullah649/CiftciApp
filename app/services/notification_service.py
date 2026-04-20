@@ -1,12 +1,12 @@
 """
 Bildirim Servisi: Push notification gönderimi ve zamanlayıcı.
-Senkron MySQL bağlantısı kullanır (APScheduler arka plan thread'i için).
+Senkron PostgreSQL bağlantısı kullanır (APScheduler arka plan thread'i için).
 """
 
 import datetime
 from typing import Optional
 
-import mysql.connector
+import psycopg2
 from apscheduler.schedulers.background import BackgroundScheduler
 from exponent_server_sdk import PushClient, PushMessage
 
@@ -49,12 +49,13 @@ class NotificationService:
             logger.error(f"Bildirim gönderilemedi: {e}")
 
     def _get_sync_connection(self):
-        """APScheduler thread'i için senkron MySQL bağlantısı."""
-        return mysql.connector.connect(
+        """APScheduler thread'i için senkron PostgreSQL bağlantısı."""
+        return psycopg2.connect(
             host=settings.DB_HOST,
+            port=settings.DB_PORT,
             user=settings.DB_USER,
             password=settings.DB_PASSWORD,
-            database=settings.DB_NAME,
+            dbname=settings.DB_NAME,
         )
 
     def _check_and_send(self):
@@ -67,11 +68,11 @@ class NotificationService:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
             cursor.execute("""
-                SELECT t.id, t.title, t.date_text, u.push_token 
-                FROM tasks t 
+                SELECT t.id, t.title, t.date_text, u.push_token
+                FROM tasks t
                 JOIN users u ON t.user_id = u.id
-                WHERE t.status = 'approved' 
-                AND t.is_notified = 0 
+                WHERE t.status = 'approved'
+                AND t.is_notified = FALSE
                 AND t.date_text <= %s
             """, (current_time,))
             tasks = cursor.fetchall()
@@ -82,11 +83,12 @@ class NotificationService:
                         push_token, "Çiftçi Asistanı", title
                     )
                 cursor.execute(
-                    "UPDATE tasks SET is_notified = 1 WHERE id = %s",
+                    "UPDATE tasks SET is_notified = TRUE WHERE id = %s",
                     (task_id,),
                 )
 
             conn.commit()
+            cursor.close()
 
             if tasks:
                 logger.info(f"📬 {len(tasks)} bildirim gönderildi")
@@ -94,7 +96,7 @@ class NotificationService:
         except Exception as e:
             logger.error(f"Bildirim kontrol hatası: {e}")
         finally:
-            if conn and conn.is_connected():
+            if conn is not None and not conn.closed:
                 conn.close()
 
 

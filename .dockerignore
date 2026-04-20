@@ -1,0 +1,58 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+.venv
+venv
+.pytest_cache
+
+# IDE
+.idea
+.vscode
+
+# Node / mobil (Docker imajında gerek yok)
+CiftciApp/
+**/node_modules
+
+# Dokümanlar ve büyük veri setleri (imaj şişmesin)
+*.docx
+*.pdf
+*.xls
+*.xlsx
+*.jsonl
+*.csv
+
+# Logs
+logs/
+*.log
+
+# Modeller (volume ile mount ediliyor, imajda olmasın)
+models/
+*.gguf
+
+# Build artefaktları
+build-*.apk
+.expo/
+
+# Env (kesinlikle imaja kopyalanmamalı)
+.env
+.env.*
+!.env.example
+
+# Eski monolitik dosyalar
+api2.py
+api_serverside.py
+main.py
+train.py
+ge.py
+dataset*.py
+rag_api_deneme.py
+test_rag.py
+veri_topla.py
+tarim_kutuphanesi.py
+hal_fiyatları.py

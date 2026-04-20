@@ -16,9 +16,10 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 1 hafta
 
-    # --- Veritabanı ---
+    # --- Veritabanı (PostgreSQL) ---
     DB_HOST: str = "localhost"
-    DB_USER: str = "root"
+    DB_PORT: int = 5432
+    DB_USER: str = "ciftci"
     DB_PASSWORD: str = ""
     DB_NAME: str = "tarim_db"
 
@@ -36,24 +37,37 @@ class Settings(BaseSettings):
 
     # --- Model ---
     MODEL_FILENAME: str = "urfa_ciftci_ai_qwen3_4b_thinking.Q4_K_M.gguf"
+    MODEL_DIR: str = "/app/models"  # Docker compose içinde bind edilen klasör
 
     # --- Uygulama ---
     SIMULATION_MODE: bool = True
 
     @property
     def DATABASE_URL(self) -> str:
-        """Async SQLAlchemy bağlantı URL'si."""
-        return f"mysql+aiomysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}/{self.DB_NAME}"
+        """Async SQLAlchemy bağlantı URL'si (asyncpg)."""
+        return (
+            f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}"
+            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
 
     @property
     def DATABASE_URL_SYNC(self) -> str:
-        """Alembic için senkron bağlantı URL'si."""
-        return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}/{self.DB_NAME}"
+        """Alembic / senkron işlemler için bağlantı URL'si (psycopg2)."""
+        return (
+            f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}"
+            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
 
     @property
     def MODEL_PATH(self) -> str:
         """GGUF model dosyasının tam yolu."""
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        # MODEL_DIR dışarıdan (env) verilmişse onu kullan,
+        # aksi halde proje köküne bak (lokal geliştirme için).
+        if os.path.isdir(self.MODEL_DIR):
+            return os.path.join(self.MODEL_DIR, self.MODEL_FILENAME)
+        base_dir = os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        )
         return os.path.join(base_dir, self.MODEL_FILENAME)
 
     class Config:

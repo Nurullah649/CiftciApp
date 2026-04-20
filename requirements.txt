@@ -1,0 +1,47 @@
+# --- FastAPI & ASGI ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# --- Pydantic & Ayarlar ---
+pydantic==2.10.4
+pydantic-settings==2.7.1
+email-validator==2.2.0
+
+# --- PostgreSQL (MySQL'in yerine) ---
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+psycopg2-binary==2.9.10
+
+# --- Güvenlik / Auth ---
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+pyjwt==2.10.1
+
+# --- HTTP istemciler ---
+httpx==0.28.1
+requests==2.32.3
+
+# --- RAG / Vektör DB ---
+qdrant-client==1.12.1
+ollama==0.4.4
+
+# --- Yerel LLM (GGUF) ---
+llama-cpp-python==0.3.5
+
+# --- Önbellek ---
+redis==5.2.1
+
+# --- Harita & Konum ---
+folium==0.19.4
+geopy==2.4.1
+
+# --- Push Notification ---
+exponent-server-sdk==2.1.0
+
+# --- Zamanlayıcı ---
+apscheduler==3.11.0
+
+# --- Logging & Sistem ---
+loguru==0.7.3
+psutil==6.1.1

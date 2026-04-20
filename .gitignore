@@ -1,6 +1,19 @@
 .idea/
+.vscode/
 .env
+.env.local
+.env.production
+__pycache__/
+*.pyc
+logs/
+*.log
+
 CiftciApp/node_modules
 api.py₺
 api.py
-/models
+
+/models/
+*.gguf
+
+# Docker
+# (Dockerfile, docker-compose.yml ve .dockerignore commit EDİLİR)

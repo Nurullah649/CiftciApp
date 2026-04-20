@@ -47,12 +47,17 @@ async def get_db():
 
 
 async def init_db():
-    """Uygulama başlatıldığında DB bağlantısını test eder."""
+    """
+    Uygulama başlatıldığında DB bağlantısını test eder ve
+    eksik tabloları otomatik oluşturur (PostgreSQL).
+    """
+    # Tüm modelleri import et ki Base.metadata tabloları tanısın
+    from app.models import user, task, chat  # noqa: F401
+
     try:
         async with engine.begin() as conn:
-            # Basit bağlantı testi
-            await conn.run_sync(lambda sync_conn: None)
-        logger.info("✅ Veritabanı bağlantısı başarılı")
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("✅ Veritabanı bağlantısı başarılı, tablolar hazır")
     except Exception as e:
         logger.error(f"❌ Veritabanı bağlantı hatası: {e}")
         raise

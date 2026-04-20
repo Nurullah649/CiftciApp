@@ -1,0 +1,128 @@
+###############################################################################
+# Çiftçi AI — Docker Compose
+# Servisler:
+#   - api       (FastAPI, yerel GGUF + RAG)   → host portu 8000
+#   - postgres  (PostgreSQL 16)               → iç ağda
+#   - qdrant    (vektör DB)                   → iç ağda
+#   - ollama    (embedding servisi)           → iç ağda
+#   - redis     (önbellek)                    → iç ağda
+#
+# Kullanım:
+#   docker compose up -d                # ayağa kaldır
+#   docker compose logs -f api          # api loglarını izle
+#   docker compose ps                   # durum
+#   docker compose down                 # durdur (verileri koru)
+#   docker compose down -v              # durdur + TÜM verileri sil (dikkat!)
+###############################################################################
+
+services:
+
+  # ----------------------------------------------------------------------
+  # PostgreSQL — ana veritabanı
+  # ----------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: ciftci-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      TZ: Europe/Istanbul
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ciftci-net
+
+  # ----------------------------------------------------------------------
+  # Qdrant — vektör veritabanı (RAG)
+  # ----------------------------------------------------------------------
+  qdrant:
+    image: qdrant/qdrant:v1.12.4
+    container_name: ciftci-qdrant
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - ciftci-net
+
+  # ----------------------------------------------------------------------
+  # Ollama — embedding modeli
+  # İlk açılışta model indirilmesi gerekir (aşağıdaki komutla).
+  # ----------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ciftci-ollama
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - ciftci-net
+
+  # ----------------------------------------------------------------------
+  # Redis — önbellek
+  # ----------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: ciftci-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - ciftci-net
+
+  # ----------------------------------------------------------------------
+  # API — FastAPI backend (app/ modüler)
+  # ----------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ciftci-api:latest
+    container_name: ciftci-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      # HOST:CONTAINER  →  sunucunda 8000 açık olmalı (UFW allow 8000/tcp)
+      - "8000:8000"
+    volumes:
+      # GGUF modeller — host makinedeki ./models klasöründen mount edilir
+      - ./models:/app/models:ro
+      # Loglar
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      ollama:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - ciftci-net
+
+
+# ----------------------------------------------------------------------
+# Veri kalıcılığı için volume'lar
+# ----------------------------------------------------------------------
+volumes:
+  pg_data:
+  qdrant_data:
+  ollama_data:
+  redis_data:
+
+
+# ----------------------------------------------------------------------
+# Özel iç ağ — servisler birbirine hostname (servis adı) ile erişir
+# ----------------------------------------------------------------------
+networks:
+  ciftci-net:
+    driver: bridge
