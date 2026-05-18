@@ -1,0 +1,168 @@
+﻿
+==============================================================================
+  HIBRIT DATASET ANALIZ RAPORU
+==============================================================================
+  Raw dir    : C:\Users\agdbe\Desktop\CiftciApp\ml\data\raw  (60.627 g├Ârsel, 41 s─▒n─▒f)
+  Splits dir : C:\Users\agdbe\Desktop\CiftciApp\ml\data\splits
+               train=42.495  val=9.150  test=8.982
+               70.1% / 15.1% / 14.8%
+
+  Kaynak basina:
+    plantvillage :   54.305  ( 89.6%)
+    plantdoc     :    2.922  (  4.8%)
+    olive        :    3.400  (  5.6%)
+
+------------------------------------------------------------------------------
+  1. SINIF BAZINDA GORSEL SAYISI
+------------------------------------------------------------------------------
+    #  Sinif                                                   Raw   Train    Val   Test    Status
+  ------------------------------------------------------------------------------------------------
+    1  Apple___Apple_scab                                      723     508    113    102   warning
+    2  Apple___Black_rot                                       621     439     99     83  critical
+    3  Apple___Cedar_apple_rust                                381     266     58     57   warning
+    4  Apple___healthy                                       1,733   1,218    262    253   healthy
+    5  Blueberry___healthy                                   1,619   1,133    247    239   healthy
+    6  Cherry_(including_sour)___Powdery_mildew              1,052     757    162    133   warning
+    7  Cherry_(including_sour)___healthy                       911     643    137    131   healthy
+    8  Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot      580     406     87     87   warning
+    9  Corn_(maize)___Common_rust_                           1,309     916    196    197   warning
+   10  Corn_(maize)___Northern_Leaf_Blight                   1,179     825    176    178  critical
+   11  Corn_(maize)___healthy                                1,162     814    175    173   healthy
+   12  Grape___Black_rot                                     1,259     881    188    190  critical
+   13  Grape___Esca_(Black_Measles)                          1,383     968    207    208  critical
+   14  Grape___Leaf_blight_(Isariopsis_Leaf_Spot)            1,076     756    164    156   warning
+   15  Grape___healthy                                         498     348     74     76   healthy
+   16  Olive___Aculus_olearius                               1,313     919    196    198   warning
+   17  Olive___Peacock_spot                                  1,037     725    155    157  critical
+   18  Olive___healthy                                       1,050     735    157    158   healthy
+   19  Orange___Haunglongbing_(Citrus_greening)              5,507   3,857    827    823  critical
+   20  Peach___Bacterial_spot                                2,297   1,608    349    340   warning
+   21  Peach___healthy                                         472     331     72     69   healthy
+   22  Pepper,_bell___Bacterial_spot                         1,080     761    165    154   warning
+   23  Pepper,_bell___healthy                                1,520   1,065    234    221   healthy
+   24  Potato___Early_blight                                 1,171     819    175    177   warning
+   25  Potato___Late_blight                                  1,208     846    184    178  critical
+   26  Potato___healthy                                        152     108     24     20   healthy
+   27  Raspberry___healthy                                     490     345     77     68   healthy
+   28  Soybean___healthy                                     5,155   3,610    780    765   healthy
+   29  Squash___Powdery_mildew                               1,965   1,375    294    296   warning
+   30  Strawberry___Leaf_scorch                              1,109     776    169    164   warning
+   31  Strawberry___healthy                                    552     388     85     79   healthy
+   32  Tomato___Bacterial_spot                               2,237   1,568    335    334   warning
+   33  Tomato___Early_blight                                 1,088     762    165    161   warning
+   34  Tomato___Late_blight                                  2,020   1,414    303    303  critical
+   35  Tomato___Leaf_Mold                                    1,043     733    157    153   warning
+   36  Tomato___Septoria_leaf_spot                           1,928   1,352    289    287   warning
+   37  Tomato___Spider_mites Two-spotted_spider_mite         1,678   1,174    252    252   warning
+   38  Tomato___Target_Spot                                  1,404     982    210    212   warning
+   39  Tomato___Tomato_Yellow_Leaf_Curl_Virus                5,595   3,916    841    838  critical
+   40  Tomato___Tomato_mosaic_virus                            427     298     64     65  critical
+   41  Tomato___healthy                                      1,643   1,150    246    247   healthy
+
+------------------------------------------------------------------------------
+  1b. KAYNAK BAZINDA SINIF DAGILIMI (saha kalitesi)
+------------------------------------------------------------------------------
+  Sinif                                                  PV    PD  Olive  Wheat   Cot   Sun   %Saha
+  -------------------------------------------------------------------------------------------------
+  Tomato___Tomato_Yellow_Leaf_Curl_Virus               5357   238      0      0     0     0    4.3%
+  Potato___Late_blight                                 1000   208      0      0     0     0   17.2%
+  Corn_(maize)___Northern_Leaf_Blight                   985   194      0      0     0     0   16.5%
+  Potato___Early_blight                                1000   171      0      0     0     0   14.6%
+  Tomato___Septoria_leaf_spot                          1771   157      0      0     0     0    8.1%
+  Squash___Powdery_mildew                              1835   130      0      0     0     0    6.6%
+  Raspberry___healthy                                   371   119      0      0     0     0   24.3%
+  Blueberry___healthy                                  1502   117      0      0     0     0    7.2%
+  Corn_(maize)___Common_rust_                          1192   117      0      0     0     0    8.9%
+  Peach___healthy                                       360   112      0      0     0     0   23.7%
+  Tomato___Late_blight                                 1909   111      0      0     0     0    5.5%
+  Tomato___Bacterial_spot                              2127   110      0      0     0     0    4.9%
+  Apple___Cedar_apple_rust                              275   106      0      0     0     0   27.8%
+  Strawberry___healthy                                  456    96      0      0     0     0   17.4%
+  Apple___Apple_scab                                    630    93      0      0     0     0   12.9%
+  Tomato___Leaf_Mold                                    952    91      0      0     0     0    8.7%
+  Apple___healthy                                      1645    88      0      0     0     0    5.1%
+  Tomato___Early_blight                                1000    88      0      0     0     0    8.1%
+  Pepper,_bell___Bacterial_spot                         997    83      0      0     0     0    7.7%
+  Grape___Black_rot                                    1180    79      0      0     0     0    6.3%
+  Grape___healthy                                       423    75      0      0     0     0   15.1%
+  Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot    513    67      0      0     0     0   11.6%
+  Soybean___healthy                                    5090    65      0      0     0     0    1.3%
+  Cherry_(including_sour)___healthy                     854    57      0      0     0     0    6.3%
+  Tomato___Tomato_mosaic_virus                          373    54      0      0     0     0   12.6%
+  Tomato___healthy                                     1591    52      0      0     0     0    3.2%
+  Pepper,_bell___healthy                               1478    42      0      0     0     0    2.8%
+  Tomato___Spider_mites Two-spotted_spider_mite        1676     2      0      0     0     0    0.1%
+  ... (sadece birden fazla kaynak olan 28 s─▒n─▒f g├Âsterildi)
+
+------------------------------------------------------------------------------
+  2. BITKI (CROP) BAZINDA DAGILIM
+------------------------------------------------------------------------------
+  Crop                       Sinif  Hastalik    Gorsel      %
+  --------------------------------------------------------
+  Domates                       10         9    19,063  31.4%
+  Portakal                       1         1     5,507   9.1%
+  Soya                           1         0     5,155   8.5%
+  M─▒s─▒r                          4         3     4,230   7.0%
+  ├£z├╝m                           4         3     4,216   7.0%
+  Elma                           4         3     3,458   5.7%
+  Zeytin                         3         2     3,400   5.6%
+  ┼Şeftali                        2         1     2,769   4.6%
+  Biber                          2         1     2,600   4.3%
+  Patates                        3         2     2,531   4.2%
+  Kabak                          1         1     1,965   3.2%
+  Kiraz                          2         1     1,963   3.2%
+  ├çilek                          2         1     1,661   2.7%
+  Yaban Mersini                  1         0     1,619   2.7%
+  Ahududu                        1         0       490   0.8%
+  TOPLAM                        41        28    60,627  100.0%
+
+------------------------------------------------------------------------------
+  3. HASTALIK STATUSU BAZINDA DAGILIM
+------------------------------------------------------------------------------
+  Status        Sinif    Gorsel      %
+  --------------------------------------
+  warning          18    23,434  38.7%
+  critical         10    20,236  33.4%
+  healthy          13    16,957  28.0%
+
+------------------------------------------------------------------------------
+  4. CLASS IMBALANCE METRIKLERI
+------------------------------------------------------------------------------
+  Min g├Ârsel say─▒s─▒   :   152  (Potato___healthy)
+  Max g├Ârsel say─▒s─▒   :  5595  (Tomato___Tomato_Yellow_Leaf_Curl_Virus)
+  Ortalama            :  1479
+  Medyan              :  1171
+  Max/Min oran─▒       :  36.8x   -> DENGESIZ
+  Gini indeksi        : 0.368   (0=dengeli, 1=tek sinifta toplanmis)
+  Normalize entropy   : 0.931   (1.0=mukemmel dengeli)
+
+  YORUM:
+    ├çok dengesiz ÔåÆ class weights veya oversampling ZORUNLU.
+
+------------------------------------------------------------------------------
+  5. LEAF GROUPING ISTATISTIKLERI (sadece PlantVillage'da gecerli)
+------------------------------------------------------------------------------
+  PlantVillage g├Ârseller    : 54,305
+  Benzersiz yaprak (PV)     : 20,015
+  Ortalama g├Ârsel/yaprak    : 2.71
+
+  PV i├ğin leaf-aware split SART (ayn─▒ yaprak farkl─▒ a├ğ─▒lardan ├ğekilmi┼ş).
+  PD/Olive/Wheat/Cotton/Sunflower i├ğin leaf_id yok ÔåÆ stratified random fallback.
+
+------------------------------------------------------------------------------
+  6. LEAK KONTROLU (train/val/test arasinda ortak leaf_id)
+------------------------------------------------------------------------------
+  Toplam ortak leaf_id sayisi : 0
+  [OK] Split temiz - hicbir yaprak birden fazla split'te yok.
+
+------------------------------------------------------------------------------
+  7. ORNEK GORSEL METADATASI
+------------------------------------------------------------------------------
+  Ornek sinif: Apple___Apple_scab
+    Genislik (px) : min=256, max=990, ort=402
+    Yukseklik (px): min=256, max=743, ort=353
+    Dosya (KB)    : min=8.5, max=250.1, ort=58.9
+    Renk modu     : {'RGB': 5}
+
+[INFO] JSON rapor kaydedildi: ml\hybrid_report.json
+

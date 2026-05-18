@@ -1,0 +1,341 @@
+{
+  "_meta": {
+    "disclaimer_tr": "Bu liste genel bilgilendirme amaçlıdır; ticari ürün adı önerilmez. Türkiye'de kayıtlı bitki koruma ürününü, ürün etiketi ve ziraat mühendisi kontrolünde kullanın. Doz, güvenlik aralığı ve çevre uyarılarına mutlaka uyun."
+  },
+  "by_class": {
+    "Apple___Apple_scab": [
+      {
+        "name": "Mancozeb",
+        "role": "Koruyucu",
+        "notes": "Çiçeklenme öncesi koruyucu program."
+      },
+      {
+        "name": "Myclobutanil",
+        "role": "Triazol",
+        "notes": "Risk döneminde etiket programına göre."
+      }
+    ],
+    "Apple___Black_rot": [
+      {
+        "name": "Captan",
+        "role": "Koruyucu fungisit",
+        "notes": "Meyve dönemi etiket programı."
+      },
+      {
+        "name": "Tiyofanat-metil",
+        "role": "Benzoimidazol grubu",
+        "notes": "Elma için onaylı preparat kullanın."
+      }
+    ],
+    "Apple___Cedar_apple_rust": [
+      {
+        "name": "Propikonazol",
+        "role": "Triazol fungisit",
+        "notes": "Pas için yaygın grup."
+      },
+      {
+        "name": "Mancozeb",
+        "role": "Koruyucu",
+        "notes": "Programda rotasyonlu kullanın."
+      }
+    ],
+    "Apple___healthy": [],
+    "Blueberry___healthy": [],
+    "Cherry_(including_sour)___Powdery_mildew": [
+      {
+        "name": "Kükürt",
+        "role": "Kontakt fungisit",
+        "notes": "Erken evrede etkilidir."
+      },
+      {
+        "name": "Myclobutanil veya Tebukonazol",
+        "role": "Triazol fungisit",
+        "notes": "Direnç için tek başına sürekli kullanmayın."
+      }
+    ],
+    "Cherry_(including_sour)___healthy": [],
+    "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": [
+      {
+        "name": "Azoksistrobin veya Piraklostrobin",
+        "role": "Strobilurin",
+        "notes": "FRAC rotasyonu yapın."
+      },
+      {
+        "name": "Propikonazol",
+        "role": "Triazol",
+        "notes": "Mısır için etiket onayı kontrol edin."
+      }
+    ],
+    "Corn_(maize)___Common_rust_": [
+      {
+        "name": "Propikonazol",
+        "role": "Triazol fungisit",
+        "notes": "Pas için yaygın grup."
+      },
+      {
+        "name": "Mancozeb",
+        "role": "Koruyucu",
+        "notes": "Programda rotasyonlu kullanın."
+      }
+    ],
+    "Corn_(maize)___Northern_Leaf_Blight": [
+      {
+        "name": "Azoksistrobin + Propikonazol (kombine)",
+        "role": "Geniş spektrum",
+        "notes": "Şiddetli enfeksiyonda erken uygulama."
+      },
+      {
+        "name": "Mancozeb",
+        "role": "Koruyucu",
+        "notes": "Program başında veya destek olarak."
+      }
+    ],
+    "Corn_(maize)___healthy": [],
+    "Grape___Black_rot": [
+      {
+        "name": "Mancozeb",
+        "role": "Koruyucu fungisit",
+        "notes": "Üzüm için etiket dozuna uyun."
+      },
+      {
+        "name": "Myclobutanil",
+        "role": "Triazol",
+        "notes": "Risk döneminde program parçası olabilir."
+      }
+    ],
+    "Grape___Esca_(Black_Measles)": [
+      {
+        "name": "Kimyasal tedavi sınırlıdır",
+        "role": "Kültürel öncelik",
+        "notes": "Enfekte kolları kesip macunlama; profesyonel bağ gözetimi önerilir."
+      }
+    ],
+    "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": [
+      {
+        "name": "Mancozeb",
+        "role": "Koruyucu fungisit",
+        "notes": "Üzüm için etiket dozuna uyun."
+      },
+      {
+        "name": "Myclobutanil",
+        "role": "Triazol",
+        "notes": "Risk döneminde program parçası olabilir."
+      }
+    ],
+    "Grape___healthy": [],
+    "Olive___Aculus_olearius": [
+      {
+        "name": "Abamektin",
+        "role": "Akarisit",
+        "notes": "Doğal düşmanları koruyun; dönüşümlü aktif kullanın."
+      },
+      {
+        "name": "Kükürt",
+        "role": "Kontakt akarisit",
+        "notes": "Sıcak havalarda yanık riskine dikkat; etikete uyun."
+      }
+    ],
+    "Olive___Peacock_spot": [
+      {
+        "name": "Bakır bileşikleri",
+        "role": "Koruyucu fungisit",
+        "notes": "Sonbahar ve ilkbahar koruyucu program."
+      },
+      {
+        "name": "Bordo bulamacı",
+        "role": "Koruyucu",
+        "notes": "Onaylı kullanım ve çevresel duyarlılık."
+      }
+    ],
+    "Olive___healthy": [],
+    "Orange___Haunglongbing_(Citrus_greening)": [
+      {
+        "name": "İmidakloprid veya etikette önerilen neonikotinoid",
+        "role": "Psillid (vektör) mücadelesi",
+        "notes": "Ağaçta doğrudan ilaç tedavisi yoktur; vektör ve sertifikalı materyal kritiktir."
+      },
+      {
+        "name": "Yayılım kontrolü (söküm / karantina)",
+        "role": "Mevzuatsal / kültürel",
+        "notes": "Bölgesel kurallara uygun hareket edin."
+      }
+    ],
+    "Peach___Bacterial_spot": [
+      {
+        "name": "Bakır bileşikleri (ör. bakır oksiklorür)",
+        "role": "Koruyucu / bakteri baskılama",
+        "notes": "Etiket dozu ve güvenlik aralığına uyun; yağmurlama sulama yapmayın."
+      },
+      {
+        "name": "Mancozeb (destekleyici)",
+        "role": "Karma preparatlarda sık görülür",
+        "notes": "Üretici etiketinde hastalığa onaylı kombinasyonları tercih edin."
+      }
+    ],
+    "Peach___healthy": [],
+    "Pepper,_bell___Bacterial_spot": [
+      {
+        "name": "Bakır bileşikleri (ör. bakır oksiklorür)",
+        "role": "Koruyucu / bakteri baskılama",
+        "notes": "Etiket dozu ve güvenlik aralığına uyun; yağmurlama sulama yapmayın."
+      },
+      {
+        "name": "Mancozeb (destekleyici)",
+        "role": "Karma preparatlarda sık görülür",
+        "notes": "Üretici etiketinde hastalığa onaylı kombinasyonları tercih edin."
+      }
+    ],
+    "Pepper,_bell___healthy": [],
+    "Potato___Early_blight": [
+      {
+        "name": "Clorotalonil",
+        "role": "Koruyucu fungisit",
+        "notes": "Alternaria için sık kullanılır."
+      },
+      {
+        "name": "Azoksistrobin",
+        "role": "Strobilurin",
+        "notes": "Direnç yönetimi için rotasyon şart."
+      }
+    ],
+    "Potato___Late_blight": [
+      {
+        "name": "Metalaksil + Mancozeb (kombine)",
+        "role": "Sistemik + koruyucu",
+        "notes": "Mildiyöde etiket onaylı kombinasyonları kullanın."
+      },
+      {
+        "name": "Cimoksanil içerikli preparatlar",
+        "role": "Anti-sporulant etki",
+        "notes": "Erken müdahale; sık tekrar gerekebilir."
+      }
+    ],
+    "Potato___healthy": [],
+    "Raspberry___healthy": [],
+    "Soybean___healthy": [],
+    "Squash___Powdery_mildew": [
+      {
+        "name": "Kükürt",
+        "role": "Kontakt fungisit",
+        "notes": "Erken evrede etkilidir."
+      },
+      {
+        "name": "Myclobutanil veya Tebukonazol",
+        "role": "Triazol fungisit",
+        "notes": "Direnç için tek başına sürekli kullanmayın."
+      }
+    ],
+    "Strawberry___Leaf_scorch": [
+      {
+        "name": "Captan",
+        "role": "Koruyucu",
+        "notes": "Çilek için etiket onayı kontrol edin."
+      },
+      {
+        "name": "Myclobutanil",
+        "role": "Triazol",
+        "notes": "Rotasyonlu program."
+      }
+    ],
+    "Strawberry___healthy": [],
+    "Tomato___Bacterial_spot": [
+      {
+        "name": "Bakır bileşikleri (ör. bakır oksiklorür)",
+        "role": "Koruyucu / bakteri baskılama",
+        "notes": "Etiket dozu ve güvenlik aralığına uyun; yağmurlama sulama yapmayın."
+      },
+      {
+        "name": "Mancozeb (destekleyici)",
+        "role": "Karma preparatlarda sık görülür",
+        "notes": "Üretici etiketinde hastalığa onaylı kombinasyonları tercih edin."
+      }
+    ],
+    "Tomato___Early_blight": [
+      {
+        "name": "Clorotalonil",
+        "role": "Koruyucu fungisit",
+        "notes": "Alternaria için sık kullanılır."
+      },
+      {
+        "name": "Azoksistrobin",
+        "role": "Strobilurin",
+        "notes": "Direnç yönetimi için rotasyon şart."
+      }
+    ],
+    "Tomato___Late_blight": [
+      {
+        "name": "Metalaksil + Mancozeb (kombine)",
+        "role": "Sistemik + koruyucu",
+        "notes": "Mildiyöde etiket onaylı kombinasyonları kullanın."
+      },
+      {
+        "name": "Cimoksanil içerikli preparatlar",
+        "role": "Anti-sporulant etki",
+        "notes": "Erken müdahale; sık tekrar gerekebilir."
+      }
+    ],
+    "Tomato___Leaf_Mold": [
+      {
+        "name": "Clorotalonil",
+        "role": "Koruyucu fungisit",
+        "notes": "Serada nem kontrolü ile birlikte."
+      },
+      {
+        "name": "Azoksistrobin",
+        "role": "Strobilurin",
+        "notes": "Etiket onayına göre domates için."
+      }
+    ],
+    "Tomato___Septoria_leaf_spot": [
+      {
+        "name": "Clorotalonil",
+        "role": "Koruyucu",
+        "notes": "7-10 gün aralıklı program."
+      },
+      {
+        "name": "Mancozeb",
+        "role": "Koruyucu",
+        "notes": "Yaprağın kuru kalmasıyla destekleyin."
+      }
+    ],
+    "Tomato___Spider_mites Two-spotted_spider_mite": [
+      {
+        "name": "Abamektin",
+        "role": "Akarisit",
+        "notes": "Doğal düşmanları koruyun; dönüşümlü aktif kullanın."
+      },
+      {
+        "name": "Kükürt",
+        "role": "Kontakt akarisit",
+        "notes": "Sıcak havalarda yanık riskine dikkat; etikete uyun."
+      }
+    ],
+    "Tomato___Target_Spot": [
+      {
+        "name": "Mancozeb",
+        "role": "Koruyucu",
+        "notes": "Erken müdahale."
+      },
+      {
+        "name": "Difenokonazol",
+        "role": "Triazol",
+        "notes": "Dönüşümlü kullanın."
+      }
+    ],
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": [
+      {
+        "name": "Doğrudan antiviral bitki koruma ürünü yoktur",
+        "role": "Önlem odaklı",
+        "notes": "Vektör ve kültürel önlemler önemlidir; etken madde hastalığı iyileştirmez."
+      }
+    ],
+    "Tomato___Tomato_mosaic_virus": [
+      {
+        "name": "Doğrudan antiviral bitki koruma ürünü yoktur",
+        "role": "Önlem odaklı",
+        "notes": "Vektör ve kültürel önlemler önemlidir; etken madde hastalığı iyileştirmez."
+      }
+    ],
+    "Tomato___healthy": []
+  }
+}

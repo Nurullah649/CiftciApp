@@ -1,0 +1,31 @@
+# Eğitim ortamı için bağımlılıklar (lokal GPU makinesi).
+# Bu dosya YALNIZCA model eğitimi/değerlendirme için kullanılır,
+# production backend'e (requirements.txt) dahil değildir.
+#
+# Python 3.13 uyumlu sürümler.
+
+# --- PyTorch (CUDA 12.1 için, Python 3.13 destekli) ---
+# Lokal NVIDIA GPU kullanıyorsan aşağıdaki komutla kur:
+#   pip install torch==2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu121
+#
+# CUDA yoksa (sadece CPU):
+#   pip install torch==2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1
+torchvision==0.20.1
+
+# --- Eğitim yardımcıları ---
+numpy>=1.26,<3.0
+pillow>=10.4.0
+tqdm>=4.66
+scikit-learn>=1.5.2
+matplotlib>=3.9
+seaborn>=0.13
+
+# --- Dataset indirme (HuggingFace mohanty/PlantVillage) ---
+# download_dataset.py kullanır. data.zip + leaf-map.json'u direkt indirir,
+# load_dataset() kullanmaz (datasets>=4.0 trust_remote_code'u kaldırdı).
+huggingface_hub>=0.25
+
+# --- Export & Inference test (opsiyonel; backend export için) ---
+onnx>=1.17.0
+onnxruntime>=1.20.0

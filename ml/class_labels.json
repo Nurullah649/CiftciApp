@@ -1,0 +1,267 @@
+{
+  "_meta": {
+    "description": "Hibrit dataset: PlantVillage (38) + PlantDoc (saha kalitesi, çakışan sınıflar) + Olive (3) + Wheat (?) + Cotton (?) + Sunflower (?). /tools/analyze-plant endpoint'i bu dosyadan zenginleştirilmiş cevap üretir.",
+    "sources": {
+      "plantvillage": "https://huggingface.co/datasets/mohanty/PlantVillage  (38 sınıf, 54305 görsel, lab)",
+      "plantdoc": "https://huggingface.co/datasets/LamTNguyen/PlantDoc  (2922 görsel, saha, PV taksonomisine eşlendi)",
+      "olive": "https://github.com/sinanuguz/CNN_olive_dataset  (3400 görsel, Denizli/TR, 3 sınıf)",
+      "wheat": "manuel — WFD (Genaev 2021) veya Kaggle kushagra3204",
+      "cotton": "manuel — Mendeley SAR-CLD-2024",
+      "sunflower": "manuel — Mendeley b83hmrzth8"
+    },
+    "image_size": 224,
+    "num_classes": 41,
+    "status_enum": ["healthy", "warning", "critical"],
+    "treatment_map_file": "ml/treatment_active_ingredients.json",
+    "treatment_note": "Etken madde satırları bu dosyadan gelir; ticari ürün adı içermez."
+  },
+  "classes": {
+    "Apple___Apple_scab": {
+      "tr": "Elma — Karaleke (Apple Scab)",
+      "crop": "Elma",
+      "status": "warning",
+      "recommendation": "Düşen yaprakları toplayıp imha edin. Çiçeklenme öncesi bakırlı fungisit veya mancozeb uygulayın. Hava dolaşımı için budama yapın."
+    },
+    "Apple___Black_rot": {
+      "tr": "Elma — Siyah Çürüklük",
+      "crop": "Elma",
+      "status": "critical",
+      "recommendation": "Mumyalaşmış meyveleri ve hastalıklı dalları temizleyin. Captan veya thiophanate-methyl içerikli fungisit uygulayın. Yara yerlerini macunla kapatın."
+    },
+    "Apple___Cedar_apple_rust": {
+      "tr": "Elma — Ardıç-Elma Pas Hastalığı",
+      "crop": "Elma",
+      "status": "warning",
+      "recommendation": "Yakındaki ardıç ağaçlarını uzaklaştırın veya budayın. Yaprak çıkışı sonrası myclobutanil ya da mancozeb uygulayın. 7-10 gün aralıkla tekrarlayın."
+    },
+    "Apple___healthy": {
+      "tr": "Elma — Sağlıklı",
+      "crop": "Elma",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı görünüyor. Düzenli sulama, dengeli gübreleme ve mevsim sonu temizlik budamasıyla sağlığı koruyun."
+    },
+    "Blueberry___healthy": {
+      "tr": "Yaban Mersini — Sağlıklı",
+      "crop": "Yaban Mersini",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı. Asidik toprak pH'ını (4.5-5.5) ve düzenli sulamayı koruyun."
+    },
+    "Cherry_(including_sour)___Powdery_mildew": {
+      "tr": "Kiraz — Külleme",
+      "crop": "Kiraz",
+      "status": "warning",
+      "recommendation": "Etkilenen yaprakları uzaklaştırın. Kükürt veya potasyum bikarbonat tabanlı fungisit uygulayın. Aşırı azotlu gübreden kaçının, hava sirkülasyonunu artırın."
+    },
+    "Cherry_(including_sour)___healthy": {
+      "tr": "Kiraz — Sağlıklı",
+      "crop": "Kiraz",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı. Kış budaması ve dengeli sulama düzenini sürdürün."
+    },
+    "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": {
+      "tr": "Mısır — Cercospora Yaprak Lekesi (Gri Leke)",
+      "crop": "Mısır",
+      "status": "warning",
+      "recommendation": "Münavebe (rotasyon) uygulayın, kalıntıları toprağa karıştırın. Azoksistrobin veya pyraclostrobin içerikli fungisit püskürtün. Dayanıklı çeşit tercih edin."
+    },
+    "Corn_(maize)___Common_rust_": {
+      "tr": "Mısır — Adi Pas Hastalığı",
+      "crop": "Mısır",
+      "status": "warning",
+      "recommendation": "Erken evrede mancozeb veya propiconazole uygulayın. Dayanıklı hibrit çeşitler kullanın. Yoğun çiğ olan yerlerde ekim sıklığını azaltın."
+    },
+    "Corn_(maize)___Northern_Leaf_Blight": {
+      "tr": "Mısır — Kuzey Yaprak Yanıklığı",
+      "crop": "Mısır",
+      "status": "critical",
+      "recommendation": "Hastalıklı bitki artıklarını yakın veya derin sürün. Azoksistrobin + propiconazole kombinasyonu önerilir. Münavebe yapın ve dayanıklı çeşit ekin."
+    },
+    "Corn_(maize)___healthy": {
+      "tr": "Mısır — Sağlıklı",
+      "crop": "Mısır",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı. Su ihtiyacı yüksektir; tabla oluşumundan hasada kadar düzenli sulama yapın."
+    },
+    "Grape___Black_rot": {
+      "tr": "Üzüm — Siyah Çürüklük",
+      "crop": "Üzüm",
+      "status": "critical",
+      "recommendation": "Mumyalaşmış salkımları toplayıp yakın. Çiçeklenme öncesi mancozeb, sonrası myclobutanil uygulayın. Asma altlarını temiz tutun, hava sirkülasyonunu artırın."
+    },
+    "Grape___Esca_(Black_Measles)": {
+      "tr": "Üzüm — Esca (Kara Kızamık)",
+      "crop": "Üzüm",
+      "status": "critical",
+      "recommendation": "Tedavisi zordur. Hastalıklı kolları kurudan 10-15 cm aşağıdan kesin, yara macunu uygulayın. Sağlıklı omcalardan aşı kullanın, stresi azaltın."
+    },
+    "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
+      "tr": "Üzüm — Yaprak Yanıklığı (Isariopsis)",
+      "crop": "Üzüm",
+      "status": "warning",
+      "recommendation": "Hasta yaprakları temizleyin. Bordo bulamacı veya mancozeb içerikli fungisit uygulayın. 10-14 gün arayla tekrarlayın."
+    },
+    "Grape___healthy": {
+      "tr": "Üzüm — Sağlıklı",
+      "crop": "Üzüm",
+      "status": "healthy",
+      "recommendation": "Asma sağlıklı. Kış budaması, telleme ve damla sulama düzenini sürdürün."
+    },
+    "Orange___Haunglongbing_(Citrus_greening)": {
+      "tr": "Portakal — Sarı Ejder (Citrus Greening / HLB)",
+      "crop": "Portakal",
+      "status": "critical",
+      "recommendation": "Çok ciddi bir hastalıktır. Etkilenen ağaçları SÖKÜP imha edin (yayılımı durdurmak için). Asit pislikböceği (psyllid) ile imidakloprid gibi insektisitle mücadele edin. Yeni dikim için sertifikalı fidan kullanın."
+    },
+    "Peach___Bacterial_spot": {
+      "tr": "Şeftali — Bakteriyel Leke",
+      "crop": "Şeftali",
+      "status": "warning",
+      "recommendation": "Sonbahar yaprak dökümü ve ilkbahar tomurcuk patlaması döneminde bakırlı bileşik (Bordo) uygulayın. Dayanıklı çeşit tercih edin. Yağmurlama sulamadan kaçının."
+    },
+    "Peach___healthy": {
+      "tr": "Şeftali — Sağlıklı",
+      "crop": "Şeftali",
+      "status": "healthy",
+      "recommendation": "Ağaç sağlıklı. Kış budaması ve seyreltme ile ürün kalitesini koruyun."
+    },
+    "Pepper,_bell___Bacterial_spot": {
+      "tr": "Biber — Bakteriyel Leke",
+      "crop": "Biber",
+      "status": "warning",
+      "recommendation": "Tohumdan veya sertifikalı fideden başlayın. Bakır oksiklorür + mancozeb karışımı 7-10 gün arayla uygulayın. Yağmurlama yerine damla sulama tercih edin."
+    },
+    "Pepper,_bell___healthy": {
+      "tr": "Biber — Sağlıklı",
+      "crop": "Biber",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı. Çiçeklenme döneminde kalsiyum takviyesi yapın (çiçek burnu çürüklüğünü önler)."
+    },
+    "Potato___Early_blight": {
+      "tr": "Patates — Erken Yaprak Yanıklığı (Alternaria)",
+      "crop": "Patates",
+      "status": "warning",
+      "recommendation": "Hasta yaprakları temizleyin. Chlorothalonil veya mancozeb içerikli fungisit 7-10 gün arayla uygulayın. Münavebe yapın, aşırı sulamadan kaçının."
+    },
+    "Potato___Late_blight": {
+      "tr": "Patates — Mildiyö (Geç Yanıklık)",
+      "crop": "Patates",
+      "status": "critical",
+      "recommendation": "Çok hızlı yayılır. Acil olarak metalaksil + mancozeb veya cymoxanil içerikli fungisit uygulayın. Hasta bitkileri sökün. Nemli/serin havalarda her 5-7 günde tekrarlayın."
+    },
+    "Potato___healthy": {
+      "tr": "Patates — Sağlıklı",
+      "crop": "Patates",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı. Boğaz doldurmayı zamanında yapın, düzenli sulayın."
+    },
+    "Raspberry___healthy": {
+      "tr": "Ahududu — Sağlıklı",
+      "crop": "Ahududu",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı. Hasat sonrası eski dalları dipten kesin, yeni sürgünleri telleyin."
+    },
+    "Soybean___healthy": {
+      "tr": "Soya Fasulyesi — Sağlıklı",
+      "crop": "Soya",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı. Çiçeklenme ve bakla doldurma döneminde su stresinden kaçının."
+    },
+    "Squash___Powdery_mildew": {
+      "tr": "Kabak — Külleme",
+      "crop": "Kabak",
+      "status": "warning",
+      "recommendation": "Erken evrede kükürt veya potasyum bikarbonat uygulayın. Ağır enfeksiyonda myclobutanil kullanın. Bitkileri seyrek dikin, sabah sulayın."
+    },
+    "Strawberry___Leaf_scorch": {
+      "tr": "Çilek — Yaprak Yanığı",
+      "crop": "Çilek",
+      "status": "warning",
+      "recommendation": "Etkilenen yaprakları temizleyin. Captan veya myclobutanil içerikli fungisit uygulayın. Damla sulama yapın, sertifikalı fide kullanın."
+    },
+    "Strawberry___healthy": {
+      "tr": "Çilek — Sağlıklı",
+      "crop": "Çilek",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı. Malçlama ile meyve toprağa değmesin; düzenli sulayın."
+    },
+    "Tomato___Bacterial_spot": {
+      "tr": "Domates — Bakteriyel Leke",
+      "crop": "Domates",
+      "status": "warning",
+      "recommendation": "Sertifikalı tohum kullanın. Bakır oksiklorür + mancozeb 7-10 gün arayla uygulayın. Yağmurlama sulamadan kaçının, hastalıklı bitki artıklarını uzaklaştırın."
+    },
+    "Tomato___Early_blight": {
+      "tr": "Domates — Erken Yaprak Yanıklığı (Alternaria)",
+      "crop": "Domates",
+      "status": "warning",
+      "recommendation": "Alt yaprakları temizleyin, malçlama yapın. Chlorothalonil veya azoksistrobin uygulayın. Su damlatma yerine damla sulama tercih edin, münavebe yapın."
+    },
+    "Tomato___Late_blight": {
+      "tr": "Domates — Mildiyö (Geç Yanıklık)",
+      "crop": "Domates",
+      "status": "critical",
+      "recommendation": "Acil mücadele gerekir. Metalaksil + mancozeb veya cymoxanil içerikli fungisit uygulayın. Hasta bitkileri SÖKÜP imha edin. Nemli havada 5-7 gün arayla tekrarlayın."
+    },
+    "Tomato___Leaf_Mold": {
+      "tr": "Domates — Yaprak Küfü (Cladosporium)",
+      "crop": "Domates",
+      "status": "warning",
+      "recommendation": "Serada havalandırmayı artırın, nemi %85'in altında tutun. Chlorothalonil veya bakırlı fungisit uygulayın. Hasta yaprakları toplayıp yakın."
+    },
+    "Tomato___Septoria_leaf_spot": {
+      "tr": "Domates — Septoria Yaprak Lekesi",
+      "crop": "Domates",
+      "status": "warning",
+      "recommendation": "Alt yaprakları erkenden temizleyin. Chlorothalonil veya mancozeb 7-10 gün arayla uygulayın. Münavebe yapın, malçlayın."
+    },
+    "Tomato___Spider_mites Two-spotted_spider_mite": {
+      "tr": "Domates — Kırmızı Örümcek (İki Noktalı Akar)",
+      "crop": "Domates",
+      "status": "warning",
+      "recommendation": "Yaprak altını yıkayarak akarları azaltın. Abamektin veya bifenazate uygulayın. Yararlı böcek (Phytoseiulus persimilis) salımı denenebilir. Sıcak ve kuru ortamda hızla ürer."
+    },
+    "Tomato___Target_Spot": {
+      "tr": "Domates — Hedef Leke (Corynespora)",
+      "crop": "Domates",
+      "status": "warning",
+      "recommendation": "Hastalıklı yaprakları temizleyin. Mancozeb veya difenoconazole uygulayın. Yağmurlama sulamadan kaçının, bitki aralığını koruyun."
+    },
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+      "tr": "Domates — Sarı Yaprak Kıvırcıklık Virüsü (TYLCV)",
+      "crop": "Domates",
+      "status": "critical",
+      "recommendation": "Doğrudan tedavisi yoktur. Hastalıklı bitkileri sökün. Vektör beyazsinek için imidakloprid, sarı yapışkan tuzaklar kullanın. Dayanıklı (TYLCV-R) çeşit ekin."
+    },
+    "Tomato___Tomato_mosaic_virus": {
+      "tr": "Domates — Mozaik Virüsü (ToMV)",
+      "crop": "Domates",
+      "status": "critical",
+      "recommendation": "Tedavisi yoktur. Hasta bitkileri imha edin. Aletleri %10 sodyum hipoklorit ile dezenfekte edin, sigara içerken bitkiye dokunmayın. Dayanıklı çeşit kullanın."
+    },
+    "Tomato___healthy": {
+      "tr": "Domates — Sağlıklı",
+      "crop": "Domates",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı görünüyor. Düzenli sulama, askıya alma ve haftalık koltuk alma ile verim/kaliteyi koruyun."
+    },
+
+    "Olive___healthy": {
+      "tr": "Zeytin — Sağlıklı",
+      "crop": "Zeytin",
+      "status": "healthy",
+      "recommendation": "Bitki sağlıklı. Düzenli budama ve dengeli azot-fosfor-potasyum gübrelemesi ile verimliliği sürdürün. İlkbahar başında bakırlı bordo bulamacı ile koruyucu uygulama yapılabilir."
+    },
+    "Olive___Aculus_olearius": {
+      "tr": "Zeytin — Akarı (Aculus olearius)",
+      "crop": "Zeytin",
+      "status": "warning",
+      "recommendation": "Yapraklarda gümüşi/bronz lekeler görülüyorsa akar enfeksiyonu mevcuttur. İlkbaharda kükürt veya abamektin etken maddeli akarisit uygulayın. Aşırı azot gübrelemesinden kaçının; doğal predatörleri (Phytoseiidae) koruyun."
+    },
+    "Olive___Peacock_spot": {
+      "tr": "Zeytin — Halkalı Leke / Tavuskuşu Gözü (Spilocaea oleagina)",
+      "crop": "Zeytin",
+      "status": "critical",
+      "recommendation": "Yapraklarda tavuskuşu kuyruğu desenli koyu yeşil-siyah halkalar görülürse Spilocaea oleagina var demektir. Sonbahar ve ilkbahar başında %2'lik bordo bulamacı veya bakır oksiklorür uygulayın. Düşen hasta yaprakları toplayıp imha edin. Hava sirkülasyonu için budama yapın; aşırı sulama/nemden kaçının."
+    }
+  }
+}

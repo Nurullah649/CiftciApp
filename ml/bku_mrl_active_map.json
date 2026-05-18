@@ -1,0 +1,12 @@
+{
+  "_meta": {
+    "official_site": "https://bku.tarimorman.gov.tr/Arama/Index",
+    "detail_url_pattern": "https://bku.tarimorman.gov.tr/MRLAktifMadde/Details/{id}",
+    "note_tr": "tokens anahtarları küçük harf ve Türkçe karakter ASCII çevrimi ile üretilir; ID’yi BKÜ’de MRL Aktif Madde detay sayfasının URL’sinden alın (ör. .../Details/17). Genel arama autocomplete Id’si bu sayfadaki ID ile aynı olmayabilir.",
+    "disclaimer_tr": "Canlı BKÜ MRL tablosu bilgilendirme amaçlıdır; kesin ruhsat ve limitler için BKÜ ve ürün etiketine başvurun."
+  },
+  "tokens": {
+    "azoxystrobin": 17,
+    "azoksistrobin": 17
+  }
+}
