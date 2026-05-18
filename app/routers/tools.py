@@ -1,19 +1,22 @@
 """
-Tools Router: Genel araçlar (health check, hava durumu, harita).
-3 endpoint: health, weather, generate-map
+Tools Router: Genel araçlar (health, hava, harita, bitki analizi).
 """
 
 import folium
 from folium.plugins import MiniMap
 from geopy.geocoders import Nominatim
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse
 
 from app.core.security import get_current_user
 from app.core.config import settings
 from app.core.logging import logger
 from app.services.llm_service import llm_service
+from app.services.plant_analysis_service import plant_analysis_service
+from app.services.bku_catalog import BKU_AUTOCOMPLETE_ENDPOINTS
+from app.services.bku_enrichment import attach_bku_mrl, map_token_count
+from app.services.bku_faq_fanout import DEFAULT_FANOUT_SLUGS
 from app.services.rag_service import rag_service
 from app.services.weather_service import (
     fetch_weather_and_location,
@@ -40,10 +43,55 @@ async def health_check():
     return {
         "status": "ok",
         "model_loaded": llm_service.model_loaded,
+        "plant_json_ready": plant_analysis_service.json_bundle_loaded,
+        "plant_cnn_loaded": plant_analysis_service.cnn_loaded,
+        "plant_cnn_error": plant_analysis_service.last_load_error,
+        "bku_mrl_map_tokens": map_token_count(),
+        "bku_autocomplete_catalog_entries": len(BKU_AUTOCOMPLETE_ENDPOINTS),
+        "bku_faq_fanout_default_slugs": len(DEFAULT_FANOUT_SLUGS),
         "qdrant_connected": rag_service.connected,
         "database_connected": db_ok,
         "ram_usage_mb": round(llm_service.get_ram_usage(), 2),
     }
+
+
+@router.post("/tools/analyze-plant")
+async def analyze_plant(
+    file: UploadFile = File(...),
+    enrich_llm: bool = False,
+    enrich_bku: bool = False,
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Yaprak fotoğrafından hastalık tahmini (MobileNetV2) + JSON etken madde eşlemesi.
+    ``enrich_llm=true`` ise yerel LLM ile kısa Türkçe özet (yalnızca JSON içeriğinden).
+    ``enrich_bku=true`` ise ml/bku_mrl_active_map.json eşlemesiyle BKÜ canlı MRL tablosundan örnek satırlar eklenir.
+    """
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Yalnızca görsel dosyası yükleyin (image/*).")
+
+    data = await file.read()
+    if not data or len(data) < 256:
+        raise HTTPException(status_code=400, detail="Dosya boş veya çok küçük.")
+
+    try:
+        class_key, confidence = plant_analysis_service.predict_image_bytes(data)
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=str(e),
+        ) from e
+
+    payload = plant_analysis_service.build_payload(class_key, confidence)
+
+    if enrich_bku:
+        payload = await attach_bku_mrl(payload)
+
+    if enrich_llm:
+        narrative = plant_analysis_service.enrich_with_llm(payload)
+        payload["narrativeSummary"] = narrative
+
+    return payload
 
 
 @router.get("/weather")
