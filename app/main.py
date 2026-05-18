@@ -14,10 +14,12 @@ from app.core.database import init_db
 from app.services.llm_service import llm_service
 from app.services.rag_service import rag_service
 from app.services.notification_service import notification_service
+from app.services.plant_analysis_service import plant_analysis_service
+from app.services.bku_enrichment import load_map_file
 from app.core.redis import redis_client
 
 # Router'lar
-from app.routers import auth, chat, tasks, tools
+from app.routers import auth, bku, chat, tasks, tools
 
 
 @asynccontextmanager
@@ -32,6 +34,8 @@ async def lifespan(app: FastAPI):
     # Startup
     await init_db()
     llm_service.load_model()
+    plant_analysis_service.load_static_json()
+    load_map_file()
     rag_service.connect()
     notification_service.start_scheduler()
     await redis_client.connect()
@@ -69,6 +73,7 @@ app.include_router(auth.router)
 app.include_router(chat.router)
 app.include_router(tasks.router)
 app.include_router(tools.router)
+app.include_router(bku.router)
 
 
 @app.get("/")

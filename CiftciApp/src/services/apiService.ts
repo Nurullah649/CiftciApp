@@ -241,7 +241,10 @@ export const getWeatherData = async (lat: number, lon: number): Promise<WeatherD
   }
 };
 
-export const uploadImageForAnalysis = async (imageUri: string): Promise<AnalysisResult> => {
+export const uploadImageForAnalysis = async (
+  imageUri: string,
+  options?: { enrichWithLLM?: boolean; enrichWithBku?: boolean },
+): Promise<AnalysisResult> => {
   const token = await getToken();
   const formData = new FormData();
   formData.append('file', {
@@ -250,8 +253,13 @@ export const uploadImageForAnalysis = async (imageUri: string): Promise<Analysis
     type: 'image/jpeg',
   } as any);
 
+  const params = new URLSearchParams();
+  if (options?.enrichWithLLM) params.set('enrich_llm', 'true');
+  if (options?.enrichWithBku) params.set('enrich_bku', 'true');
+  const qs = params.toString() ? `?${params.toString()}` : '';
+
   try {
-    const response = await fetch(`${API_BASE_URL}/tools/analyze-plant`, {
+    const response = await fetch(`${API_BASE_URL}/tools/analyze-plant${qs}`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` },
       body: formData,
@@ -271,7 +279,23 @@ export const uploadImageForAnalysis = async (imageUri: string): Promise<Analysis
       }
       throw new Error(`Analiz hatası: ${response.status}`);
     }
-    return await response.json();
+    const data = await response.json();
+    return {
+      id: Date.now().toString(),
+      imageUri,
+      timestamp: new Date().toISOString(),
+      diseaseName: data.diseaseName ?? 'Bilinmiyor',
+      confidence: typeof data.confidence === 'number' ? data.confidence : 0,
+      recommendation: data.recommendation ?? '',
+      status: data.status ?? 'warning',
+      crop: data.crop,
+      classKey: data.classKey,
+      activeIngredients: data.activeIngredients,
+      disclaimer: data.disclaimer,
+      narrativeSummary: data.narrativeSummary ?? undefined,
+      modelLoaded: data.modelLoaded,
+      bkuMrlEnrichment: data.bkuMrlEnrichment,
+    };
   } catch (error) {
     return {
       id: Date.now().toString(),

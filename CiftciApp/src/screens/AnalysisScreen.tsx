@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert } from 'react-native';
-import { Camera, Upload, X, CheckCircle, AlertOctagon, Info } from 'lucide-react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert, Linking } from 'react-native';
+import { Camera, Upload, X, CheckCircle, AlertOctagon, AlertTriangle, Info } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadImageForAnalysis } from '../services/apiService';
 import { AnalysisResult } from '../types';
@@ -48,7 +48,7 @@ export default function AnalysisScreen() {
     if (!image) return;
     setAnalyzing(true);
     try {
-      const data = await uploadImageForAnalysis(image);
+      const data = await uploadImageForAnalysis(image, { enrichWithBku: true });
       setResult(data);
     } catch (error) {
       Alert.alert("Hata", "Analiz sırasında bir sorun oluştu.");
@@ -115,23 +115,103 @@ export default function AnalysisScreen() {
           )}
 
           {result && (
-            <View style={[styles.card, result.status === 'healthy' ? styles.cardGreen : styles.cardRed]}>
+            <View style={[styles.card,
+              result.status === 'healthy' ? styles.cardGreen :
+              result.status === 'warning' ? styles.cardOrange : styles.cardRed]}>
               <View style={styles.cardHeader}>
                 {result.status === 'healthy' ? (
                   <CheckCircle size={32} color="#22c55e" />
+                ) : result.status === 'warning' ? (
+                  <AlertTriangle size={32} color="#f59e0b" />
                 ) : (
                   <AlertOctagon size={32} color="#ef4444" />
                 )}
                 <View style={{marginLeft: 12, flex: 1}}>
                   <Text style={styles.diseaseName}>{result.diseaseName}</Text>
-                  <Text style={styles.confidence}>%{Math.round(result.confidence * 100)} Doğruluk</Text>
+                  <Text style={styles.confidence}>%{Math.round(result.confidence * 100)} güven</Text>
+                  {result.crop ? (
+                    <Text style={styles.cropHint}>Bitki: {result.crop}</Text>
+                  ) : null}
                 </View>
               </View>
 
               <View style={styles.recBox}>
-                <Text style={styles.recTitle}>Öneri ve Tedavi:</Text>
+                <Text style={styles.recTitle}>Öneri ve kültürel tedavi</Text>
                 <Text style={styles.recText}>{result.recommendation}</Text>
               </View>
+
+              {result.activeIngredients && result.activeIngredients.length > 0 ? (
+                <View style={styles.ingBox}>
+                  <Text style={styles.recTitle}>Etken madde / müdahale (bilgilendirme)</Text>
+                  {result.activeIngredients.map((ing, i) => (
+                    <View key={i} style={styles.ingRow}>
+                      <Text style={styles.ingName}>• {ing.name}</Text>
+                      {ing.role ? <Text style={styles.ingRole}>{ing.role}</Text> : null}
+                      {ing.notes ? <Text style={styles.ingNotes}>{ing.notes}</Text> : null}
+                    </View>
+                  ))}
+                </View>
+              ) : result.status !== 'healthy' ? (
+                <View style={styles.ingBox}>
+                  <Text style={styles.ingMuted}>
+                    Bu durum için özel etken madde satırı tanımlı değil veya doğrudan kimyasal önerisi yoktur; yukarıdaki kültürel önerilere bakın.
+                  </Text>
+                </View>
+              ) : null}
+
+              {result.bkuMrlEnrichment?.enabled ? (
+                <View style={styles.bkuBox}>
+                  <Text style={styles.recTitle}>BKÜ — MRL özeti (resmi veri tabanı)</Text>
+                  <Text style={styles.bkuMuted}>
+                    Kaynak:{' '}
+                    {result.bkuMrlEnrichment.sourceHomepage ?? 'bku.tarimorman.gov.tr'}
+                  </Text>
+                  {!result.bkuMrlEnrichment.resolvedSubstances?.length &&
+                  !result.bkuMrlEnrichment.lookupFailures?.length ? (
+                    <Text style={styles.bkuMuted}>Bu sonuç için BKÜ haritasında eşleşen etken madde yok.</Text>
+                  ) : null}
+                  {result.bkuMrlEnrichment.resolvedSubstances?.map((sub, idx) => (
+                    <View key={idx} style={styles.bkuSubBlock}>
+                      {sub.detailUrl ? (
+                        <TouchableOpacity onPress={() => Linking.openURL(sub.detailUrl!)}>
+                          <Text style={styles.bkuLink}>Detay sayfası ({sub.detailId})</Text>
+                        </TouchableOpacity>
+                      ) : null}
+                      {sub.sampleRows?.slice(0, 8).map((row, j) => (
+                        <Text key={j} style={styles.bkuRow}>
+                          • {row.mrlUrunAdi ?? ''} — MRL {row.mrlOrani ?? '—'} ({row.durumu ?? ''})
+                        </Text>
+                      ))}
+                    </View>
+                  ))}
+                  {result.bkuMrlEnrichment.errors?.length ? (
+                    <Text style={styles.bkuMuted}>
+                      BKÜ isteği: {result.bkuMrlEnrichment.errors.join(' · ')}
+                    </Text>
+                  ) : null}
+                  {result.bkuMrlEnrichment.lookupFailures &&
+                  result.bkuMrlEnrichment.lookupFailures.length > 0 ? (
+                    <Text style={styles.bkuMuted}>
+                      Haritada olmayan etkenler:{' '}
+                      {result.bkuMrlEnrichment.lookupFailures.map((f) => f.phrase).join(', ')}
+                    </Text>
+                  ) : null}
+                  {result.bkuMrlEnrichment.disclaimerTr ? (
+                    <Text style={styles.bkuDisclaimer}>{result.bkuMrlEnrichment.disclaimerTr}</Text>
+                  ) : null}
+                </View>
+              ) : null}
+
+              {result.narrativeSummary ? (
+                <View style={styles.narrativeBox}>
+                  <Text style={styles.recTitle}>Özet (AI)</Text>
+                  <Text style={styles.recText}>{result.narrativeSummary}</Text>
+                </View>
+              ) : null}
+
+              {result.disclaimer ? (
+                <Text style={styles.disclaimer}>{result.disclaimer}</Text>
+              ) : null}
 
               <TouchableOpacity style={styles.newBtn} onPress={reset}>
                 <Text style={styles.newBtnText}>Yeni Analiz Yap</Text>
@@ -166,13 +246,29 @@ const styles = StyleSheet.create({
 
   card: { backgroundColor: '#fff', borderRadius: 24, padding: 24, borderLeftWidth: 6, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 },
   cardGreen: { borderLeftColor: '#22c55e' },
+  cardOrange: { borderLeftColor: '#f59e0b' },
   cardRed: { borderLeftColor: '#ef4444' },
   cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   diseaseName: { fontSize: 20, fontWeight: 'bold', color: '#1f2937' },
   confidence: { color: '#6b7280', fontSize: 14, fontWeight: '600', marginTop: 2 },
+  cropHint: { color: '#9ca3af', fontSize: 13, marginTop: 4 },
   recBox: { backgroundColor: '#f3f4f6', padding: 16, borderRadius: 16, marginBottom: 20 },
   recTitle: { fontWeight: 'bold', color: '#111', marginBottom: 8, fontSize: 15 },
   recText: { color: '#374151', lineHeight: 22, fontSize: 15 },
+  ingBox: { backgroundColor: '#fffbeb', padding: 14, borderRadius: 14, marginBottom: 16, borderWidth: 1, borderColor: '#fde68a' },
+  ingRow: { marginBottom: 12 },
+  ingName: { fontWeight: '700', color: '#1f2937', fontSize: 15 },
+  ingRole: { color: '#6b7280', fontSize: 13, marginTop: 2 },
+  ingNotes: { color: '#4b5563', fontSize: 13, marginTop: 4, lineHeight: 18 },
+  ingMuted: { color: '#6b7280', fontSize: 14, lineHeight: 20 },
+  narrativeBox: { backgroundColor: '#eff6ff', padding: 14, borderRadius: 14, marginBottom: 16, borderWidth: 1, borderColor: '#bfdbfe' },
+  bkuBox: { backgroundColor: '#f0fdf4', padding: 14, borderRadius: 14, marginBottom: 16, borderWidth: 1, borderColor: '#bbf7d0' },
+  bkuSubBlock: { marginTop: 10 },
+  bkuRow: { color: '#374151', fontSize: 13, lineHeight: 18, marginTop: 4 },
+  bkuLink: { color: '#15803d', fontWeight: '700', fontSize: 14, marginBottom: 6 },
+  bkuMuted: { color: '#6b7280', fontSize: 12, lineHeight: 18, marginTop: 6 },
+  bkuDisclaimer: { fontSize: 11, color: '#6b7280', fontStyle: 'italic', marginTop: 8 },
+  disclaimer: { fontSize: 11, color: '#6b7280', lineHeight: 16, marginBottom: 16, fontStyle: 'italic' },
   newBtn: { padding: 16, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 14, alignItems: 'center', backgroundColor: '#fafafa' },
   newBtnText: { color: '#4b5563', fontWeight: 'bold', fontSize: 15 }
 });
