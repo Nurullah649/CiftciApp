@@ -42,6 +42,18 @@ class Settings(BaseSettings):
     # --- Uygulama ---
     SIMULATION_MODE: bool = True
 
+    # --- Bitki hastalığı CNN (analyze-plant) ---
+    # Boş bırakılırsa proje kökünde ml/checkpoints/best.pt ve ml/*.json kullanılır.
+    PLANT_CHECKPOINT_PATH: Optional[str] = None
+    PLANT_LABELS_PATH: Optional[str] = None
+    PLANT_TREATMENT_PATH: Optional[str] = None
+
+    # --- BKÜ (Tarım Bakanlığı bitki koruma / MRL canlı tablo) ---
+    BKU_BASE_URL: str = "https://bku.tarimorman.gov.tr"
+    BKU_TIMEOUT_SECONDS: float = 25.0
+    BKU_MAX_ROWS_PER_SUBSTANCE: int = 60
+    BKU_MRL_MAP_PATH: Optional[str] = None  # boşsa proje/ml/bku_mrl_active_map.json
+
     @property
     def DATABASE_URL(self) -> str:
         """Async SQLAlchemy bağlantı URL'si (asyncpg)."""
