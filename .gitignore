@@ -15,5 +15,13 @@ api.py
 /models/
 *.gguf
 
+# ML eğitim çıktıları (commit edilmez, ağırdır)
+ml/data/
+ml/checkpoints/
+*.pt
+*.pth
+*.onnx
+venv-ml/
+
 # Docker
 # (Dockerfile, docker-compose.yml ve .dockerignore commit EDİLİR)
