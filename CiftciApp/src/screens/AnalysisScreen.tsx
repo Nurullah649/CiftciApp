@@ -50,8 +50,9 @@ export default function AnalysisScreen() {
     try {
       const data = await uploadImageForAnalysis(image, { enrichWithBku: true });
       setResult(data);
-    } catch (error) {
-      Alert.alert("Hata", "Analiz sırasında bir sorun oluştu.");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Analiz sırasında bir sorun oluştu.';
+      Alert.alert('Hata', msg);
     } finally {
       setAnalyzing(false);
     }

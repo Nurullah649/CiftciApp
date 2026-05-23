@@ -246,6 +246,9 @@ export const uploadImageForAnalysis = async (
   options?: { enrichWithLLM?: boolean; enrichWithBku?: boolean },
 ): Promise<AnalysisResult> => {
   const token = await getToken();
+  if (!token) {
+    throw new Error('Bitki analizi için giriş yapmalısınız.');
+  }
   const formData = new FormData();
   formData.append('file', {
     uri: imageUri,
