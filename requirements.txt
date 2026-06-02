@@ -2,6 +2,7 @@
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 python-multipart==0.0.20
+loguru==0.7.3
 
 # --- Pydantic & Ayarlar ---
 pydantic==2.10.4
