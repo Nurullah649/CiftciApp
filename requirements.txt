@@ -43,6 +43,9 @@ exponent-server-sdk==2.1.0
 # --- Zamanlayıcı ---
 apscheduler==3.11.0
 
+# --- Sistem (RAM izleme — llm_service) ---
+psutil==6.1.1
+
 # --- Bitki CNN (analyze-plant; CPU wheel PyPI) ---
 torch>=2.2.0
 torchvision>=0.17.0
