@@ -62,8 +62,10 @@ WORKDIR /app
 
 # Uygulama kodunu kopyala
 COPY --chown=appuser:appuser app ./app
+COPY --chown=appuser:appuser ml ./ml
 # GGUF modeli için klasör (compose volume ile mount edilir)
 RUN mkdir -p /app/models /app/logs && chown -R appuser:appuser /app
+
 
 USER appuser
 
