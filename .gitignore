@@ -12,16 +12,20 @@ CiftciApp/node_modules
 api.py₺
 api.py
 
+# GGUF sohbet modeli (~2–3 GB) — GitHub 100 MB limit; sunucuda models/ volume
 /models/
 *.gguf
 
-# ML eğitim çıktıları (commit edilmez, ağırdır)
+# ML veri seti ve geçici çıktılar
 ml/data/
-ml/checkpoints/
-*.pt
+venv-ml/
 *.pth
 *.onnx
-venv-ml/
+# best.pt dışındaki .pt dosyaları (ara checkpoint vb.)
+ml/checkpoints/*
+!ml/checkpoints/best.pt
+!ml/checkpoints/.gitkeep
+!ml/checkpoints/README.md
 
 # Docker
 # (Dockerfile, docker-compose.yml ve .dockerignore commit EDİLİR)

@@ -95,6 +95,8 @@ services:
     volumes:
       # GGUF modeller — host makinedeki ./models klasöründen mount edilir
       - ./models:/app/models:ro
+      # Bitki CNN (best.pt) + class_labels / treatment JSON
+      - ./ml:/app/ml:ro
       # Loglar
       - ./logs:/app/logs
     depends_on:
