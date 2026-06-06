@@ -1,9 +1,33 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert, Linking } from 'react-native';
-import { Camera, Upload, X, CheckCircle, AlertOctagon, AlertTriangle, Info } from 'lucide-react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+  Linking,
+  StatusBar,
+} from 'react-native';
+import {
+  Camera,
+  Upload,
+  X,
+  CheckCircle,
+  AlertOctagon,
+  AlertTriangle,
+  Microscope,
+  ImageIcon,
+} from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { Screen } from '../components/ui/Screen';
+import { PrimaryButton, SecondaryButton } from '../components/ui/Buttons';
 import { uploadImageForAnalysis } from '../services/apiService';
+import { prepareAnalysisImage } from '../utils/prepareAnalysisImage';
 import { AnalysisResult } from '../types';
+import { colors, spacing, radius, typography, shadow, statusColor } from '../theme';
 
 export default function AnalysisScreen() {
   const [image, setImage] = useState<string | null>(null);
@@ -11,35 +35,27 @@ export default function AnalysisScreen() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
   const pickImage = async (useCamera: boolean) => {
-    // İzin İste
     const { status } = useCamera
       ? await ImagePicker.requestCameraPermissionsAsync()
       : await ImagePicker.requestMediaLibraryPermissionsAsync();
-
     if (status !== 'granted') {
-      Alert.alert("İzin Gerekli", "Bu özelliği kullanmak için izin vermelisiniz.");
+      Alert.alert('İzin Gerekli', 'Kamera veya galeri izni verin.');
       return;
     }
-
-    let result;
-    if (useCamera) {
-      result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 4],
-        quality: 0.7,
-      });
-    } else {
-      result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 4],
-        quality: 0.7,
-      });
-    }
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+    const picker = useCamera ? ImagePicker.launchCameraAsync : ImagePicker.launchImageLibraryAsync;
+    const res = await picker({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 0.55,
+    });
+    if (!res.canceled) {
+      try {
+        const prepared = await prepareAnalysisImage(res.assets[0].uri);
+        setImage(prepared);
+      } catch {
+        setImage(res.assets[0].uri);
+      }
       setResult(null);
     }
   };
@@ -51,8 +67,7 @@ export default function AnalysisScreen() {
       const data = await uploadImageForAnalysis(image, { enrichWithBku: true });
       setResult(data);
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : 'Analiz sırasında bir sorun oluştu.';
-      Alert.alert('Hata', msg);
+      Alert.alert('Hata', error instanceof Error ? error.message : 'Analiz başarısız.');
     } finally {
       setAnalyzing(false);
     }
@@ -63,213 +78,227 @@ export default function AnalysisScreen() {
     setResult(null);
   };
 
+  const borderClr = result ? statusColor(result.status) : colors.primary;
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {!image ? (
-        <View style={styles.uploadArea}>
-          <View style={styles.iconCircle}>
-            <Camera size={48} color="#16a34a" />
+    <Screen>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <View style={styles.headerIcon}>
+            <Microscope size={22} color={colors.textOnPrimary} />
           </View>
-          <Text style={styles.title}>Bitki Analizi</Text>
-          <Text style={styles.subtitle}>
-            Hastalık teşhisi için bitkinin etkilenen bölgesinin net bir fotoğrafını yükleyin.
-          </Text>
-
-          <TouchableOpacity style={styles.btnPrimary} onPress={() => pickImage(true)}>
-            <Camera size={20} color="#fff" style={{marginRight:8}} />
-            <Text style={styles.btnText}>Fotoğraf Çek</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.btnSecondary} onPress={() => pickImage(false)}>
-            <Upload size={20} color="#16a34a" style={{marginRight:8}} />
-            <Text style={[styles.btnText, {color: '#16a34a'}]}>Galeriden Seç</Text>
-          </TouchableOpacity>
-
-          <View style={styles.infoRow}>
-            <Info size={16} color="#9ca3af" />
-            <Text style={styles.infoText}>İyi Işık • Net Odak • Yakın Çekim</Text>
+          <View>
+            <Text style={styles.headerTitle}>Bitki Analizi</Text>
+            <Text style={styles.headerSub}>Yaprak fotoğrafı ile hastalık teşhisi</Text>
           </View>
         </View>
-      ) : (
-        <View style={styles.resultArea}>
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: image }} style={styles.previewImage} />
-            {!analyzing && !result && (
-              <TouchableOpacity style={styles.closeBtn} onPress={reset}>
-                <X size={20} color="#fff" />
-              </TouchableOpacity>
-            )}
 
-            {analyzing && (
-              <View style={styles.loadingOverlay}>
-                <ActivityIndicator size="large" color="#fff" />
-                <Text style={styles.loadingText}>Yapay Zeka İnceliyor...</Text>
-              </View>
-            )}
-          </View>
-
-          {!result && !analyzing && (
-            <TouchableOpacity style={styles.analyzeBtn} onPress={handleAnalyze}>
-              <Upload size={20} color="#fff" style={{marginRight:8}} />
-              <Text style={styles.btnText}>Analizi Başlat</Text>
-            </TouchableOpacity>
-          )}
-
-          {result && (
-            <View style={[styles.card,
-              result.status === 'healthy' ? styles.cardGreen :
-              result.status === 'warning' ? styles.cardOrange : styles.cardRed]}>
-              <View style={styles.cardHeader}>
-                {result.status === 'healthy' ? (
-                  <CheckCircle size={32} color="#22c55e" />
-                ) : result.status === 'warning' ? (
-                  <AlertTriangle size={32} color="#f59e0b" />
-                ) : (
-                  <AlertOctagon size={32} color="#ef4444" />
-                )}
-                <View style={{marginLeft: 12, flex: 1}}>
-                  <Text style={styles.diseaseName}>{result.diseaseName}</Text>
-                  <Text style={styles.confidence}>%{Math.round(result.confidence * 100)} güven</Text>
-                  {result.crop ? (
-                    <Text style={styles.cropHint}>Bitki: {result.crop}</Text>
-                  ) : null}
-                </View>
-              </View>
-
-              <View style={styles.recBox}>
-                <Text style={styles.recTitle}>Öneri ve kültürel tedavi</Text>
-                <Text style={styles.recText}>{result.recommendation}</Text>
-              </View>
-
-              {result.activeIngredients && result.activeIngredients.length > 0 ? (
-                <View style={styles.ingBox}>
-                  <Text style={styles.recTitle}>Etken madde / müdahale (bilgilendirme)</Text>
-                  {result.activeIngredients.map((ing, i) => (
-                    <View key={i} style={styles.ingRow}>
-                      <Text style={styles.ingName}>• {ing.name}</Text>
-                      {ing.role ? <Text style={styles.ingRole}>{ing.role}</Text> : null}
-                      {ing.notes ? <Text style={styles.ingNotes}>{ing.notes}</Text> : null}
-                    </View>
-                  ))}
-                </View>
-              ) : result.status !== 'healthy' ? (
-                <View style={styles.ingBox}>
-                  <Text style={styles.ingMuted}>
-                    Bu durum için özel etken madde satırı tanımlı değil veya doğrudan kimyasal önerisi yoktur; yukarıdaki kültürel önerilere bakın.
-                  </Text>
-                </View>
-              ) : null}
-
-              {result.bkuMrlEnrichment?.enabled ? (
-                <View style={styles.bkuBox}>
-                  <Text style={styles.recTitle}>BKÜ — MRL özeti (resmi veri tabanı)</Text>
-                  <Text style={styles.bkuMuted}>
-                    Kaynak:{' '}
-                    {result.bkuMrlEnrichment.sourceHomepage ?? 'bku.tarimorman.gov.tr'}
-                  </Text>
-                  {!result.bkuMrlEnrichment.resolvedSubstances?.length &&
-                  !result.bkuMrlEnrichment.lookupFailures?.length ? (
-                    <Text style={styles.bkuMuted}>Bu sonuç için BKÜ haritasında eşleşen etken madde yok.</Text>
-                  ) : null}
-                  {result.bkuMrlEnrichment.resolvedSubstances?.map((sub, idx) => (
-                    <View key={idx} style={styles.bkuSubBlock}>
-                      {sub.detailUrl ? (
-                        <TouchableOpacity onPress={() => Linking.openURL(sub.detailUrl!)}>
-                          <Text style={styles.bkuLink}>Detay sayfası ({sub.detailId})</Text>
-                        </TouchableOpacity>
-                      ) : null}
-                      {sub.sampleRows?.slice(0, 8).map((row, j) => (
-                        <Text key={j} style={styles.bkuRow}>
-                          • {row.mrlUrunAdi ?? ''} — MRL {row.mrlOrani ?? '—'} ({row.durumu ?? ''})
-                        </Text>
-                      ))}
-                    </View>
-                  ))}
-                  {result.bkuMrlEnrichment.errors?.length ? (
-                    <Text style={styles.bkuMuted}>
-                      BKÜ isteği: {result.bkuMrlEnrichment.errors.join(' · ')}
-                    </Text>
-                  ) : null}
-                  {result.bkuMrlEnrichment.lookupFailures &&
-                  result.bkuMrlEnrichment.lookupFailures.length > 0 ? (
-                    <Text style={styles.bkuMuted}>
-                      Haritada olmayan etkenler:{' '}
-                      {result.bkuMrlEnrichment.lookupFailures.map((f) => f.phrase).join(', ')}
-                    </Text>
-                  ) : null}
-                  {result.bkuMrlEnrichment.disclaimerTr ? (
-                    <Text style={styles.bkuDisclaimer}>{result.bkuMrlEnrichment.disclaimerTr}</Text>
-                  ) : null}
-                </View>
-              ) : null}
-
-              {result.narrativeSummary ? (
-                <View style={styles.narrativeBox}>
-                  <Text style={styles.recTitle}>Özet (AI)</Text>
-                  <Text style={styles.recText}>{result.narrativeSummary}</Text>
-                </View>
-              ) : null}
-
-              {result.disclaimer ? (
-                <Text style={styles.disclaimer}>{result.disclaimer}</Text>
-              ) : null}
-
-              <TouchableOpacity style={styles.newBtn} onPress={reset}>
-                <Text style={styles.newBtnText}>Yeni Analiz Yap</Text>
-              </TouchableOpacity>
+        {!image ? (
+          <View style={styles.dropZone}>
+            <View style={styles.dropIcon}>
+              <ImageIcon size={40} color={colors.primary} />
             </View>
-          )}
-        </View>
-      )}
-    </ScrollView>
+            <Text style={styles.dropTitle}>Fotoğraf yükleyin</Text>
+            <Text style={styles.dropSub}>
+              Etkilenen yaprağın net, yakın ve iyi aydınlatılmış görüntüsü en iyi sonucu verir.
+            </Text>
+            <PrimaryButton
+              label="Fotoğraf Çek"
+              onPress={() => pickImage(true)}
+              icon={<Camera size={20} color={colors.textOnPrimary} />}
+              style={{ width: '100%', marginBottom: 12 }}
+            />
+            <SecondaryButton
+              label="Galeriden Seç"
+              onPress={() => pickImage(false)}
+              icon={<Upload size={20} color={colors.primary} />}
+              style={{ width: '100%' }}
+            />
+            <View style={styles.hints}>
+              {['İyi ışık', 'Net odak', 'Tek yaprak'].map((h) => (
+                <View key={h} style={styles.hintPill}>
+                  <Text style={styles.hintText}>{h}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : (
+          <>
+            <View style={styles.previewWrap}>
+              <Image source={{ uri: image }} style={styles.preview} />
+              {!analyzing && !result && (
+                <TouchableOpacity style={styles.closeFab} onPress={reset}>
+                  <X size={18} color={colors.textOnPrimary} />
+                </TouchableOpacity>
+              )}
+              {analyzing && (
+                <View style={styles.overlay}>
+                  <ActivityIndicator size="large" color={colors.accent} />
+                  <Text style={styles.overlayText}>Model inceliyor…</Text>
+                  <Text style={styles.overlayHint}>İlk analiz 20–40 sn sürebilir</Text>
+                </View>
+              )}
+            </View>
+
+            {!result && !analyzing && (
+              <PrimaryButton
+                label="Analizi Başlat"
+                onPress={handleAnalyze}
+                icon={<Microscope size={20} color={colors.textOnPrimary} />}
+              />
+            )}
+
+            {result && (
+              <View style={[styles.resultCard, { borderTopColor: borderClr }]}>
+                <View style={styles.resultHead}>
+                  {result.status === 'healthy' ? (
+                    <CheckCircle size={36} color={colors.healthy} />
+                  ) : result.status === 'warning' ? (
+                    <AlertTriangle size={36} color={colors.warning} />
+                  ) : (
+                    <AlertOctagon size={36} color={colors.critical} />
+                  )}
+                  <View style={{ flex: 1, marginLeft: 14 }}>
+                    <Text style={styles.diseaseName}>{result.diseaseName}</Text>
+                    <Text style={styles.conf}>%{Math.round(result.confidence * 100)} güven</Text>
+                    {result.crop ? <Text style={styles.crop}>Kültür: {result.crop}</Text> : null}
+                  </View>
+                </View>
+
+                <View style={styles.block}>
+                  <Text style={styles.blockTitle}>Öneri</Text>
+                  <Text style={styles.blockBody}>{result.recommendation}</Text>
+                </View>
+
+                {result.activeIngredients && result.activeIngredients.length > 0 && (
+                  <View style={[styles.block, styles.blockAccent]}>
+                    <Text style={styles.blockTitle}>Etken maddeler (bilgi)</Text>
+                    {result.activeIngredients.map((ing, i) => (
+                      <Text key={i} style={styles.ingLine}>
+                        • {ing.name}
+                        {ing.role ? ` — ${ing.role}` : ''}
+                      </Text>
+                    ))}
+                  </View>
+                )}
+
+                {result.bkuMrlEnrichment?.enabled && (
+                  <View style={[styles.block, styles.blockBku]}>
+                    <Text style={styles.blockTitle}>BKÜ — MRL özeti</Text>
+                    {result.bkuMrlEnrichment.resolvedSubstances?.map((sub, idx) => (
+                      <View key={idx} style={{ marginTop: 8 }}>
+                        {sub.detailUrl ? (
+                          <TouchableOpacity onPress={() => Linking.openURL(sub.detailUrl!)}>
+                            <Text style={styles.link}>Resmi detay sayfası</Text>
+                          </TouchableOpacity>
+                        ) : null}
+                        {sub.sampleRows?.slice(0, 6).map((row, j) => (
+                          <Text key={j} style={styles.bkuLine}>
+                            {row.mrlUrunAdi} — MRL {row.mrlOrani ?? '—'}
+                          </Text>
+                        ))}
+                      </View>
+                    ))}
+                    {result.bkuMrlEnrichment.errors?.includes('bku_timeout') && (
+                      <Text style={styles.muted}>BKÜ yanıt vermedi; tekrar deneyin.</Text>
+                    )}
+                  </View>
+                )}
+
+                {result.disclaimer ? <Text style={styles.disclaimer}>{result.disclaimer}</Text> : null}
+
+                <SecondaryButton label="Yeni Analiz" onPress={reset} style={{ marginTop: 8 }} />
+              </View>
+            )}
+          </>
+        )}
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, backgroundColor: '#f9fafb', padding: 20 },
-  uploadArea: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff', borderRadius: 24, padding: 32, borderStyle: 'dashed', borderWidth: 2, borderColor: '#d1d5db' },
-  iconCircle: { width: 90, height: 90, backgroundColor: '#f0fdf4', borderRadius: 45, justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
-  title: { fontSize: 24, fontWeight: 'bold', color: '#111', marginBottom: 8 },
-  subtitle: { textAlign: 'center', color: '#6b7280', marginBottom: 32, lineHeight: 22 },
-  btnPrimary: { flexDirection: 'row', backgroundColor: '#16a34a', width: '100%', padding: 16, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginBottom: 12, elevation: 2 },
-  btnSecondary: { flexDirection: 'row', backgroundColor: '#fff', width: '100%', padding: 16, borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#16a34a' },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', marginTop: 32, gap: 8, opacity: 0.7 },
-  infoText: { color: '#6b7280', fontSize: 13, fontWeight: '500' },
-
-  resultArea: { flex: 1 },
-  imageContainer: { height: 350, borderRadius: 24, overflow: 'hidden', marginBottom: 24, backgroundColor: '#e5e7eb', position: 'relative', elevation: 3 },
-  previewImage: { width: '100%', height: '100%' },
-  closeBtn: { position: 'absolute', top: 16, right: 16, backgroundColor: 'rgba(0,0,0,0.6)', padding: 8, borderRadius: 20 },
-  loadingOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center' },
-  loadingText: { color: '#fff', marginTop: 16, fontWeight: 'bold', fontSize: 16 },
-  analyzeBtn: { flexDirection: 'row', backgroundColor: '#16a34a', padding: 18, borderRadius: 16, justifyContent: 'center', alignItems: 'center', elevation: 3 },
-
-  card: { backgroundColor: '#fff', borderRadius: 24, padding: 24, borderLeftWidth: 6, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 10, elevation: 5 },
-  cardGreen: { borderLeftColor: '#22c55e' },
-  cardOrange: { borderLeftColor: '#f59e0b' },
-  cardRed: { borderLeftColor: '#ef4444' },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  diseaseName: { fontSize: 20, fontWeight: 'bold', color: '#1f2937' },
-  confidence: { color: '#6b7280', fontSize: 14, fontWeight: '600', marginTop: 2 },
-  cropHint: { color: '#9ca3af', fontSize: 13, marginTop: 4 },
-  recBox: { backgroundColor: '#f3f4f6', padding: 16, borderRadius: 16, marginBottom: 20 },
-  recTitle: { fontWeight: 'bold', color: '#111', marginBottom: 8, fontSize: 15 },
-  recText: { color: '#374151', lineHeight: 22, fontSize: 15 },
-  ingBox: { backgroundColor: '#fffbeb', padding: 14, borderRadius: 14, marginBottom: 16, borderWidth: 1, borderColor: '#fde68a' },
-  ingRow: { marginBottom: 12 },
-  ingName: { fontWeight: '700', color: '#1f2937', fontSize: 15 },
-  ingRole: { color: '#6b7280', fontSize: 13, marginTop: 2 },
-  ingNotes: { color: '#4b5563', fontSize: 13, marginTop: 4, lineHeight: 18 },
-  ingMuted: { color: '#6b7280', fontSize: 14, lineHeight: 20 },
-  narrativeBox: { backgroundColor: '#eff6ff', padding: 14, borderRadius: 14, marginBottom: 16, borderWidth: 1, borderColor: '#bfdbfe' },
-  bkuBox: { backgroundColor: '#f0fdf4', padding: 14, borderRadius: 14, marginBottom: 16, borderWidth: 1, borderColor: '#bbf7d0' },
-  bkuSubBlock: { marginTop: 10 },
-  bkuRow: { color: '#374151', fontSize: 13, lineHeight: 18, marginTop: 4 },
-  bkuLink: { color: '#15803d', fontWeight: '700', fontSize: 14, marginBottom: 6 },
-  bkuMuted: { color: '#6b7280', fontSize: 12, lineHeight: 18, marginTop: 6 },
-  bkuDisclaimer: { fontSize: 11, color: '#6b7280', fontStyle: 'italic', marginTop: 8 },
-  disclaimer: { fontSize: 11, color: '#6b7280', lineHeight: 16, marginBottom: 16, fontStyle: 'italic' },
-  newBtn: { padding: 16, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 14, alignItems: 'center', backgroundColor: '#fafafa' },
-  newBtnText: { color: '#4b5563', fontWeight: 'bold', fontSize: 15 }
+  scroll: { paddingHorizontal: spacing.lg, paddingBottom: 120 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingTop: spacing.md, marginBottom: spacing.lg },
+  headerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: { ...typography.h2, color: colors.primaryDark },
+  headerSub: { ...typography.caption, color: colors.textMuted },
+  dropZone: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+    ...shadow.soft,
+  },
+  dropIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
+  dropTitle: { ...typography.h2, color: colors.text },
+  dropSub: { ...typography.caption, color: colors.textSecondary, textAlign: 'center', marginBottom: spacing.lg },
+  hints: { flexDirection: 'row', gap: 8, marginTop: spacing.lg, flexWrap: 'wrap', justifyContent: 'center' },
+  hintPill: { backgroundColor: colors.bg, paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.full },
+  hintText: { fontSize: 12, fontWeight: '600', color: colors.textSecondary },
+  previewWrap: {
+    height: 320,
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    backgroundColor: colors.bgDeep,
+    marginBottom: spacing.md,
+    ...shadow.card,
+  },
+  preview: { width: '100%', height: '100%' },
+  closeFab: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
+    backgroundColor: colors.overlay,
+    padding: 10,
+    borderRadius: 20,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.overlay,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  overlayText: { color: colors.textOnPrimary, fontWeight: '800', fontSize: 17, marginTop: 14 },
+  overlayHint: { color: colors.accentSoft, fontSize: 13, marginTop: 6 },
+  resultCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    borderTopWidth: 5,
+    ...shadow.card,
+  },
+  resultHead: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.md },
+  diseaseName: { ...typography.h2, color: colors.text },
+  conf: { color: colors.textSecondary, fontWeight: '700', marginTop: 2 },
+  crop: { color: colors.textMuted, fontSize: 13, marginTop: 4 },
+  block: { backgroundColor: colors.bg, borderRadius: radius.md, padding: spacing.md, marginBottom: 12 },
+  blockAccent: { backgroundColor: colors.accentSoft, borderWidth: 1, borderColor: colors.accent },
+  blockBku: { backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: colors.primaryLight },
+  blockTitle: { fontWeight: '800', color: colors.text, marginBottom: 8, fontSize: 15 },
+  blockBody: { color: colors.textSecondary, lineHeight: 22, fontSize: 15 },
+  ingLine: { color: colors.text, fontSize: 14, marginTop: 6, lineHeight: 20 },
+  link: { color: colors.primary, fontWeight: '700', marginBottom: 4 },
+  bkuLine: { fontSize: 13, color: colors.textSecondary, marginTop: 4 },
+  muted: { fontSize: 12, color: colors.textMuted, fontStyle: 'italic' },
+  disclaimer: { fontSize: 11, color: colors.textMuted, fontStyle: 'italic', marginBottom: 12 },
 });

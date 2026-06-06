@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, ActivityIndicator, StyleSheet, StatusBar } from 'react-native';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, ScanLine, MessageSquare } from 'lucide-react-native';
 import * as Notifications from 'expo-notifications';
 import { isLoggedIn } from './src/services/apiService';
+import { colors } from './src/theme';
+import { MainTabBar, SplashBrand } from './src/components/navigation/MainTabBar';
 
-// Ekranları Import Et
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
@@ -19,7 +19,6 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import ScheduleScreen from './src/screens/ScheduleScreen';
 import MapScreen from './src/screens/MapScreen';
 
-// Bildirim Ayarları
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
@@ -29,42 +28,30 @@ Notifications.setNotificationHandler({
   }),
 });
 
+const navTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: colors.primary,
+    background: colors.bg,
+    card: colors.surface,
+    text: colors.text,
+    border: colors.border,
+  },
+};
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
   return (
     <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#16a34a',
-        tabBarStyle: { height: 65, paddingBottom: 10, paddingTop: 10 }
-      }}
+      tabBar={(props) => <MainTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          tabBarLabel: 'Ana Sayfa',
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />
-        }}
-      />
-      <Tab.Screen
-        name="Analysis"
-        component={AnalysisScreen}
-        options={{
-          tabBarLabel: 'Analiz',
-          tabBarIcon: ({ color }) => <ScanLine size={24} color={color} />
-        }}
-      />
-      <Tab.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          tabBarLabel: 'Asistan',
-          tabBarIcon: ({ color }) => <MessageSquare size={24} color={color} />
-        }}
-      />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Analysis" component={AnalysisScreen} />
+      <Tab.Screen name="Chat" component={ChatScreen} />
     </Tab.Navigator>
   );
 }
@@ -80,22 +67,23 @@ export default function App() {
     try {
       const loggedIn = await isLoggedIn();
       setInitialRoute(loggedIn ? 'Main' : 'Login');
-    } catch (error) {
+    } catch {
       setInitialRoute('Login');
     }
   };
 
-  // Splash / Loading ekranı
   if (!initialRoute) {
     return (
       <View style={styles.splash}>
-        <ActivityIndicator size="large" color="#16a34a" />
+        <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
+        <SplashBrand />
+        <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 32 }} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRoute}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
@@ -115,6 +103,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.bg,
   },
 });

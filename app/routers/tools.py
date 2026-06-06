@@ -2,6 +2,8 @@
 Tools Router: Genel araçlar (health, hava, harita, bitki analizi).
 """
 
+import asyncio
+
 import folium
 from folium.plugins import MiniMap
 from geopy.geocoders import Nominatim
@@ -22,6 +24,7 @@ from app.services.weather_service import (
     fetch_weather_and_location,
     get_random_urfa_location,
 )
+from app.utils.image_upload import prepare_plant_image_bytes
 from app.schemas.chat import MapRequest
 
 router = APIRouter(tags=["Tools"])
@@ -70,12 +73,23 @@ async def analyze_plant(
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Yalnızca görsel dosyası yükleyin (image/*).")
 
-    data = await file.read()
-    if not data or len(data) < 256:
+    raw = await file.read()
+    if not raw or len(raw) < 256:
         raise HTTPException(status_code=400, detail="Dosya boş veya çok küçük.")
 
     try:
-        class_key, confidence = plant_analysis_service.predict_image_bytes(data)
+        data = await asyncio.to_thread(prepare_plant_image_bytes, raw)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.warning(f"Görsel hazırlama hatası: {e}")
+        raise HTTPException(status_code=400, detail="Görsel işlenemedi.") from e
+
+    try:
+        # CNN CPU inference — event loop'u bloklamasın (ardışık isteklerde timeout/502 önlenir)
+        class_key, confidence = await asyncio.to_thread(
+            plant_analysis_service.predict_image_bytes, data
+        )
     except RuntimeError as e:
         raise HTTPException(
             status_code=503,
@@ -85,7 +99,19 @@ async def analyze_plant(
     payload = plant_analysis_service.build_payload(class_key, confidence)
 
     if enrich_bku:
-        payload = await attach_bku_mrl(payload)
+        try:
+            payload = await asyncio.wait_for(
+                attach_bku_mrl(payload),
+                timeout=20.0,
+            )
+        except asyncio.TimeoutError:
+            logger.warning("BKÜ zenginleştirme zaman aşımı (20s); CNN sonucu yine döndürülüyor.")
+            payload["bkuMrlEnrichment"] = {
+                "enabled": True,
+                "resolvedSubstances": [],
+                "errors": ["bku_timeout"],
+                "infoTr": "BKÜ tablosu şu an yanıt vermedi; tekrar deneyin.",
+            }
 
     if enrich_llm:
         narrative = plant_analysis_service.enrich_with_llm(payload)

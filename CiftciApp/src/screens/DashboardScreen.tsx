@@ -1,13 +1,44 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Platform, StatusBar } from 'react-native';
-import { CloudSun, Droplets, Wind, ScanLine, Calendar, AlertTriangle, MapPin, Bell, User, Map } from 'lucide-react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  RefreshControl,
+  Platform,
+  StatusBar,
+} from 'react-native';
+import {
+  CloudSun,
+  Droplets,
+  Wind,
+  ScanLine,
+  Calendar,
+  MapPin,
+  Bell,
+  User,
+  Map,
+  Sparkles,
+  ChevronRight,
+  Leaf,
+} from 'lucide-react-native';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
+import { Screen } from '../components/ui/Screen';
 import { getWeatherData, savePushToken } from '../services/apiService';
 import { WeatherData } from '../types';
+import { colors, spacing, radius, typography, shadow } from '../theme';
+
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Günaydın';
+  if (h < 18) return 'İyi günler';
+  return 'İyi akşamlar';
+}
 
 export default function DashboardScreen({ navigation }: any) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -16,257 +47,300 @@ export default function DashboardScreen({ navigation }: any) {
 
   const fetchDashboardData = async () => {
     try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setLoading(false);
-        setRefreshing(false);
-        return;
-      }
-      let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
       const data = await getWeatherData(location.coords.latitude, location.coords.longitude);
       setWeather(data);
-    } catch (error) {
-      console.error("Dashboard Veri Hatası:", error);
+    } catch (e) {
+      console.error('Dashboard:', e);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  const registerDeviceForPushNotifications = async () => {
+  const registerPush = async () => {
     if (!Device.isDevice) return;
     try {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== 'granted') {
+      const { status: existing } = await Notifications.getPermissionsAsync();
+      let finalStatus = existing;
+      if (existing !== 'granted') {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
       if (finalStatus !== 'granted') return;
-
-      const projectId = Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId ?? "f18467ff-fc40-4c69-9e71-e47056d31b33";
+      const projectId =
+        Constants.expoConfig?.extra?.eas?.projectId ??
+        Constants.easConfig?.projectId ??
+        'f18467ff-fc40-4c69-9e71-e47056d31b33';
       const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
       await savePushToken(tokenData.data);
-    } catch (error) {
-      console.log("Token hatası:", error);
+    } catch (e) {
+      console.log('Push:', e);
     }
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
+        name: 'Çiftçi AI',
         importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
       });
     }
   };
 
   useEffect(() => {
     fetchDashboardData();
-    registerDeviceForPushNotifications();
+    registerPush();
   }, []);
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchDashboardData();
-  };
+  const tip =
+    weather && weather.temp > 28
+      ? 'Sıcaklık yüksek. Sulama aralığını gözden geçirin.'
+      : weather && weather.temp < 5
+        ? 'Don riski. Hassas bitkileri koruyun.'
+        : 'Koşullar normal. Düzenli saha kontrolü önerilir.';
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f9fafb" />
+    <Screen>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 100 }} // Alt menü için ekstra boşluk
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#16a34a"]} />}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchDashboardData(); }} colors={[colors.primary]} />
+        }
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.headerTitle}>Ana Menü</Text>
-            <Text style={styles.dateText}>
+        <View style={styles.topRow}>
+          <View>
+            <Text style={styles.greet}>{greeting()}</Text>
+            <Text style={styles.brand}>Çiftçi AI</Text>
+            <Text style={styles.date}>
               {new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })}
             </Text>
           </View>
-          <View style={styles.headerIcons}>
-            <TouchableOpacity onPress={() => navigation.navigate('Notifications')} style={styles.iconBtn}>
-              <Bell size={22} color="#374151" />
+          <View style={styles.topActions}>
+            <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Notifications')}>
+              <Bell size={20} color={colors.text} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.iconBtn}>
-              <User size={22} color="#374151" />
+            <TouchableOpacity style={styles.iconBtn} onPress={() => navigation.navigate('Profile')}>
+              <User size={20} color={colors.text} />
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Hava Durumu - Modern & Flat */}
-        <View style={styles.weatherCard}>
+        <View style={styles.weatherHero}>
+          <View style={styles.weatherGlow} />
           {loading ? (
-            <ActivityIndicator size="large" color="#fff" style={{ padding: 20 }} />
+            <ActivityIndicator color={colors.accent} size="large" style={{ padding: 40 }} />
           ) : (
             <>
-              <View style={styles.weatherTopRow}>
-                <View>
-                   <View style={styles.locationBadge}>
-                      <MapPin size={12} color="#dcfce7" style={{marginRight:4}}/>
-                      <Text style={styles.weatherLoc}>{weather?.location || "Konum..."}</Text>
-                   </View>
-                   <Text style={styles.weatherTemp}>{weather?.temp ?? "--"}°</Text>
-                   <Text style={styles.weatherCond}>{weather?.condition || "Yükleniyor..."}</Text>
+              <View style={styles.weatherRow}>
+                <View style={{ flex: 1 }}>
+                  <View style={styles.locPill}>
+                    <MapPin size={12} color={colors.accentSoft} />
+                    <Text style={styles.locText}>{weather?.location || 'Konum alınıyor…'}</Text>
+                  </View>
+                  <Text style={styles.temp}>{weather?.temp ?? '—'}°</Text>
+                  <Text style={styles.cond}>{weather?.condition || '—'}</Text>
                 </View>
-                <CloudSun size={80} color="#bbf7d0" style={styles.weatherIcon} />
+                <CloudSun size={72} color={colors.accent} strokeWidth={1.5} />
               </View>
-
-              <View style={styles.weatherStats}>
-                <View style={styles.statItem}>
-                  <Droplets size={18} color="#dcfce7" />
-                  <Text style={styles.statText}>%{weather?.humidity ?? "--"} Nem</Text>
+              <View style={styles.stats}>
+                <View style={styles.stat}>
+                  <Droplets size={18} color={colors.accentSoft} />
+                  <Text style={styles.statVal}>%{weather?.humidity ?? '—'}</Text>
+                  <Text style={styles.statLbl}>Nem</Text>
                 </View>
                 <View style={styles.statDivider} />
-                <View style={styles.statItem}>
-                  <Wind size={18} color="#dcfce7" />
-                  <Text style={styles.statText}>{weather?.wind ?? "--"} km/s</Text>
+                <View style={styles.stat}>
+                  <Wind size={18} color={colors.accentSoft} />
+                  <Text style={styles.statVal}>{weather?.wind ?? '—'}</Text>
+                  <Text style={styles.statLbl}>km/s rüzgâr</Text>
                 </View>
               </View>
             </>
           )}
         </View>
 
-        {/* Hızlı İşlemler - Clean Cards */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Hızlı İşlemler</Text>
-          <View style={styles.actionGrid}>
-            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Analysis')}>
-              <View style={[styles.iconBox, { backgroundColor: '#dcfce7' }]}>
-                <ScanLine size={26} color="#16a34a" />
-              </View>
-              <Text style={styles.actionText}>Bitki Analizi</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Schedule')}>
-              <View style={[styles.iconBox, { backgroundColor: '#dbeafe' }]}>
-                <Calendar size={26} color="#2563eb" />
-              </View>
-              <Text style={styles.actionText}>Planlama</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('Map')}>
-              <View style={[styles.iconBox, { backgroundColor: '#fef3c7' }]}>
-                <Map size={26} color="#d97706" />
-              </View>
-              <Text style={styles.actionText}>Harita</Text>
-            </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.heroCta}
+          onPress={() => navigation.navigate('Analysis')}
+          activeOpacity={0.92}
+        >
+          <View style={styles.heroCtaIcon}>
+            <ScanLine size={28} color={colors.textOnPrimary} />
           </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.heroCtaTitle}>Yaprak Teşhisi</Text>
+            <Text style={styles.heroCtaSub}>Fotoğraf çek → AI hastalık analizi</Text>
+          </View>
+          <ChevronRight size={22} color={colors.accentSoft} />
+        </TouchableOpacity>
+
+        <Text style={styles.sectionLabel}>ARAÇLAR</Text>
+        <View style={styles.toolsRow}>
+          <TouchableOpacity style={styles.toolCard} onPress={() => navigation.navigate('Schedule')}>
+            <View style={[styles.toolIcon, { backgroundColor: colors.accentSoft }]}>
+              <Calendar size={22} color={colors.accentDark} />
+            </View>
+            <Text style={styles.toolText}>Planlama</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.toolCard} onPress={() => navigation.navigate('Map')}>
+            <View style={[styles.toolIcon, { backgroundColor: colors.primarySoft }]}>
+              <Map size={22} color={colors.primary} />
+            </View>
+            <Text style={styles.toolText}>Harita</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.toolCard} onPress={() => navigation.navigate('Chat')}>
+            <View style={[styles.toolIcon, { backgroundColor: '#E8F4F8' }]}>
+              <Sparkles size={22} color={colors.primaryDark} />
+            </View>
+            <Text style={styles.toolText}>Asistan</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* İpucu - Soft Alert */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Günün İpucu</Text>
-          <View style={styles.alertCard}>
-            <View style={styles.alertIconBox}>
-               <AlertTriangle size={24} color="#f97316" />
-            </View>
-            <View style={styles.alertContent}>
-              <Text style={styles.alertTitle}>Durum Analizi</Text>
-              <Text style={styles.alertDesc}>
-                {weather && weather.temp > 28
-                  ? "Sıcaklık yüksek seyrediyor. Sulama sıklığını artırmayı değerlendirin."
-                  : weather && weather.temp < 5
-                  ? "Don riski olabilir. Hassas bitkilerinizi korumaya alın."
-                  : "Hava koşulları mevsim normallerinde. Düzenli bakıma devam edebilirsiniz."}
-              </Text>
-            </View>
+        <View style={styles.tipCard}>
+          <View style={styles.tipIcon}>
+            <Leaf size={22} color={colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.tipTitle}>Saha notu</Text>
+            <Text style={styles.tipBody}>{tip}</Text>
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' }, // Hafif gri zemin
-
-  // Header
-  header: {
+  scroll: { paddingBottom: 110, paddingHorizontal: spacing.lg },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingTop: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  greet: { ...typography.caption, color: colors.textSecondary, textTransform: 'uppercase' },
+  brand: { ...typography.hero, fontSize: 28, color: colors.primaryDark, marginTop: 2 },
+  date: { ...typography.caption, color: colors.textMuted, marginTop: 4, textTransform: 'capitalize' },
+  topActions: { flexDirection: 'row', gap: 10 },
+  iconBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadow.soft,
+  },
+  weatherHero: {
+    backgroundColor: colors.primaryDark,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+    ...shadow.card,
+  },
+  weatherGlow: {
+    position: 'absolute',
+    top: -40,
+    right: -40,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: colors.primaryLight,
+    opacity: 0.35,
+  },
+  weatherRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  locPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 10,
-    backgroundColor: '#f9fafb'
-  },
-  headerTitle: { fontSize: 26, fontWeight: '800', color: '#111827', letterSpacing: -0.5 },
-  dateText: { fontSize: 14, color: '#6b7280', marginTop: 2, textTransform: 'capitalize', fontWeight: '500' },
-  headerIcons: { flexDirection: 'row', gap: 12 },
-  iconBtn: { backgroundColor: '#fff', padding: 10, borderRadius: 50, borderWidth: 1, borderColor: '#e5e7eb' },
-
-  // Weather Card (Minimalist & Flat)
-  weatherCard: {
-    margin: 24,
-    marginTop: 10,
-    padding: 28,
-    backgroundColor: '#16a34a', // Mat Yeşil
-    borderRadius: 32, // Daha oval
-    shadowColor: "#16a34a",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  weatherTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
-  locationBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, alignSelf: 'flex-start', marginBottom: 8 },
-  weatherLoc: { color: '#fff', fontSize: 13, fontWeight: '600' },
-  weatherTemp: { color: '#fff', fontSize: 56, fontWeight: '800', letterSpacing: -1 },
-  weatherCond: { color: '#dcfce7', fontSize: 16, fontWeight: '500', marginTop: -4 },
-  weatherIcon: { opacity: 0.9 },
-
-  weatherStats: { flexDirection: 'row', backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: 20, padding: 16, justifyContent: 'space-around', alignItems: 'center' },
-  statItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  statText: { color: '#fff', fontSize: 14, fontWeight: '600' },
-  statDivider: { width: 1, height: 20, backgroundColor: 'rgba(255,255,255,0.2)' },
-
-  // Sections
-  section: { paddingHorizontal: 24, marginBottom: 28 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#1f2937', marginBottom: 16 },
-
-  // Action Grid
-  actionGrid: { flexDirection: 'row', gap: 12 },
-  actionCard: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingVertical: 24,
+    gap: 6,
+    backgroundColor: 'rgba(255,255,255,0.12)',
     paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    alignSelf: 'flex-start',
+    marginBottom: 10,
+  },
+  locText: { color: colors.textOnDark, fontSize: 12, fontWeight: '600' },
+  temp: { fontSize: 52, fontWeight: '800', color: colors.textOnPrimary, letterSpacing: -2 },
+  cond: { color: colors.accentSoft, fontSize: 16, fontWeight: '600', marginTop: -4 },
+  stats: {
+    flexDirection: 'row',
+    marginTop: spacing.lg,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    borderRadius: radius.lg,
+    padding: spacing.md,
+  },
+  stat: { flex: 1, alignItems: 'center', gap: 4 },
+  statVal: { color: colors.textOnPrimary, fontWeight: '800', fontSize: 16 },
+  statLbl: { color: colors.accentSoft, fontSize: 11, fontWeight: '600' },
+  statDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.2)' },
+  heroCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    gap: spacing.md,
+    ...shadow.card,
+  },
+  heroCtaIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroCtaTitle: { color: colors.textOnPrimary, fontSize: 18, fontWeight: '800' },
+  heroCtaSub: { color: colors.primarySoft, fontSize: 13, marginTop: 2, fontWeight: '500' },
+  sectionLabel: { ...typography.label, color: colors.textMuted, marginBottom: spacing.sm },
+  toolsRow: { flexDirection: 'row', gap: 12, marginBottom: spacing.lg },
+  toolCard: {
+    flex: 1,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadow.soft,
+  },
+  toolIcon: {
+    width: 48,
+    height: 48,
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 14,
-    // Soft Shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#f3f4f6'
+    marginBottom: 10,
   },
-  iconBox: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center' },
-  actionText: { fontWeight: '600', color: '#374151', fontSize: 13, textAlign: 'center' },
-
-  // Alert Card
-  alertCard: {
+  toolText: { fontWeight: '700', color: colors.text, fontSize: 12 },
+  tipCard: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 24,
-    gap: 16,
-    alignItems: 'flex-start',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#f3f4f6'
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    gap: spacing.md,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.accent,
+    ...shadow.soft,
   },
-  alertIconBox: { backgroundColor: '#fff7ed', padding: 12, borderRadius: 16 },
-  alertContent: { flex: 1 },
-  alertTitle: { color: '#9a3412', fontWeight: '700', fontSize: 15, marginBottom: 6 },
-  alertDesc: { color: '#4b5563', fontSize: 13, lineHeight: 20 }
+  tipIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tipTitle: { ...typography.h3, color: colors.primaryDark },
+  tipBody: { ...typography.caption, color: colors.textSecondary, marginTop: 4 },
 });

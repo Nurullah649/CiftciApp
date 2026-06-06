@@ -3,21 +3,22 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   Alert,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
   StatusBar,
-  Image // <--- 1. Image import edildi
+  Image,
 } from 'react-native';
-import { Eye, EyeOff } from 'lucide-react-native'; // Tractor kaldırıldı
+import { Eye, EyeOff, Sprout } from 'lucide-react-native';
+import { Screen } from '../components/ui/Screen';
+import { PrimaryButton, GhostButton } from '../components/ui/Buttons';
 import { loginUser } from '../services/apiService';
+import { colors, spacing, radius, typography, shadow } from '../theme';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
@@ -27,222 +28,180 @@ export default function LoginScreen({ navigation }: any) {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("Uyarı", "Lütfen e-posta ve şifrenizi giriniz.");
+      Alert.alert('Uyarı', 'E-posta ve şifre giriniz.');
       return;
     }
-
     setLoading(true);
     try {
       await loginUser(email, password);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
+      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
     } catch (error: any) {
-      const message = error.message === 'Network request failed'
-        ? 'Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.'
-        : 'Giriş yapılamadı. E-posta veya şifre hatalı olabilir.';
-
-      Alert.alert("Giriş Başarısız", message);
+      const message =
+        error.message === 'Network request failed'
+          ? 'Sunucuya ulaşılamadı. İnternet bağlantınızı kontrol edin.'
+          : 'Giriş yapılamadı. Bilgilerinizi kontrol edin.';
+      Alert.alert('Giriş Başarısız', message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
+    <Screen edges={['top', 'left', 'right', 'bottom']} variant="cream">
+      <StatusBar barStyle="light-content" backgroundColor={colors.primaryDark} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-          >
-
-            <View style={styles.content}>
-              {/* Logo Alanı */}
-              <View style={styles.headerContainer}>
-                <View style={styles.iconContainer}>
-                  {/* 2. Traktör yerine Logo Resmi */}
-                  <Image
-                    source={require('../../assets/icon.png')}
-                    style={styles.logoImage}
-                  />
-                </View>
-                <Text style={styles.title}>Hoş Geldiniz</Text>
-                <Text style={styles.subtitle}>Güvenli Çiftçi Asistanınız</Text>
+          <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+            <View style={styles.hero}>
+              <View style={styles.heroOrb1} />
+              <View style={styles.heroOrb2} />
+              <View style={styles.logoRing}>
+                <Image source={require('../../assets/icon.png')} style={styles.logo} />
               </View>
-
-              {/* Form Alanı */}
-              <View style={styles.form}>
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>E-posta</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="ornek@email.com"
-                    placeholderTextColor="#9ca3af"
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    autoCorrect={false}
-                  />
-                </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Şifre</Text>
-                  <View style={styles.passwordContainer}>
-                    <TextInput
-                      style={styles.passwordInput}
-                      placeholder="••••••"
-                      placeholderTextColor="#9ca3af"
-                      secureTextEntry={!showPassword}
-                      value={password}
-                      onChangeText={setPassword}
-                      autoCapitalize="none"
-                    />
-                    <TouchableOpacity
-                      onPress={() => setShowPassword(!showPassword)}
-                      style={styles.eyeIcon}
-                      hitSlop={{top: 15, bottom: 15, left: 15, right: 15}}
-                    >
-                      {showPassword ? (
-                        <EyeOff size={22} color="#6b7280" />
-                      ) : (
-                        <Eye size={22} color="#6b7280" />
-                      )}
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={[styles.button, loading && styles.buttonDisabled]}
-                  onPress={handleLogin}
-                  disabled={loading}
-                  activeOpacity={0.8}
-                >
-                  {loading ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.buttonText}>Giriş Yap</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-
-              {/* Kayıt Ol Linki */}
-              <View style={styles.registerRow}>
-                <Text style={styles.registerText}>Hesabınız yok mu? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                    <Text style={styles.registerLink}>Hemen Kayıt Olun</Text>
-                </TouchableOpacity>
+              <Text style={styles.heroTitle}>Çiftçi AI</Text>
+              <Text style={styles.heroSub}>Tarlanız için akıllı rehber</Text>
+              <View style={styles.badge}>
+                <Sprout size={14} color={colors.accent} />
+                <Text style={styles.badgeText}>Teşhis · Hava · Asistan</Text>
               </View>
             </View>
 
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Hoş geldiniz</Text>
+              <Text style={styles.cardSub}>Hesabınıza giriş yapın</Text>
+
+              <Text style={styles.label}>E-posta</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="ornek@email.com"
+                placeholderTextColor={colors.textMuted}
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+
+              <Text style={styles.label}>Şifre</Text>
+              <View style={styles.passWrap}>
+                <TextInput
+                  style={styles.passInput}
+                  placeholder="••••••••"
+                  placeholderTextColor={colors.textMuted}
+                  secureTextEntry={!showPassword}
+                  value={password}
+                  onChangeText={setPassword}
+                />
+                <TouchableWithoutFeedback onPress={() => setShowPassword(!showPassword)}>
+                  <View style={styles.eye}>
+                    {showPassword ? <EyeOff size={20} color={colors.textMuted} /> : <Eye size={20} color={colors.textMuted} />}
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+
+              <PrimaryButton label="Giriş Yap" onPress={handleLogin} loading={loading} style={{ marginTop: spacing.md }} />
+
+              <View style={styles.registerRow}>
+                <Text style={styles.registerMuted}>Hesabınız yok mu?</Text>
+                <GhostButton
+                  label="Kayıt olun"
+                  onPress={() => navigation.navigate('Register')}
+                  textStyle={{ color: colors.primary, fontWeight: '800' }}
+                />
+              </View>
+            </View>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
-  keyboardView: { flex: 1 },
-  scrollContent: { flexGrow: 1, justifyContent: 'center' },
-  content: { flex: 1, padding: 30, justifyContent: 'center' },
-
-  headerContainer: { alignItems: 'center', marginBottom: 40 },
-  iconContainer: {
-    width: 110, // Biraz büyüttük
-    height: 110,
-    backgroundColor: '#fff', // Logo zemini beyaz olsun (PNG transparan değilse şık durur)
-    borderRadius: 55,
-    justifyContent: 'center',
+  scroll: { flexGrow: 1 },
+  hero: {
+    backgroundColor: colors.primaryDark,
+    paddingTop: spacing.xl,
+    paddingBottom: 56,
     alignItems: 'center',
-    marginBottom: 24,
-    // Hafif gölge
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: '#f3f4f6'
+    overflow: 'hidden',
   },
-  // 3. Logo Stili
-  logoImage: {
-    width: '70%',
-    height: '70%',
-    resizeMode: 'contain', // Resim bozulmadan sığsın
+  heroOrb1: {
+    position: 'absolute',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: colors.primary,
+    opacity: 0.4,
+    top: -60,
+    right: -40,
   },
-  title: { fontSize: 30, fontWeight: '800', color: '#111827', marginBottom: 8, letterSpacing: -0.5 },
-  subtitle: { fontSize: 16, color: '#6b7280', fontWeight: '500' },
-
-  form: { gap: 20 },
-  inputGroup: { gap: 8 },
-  label: { fontSize: 14, fontWeight: '600', color: '#374151', marginLeft: 4 },
-
-  input: {
-    backgroundColor: '#f3f4f6',
-    borderRadius: 18,
-    padding: 18,
-    fontSize: 16,
-    color: '#1f2937',
-    fontWeight: '500'
+  heroOrb2: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: colors.accent,
+    opacity: 0.25,
+    bottom: 20,
+    left: -30,
   },
-
-  passwordContainer: {
+  logoRing: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: colors.accent,
+    ...shadow.card,
+  },
+  logo: { width: '62%', height: '62%', resizeMode: 'contain' },
+  heroTitle: { fontSize: 30, fontWeight: '800', color: colors.textOnPrimary, marginTop: spacing.md },
+  heroSub: { fontSize: 15, color: colors.accentSoft, marginTop: 4 },
+  badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 18,
-    paddingHorizontal: 18,
+    gap: 6,
+    marginTop: spacing.md,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: radius.full,
   },
-  passwordInput: {
+  badgeText: { color: colors.textOnDark, fontSize: 12, fontWeight: '600' },
+  card: {
     flex: 1,
-    paddingVertical: 18,
+    marginTop: -28,
+    marginHorizontal: spacing.lg,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    ...shadow.card,
+  },
+  cardTitle: { ...typography.h1, fontSize: 24, color: colors.text },
+  cardSub: { ...typography.caption, color: colors.textMuted, marginBottom: spacing.lg },
+  label: { ...typography.label, color: colors.textSecondary, marginBottom: 8, marginTop: 12 },
+  input: {
+    backgroundColor: colors.bg,
+    borderRadius: radius.md,
+    padding: 16,
     fontSize: 16,
-    color: '#1f2937',
-    fontWeight: '500'
+    color: colors.text,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
-  eyeIcon: {
-    padding: 4,
-  },
-
-  button: {
-    backgroundColor: '#16a34a',
-    padding: 20,
-    borderRadius: 18,
-    alignItems: 'center',
-    marginTop: 12,
-    shadowColor: "#16a34a",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  buttonDisabled: {
-    backgroundColor: '#86efac',
-    shadowOpacity: 0.1,
-  },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-
-  registerRow: {
+  passWrap: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 32
+    alignItems: 'center',
+    backgroundColor: colors.bg,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    paddingRight: 12,
   },
-  registerText: {
-    color: '#6b7280',
-    fontSize: 15,
-    fontWeight: '500'
-  },
-  registerLink: {
-    color: '#16a34a',
-    fontWeight: '700',
-    fontSize: 15
-  }
+  passInput: { flex: 1, padding: 16, fontSize: 16, color: colors.text },
+  eye: { padding: 8 },
+  registerRow: { alignItems: 'center', marginTop: spacing.lg },
+  registerMuted: { color: colors.textMuted, fontSize: 14 },
 });

@@ -1,0 +1,6 @@
+# /etc/nginx/sites-available/ciftciapp (veya ilgili server bloğu) içine ekleyin:
+# Bitki analizi fotoğraf yükleme — varsayılan 1m 413 verir.
+
+client_max_body_size 20M;
+
+# location / { ... proxy_pass ... } bloğunda da aynı server {} içinde yeterli.

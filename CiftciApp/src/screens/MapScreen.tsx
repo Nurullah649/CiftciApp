@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, ActivityIndicator, Alert, Keyboard, StatusBar } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Screen } from '../components/ui/Screen';
+import { StackHeader } from '../components/ui/StackHeader';
 import { WebView } from 'react-native-webview';
-import { ArrowLeft, Search, Map as MapIcon, Locate, Navigation } from 'lucide-react-native';
+import { Search, Map as MapIcon, Navigation } from 'lucide-react-native';
+import { colors, spacing, radius, typography, shadow } from '../theme';
 import * as Location from 'expo-location';
 import { getMapHtml, getUserProfile } from '../services/apiService';
 
@@ -80,16 +82,9 @@ export default function MapScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <ArrowLeft size={24} color="#1f2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Tarla Haritası</Text>
-      </View>
+    <Screen edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
+      <StackHeader title="Tarla Haritası" onBack={() => navigation.goBack()} />
 
       {/* Arama Alanı */}
       <View style={styles.searchContainer}>
@@ -99,7 +94,7 @@ export default function MapScreen({ navigation }: any) {
             placeholder="Şehir/İlçe Ara..."
             value={city}
             onChangeText={setCity}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.textMuted}
           />
         </View>
 
@@ -132,7 +127,7 @@ export default function MapScreen({ navigation }: any) {
             startInLoadingState={true}
             renderLoading={() => (
                 <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color="#16a34a" />
+                    <ActivityIndicator size="large" color={colors.primary} />
                     <Text style={styles.loadingText}>Uydu görüntüleri yükleniyor...</Text>
                 </View>
             )}
@@ -140,7 +135,7 @@ export default function MapScreen({ navigation }: any) {
         ) : (
           <View style={styles.placeholder}>
             <View style={styles.iconCircle}>
-                <MapIcon size={56} color="#16a34a" />
+                <MapIcon size={56} color={colors.primary} />
             </View>
             <Text style={styles.placeholderTitle}>Konum Seçin</Text>
             <Text style={styles.placeholderText}>
@@ -149,109 +144,78 @@ export default function MapScreen({ navigation }: any) {
           </View>
         )}
       </View>
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#fff',
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#f3f4f6'
-  },
-  backBtn: { padding: 4, marginRight: 12 },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: '#1f2937' },
-
-  // Arama Alanı
   searchContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md,
     paddingTop: 4,
     gap: 10,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   inputWrapper: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 24,
-    // Hafif gölge ve gri zemin alternatifi
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.surface,
+    borderRadius: radius.full,
     height: 48,
-    justifyContent: 'center'
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   input: {
     paddingHorizontal: 20,
     fontSize: 15,
-    color: '#1f2937',
-    height: '100%'
+    color: colors.text,
+    height: '100%',
   },
-
-  // Butonlar
   iconBtn: {
     width: 48,
     height: 48,
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 4,
+    ...shadow.soft,
   },
-  locationBtn: { backgroundColor: '#3b82f6' }, // Mavi
-  searchBtn: { backgroundColor: '#16a34a' },   // Yeşil
-
-  // Harita Kutusu
+  locationBtn: { backgroundColor: colors.primary },
+  searchBtn: { backgroundColor: colors.accentDark },
   mapContainer: {
     flex: 1,
-    marginHorizontal: 20,
-    marginBottom: 20,
-    backgroundColor: '#fff',
-    borderRadius: 28,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
     overflow: 'hidden',
-    // Modern Gölge
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    ...shadow.card,
   },
   webview: { flex: 1 },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10
+    zIndex: 10,
   },
-  loadingText: { marginTop: 12, color: '#6b7280', fontWeight: '500' },
-
-  // Boş Durum (Placeholder)
+  loadingText: { marginTop: 12, color: colors.textSecondary, fontWeight: '600' },
   placeholder: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 40,
-    backgroundColor: '#fff'
+    backgroundColor: colors.surface,
   },
   iconCircle: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#dcfce7',
+    backgroundColor: colors.primarySoft,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24
+    marginBottom: 24,
   },
-  placeholderTitle: { fontSize: 20, fontWeight: 'bold', color: '#111827', marginBottom: 8 },
-  placeholderText: { fontSize: 15, color: '#6b7280', textAlign: 'center', lineHeight: 22 }
+  placeholderTitle: { ...typography.h2, color: colors.text, marginBottom: 8 },
+  placeholderText: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
 });

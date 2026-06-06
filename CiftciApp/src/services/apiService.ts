@@ -261,26 +261,29 @@ export const uploadImageForAnalysis = async (
   if (options?.enrichWithBku) params.set('enrich_bku', 'true');
   const qs = params.toString() ? `?${params.toString()}` : '';
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120_000);
+
   try {
     const response = await fetch(`${API_BASE_URL}/tools/analyze-plant${qs}`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` },
       body: formData,
+      signal: controller.signal,
     });
 
     if (!response.ok) {
-      if (response.status === 404 || response.status === 405) {
-        return {
-          id: Date.now().toString(),
-          imageUri,
-          timestamp: new Date().toISOString(),
-          diseaseName: "Sağlıklı Bitki",
-          confidence: 0.98,
-          recommendation: "Bitkiniz sağlıklı görünüyor.",
-          status: 'healthy'
-        };
+      const detail = await response.text().catch(() => '');
+      if (response.status === 413) {
+        throw new Error(
+          'Fotoğraf sunucu limitinden büyük. Daha yakın çekim veya galeriden daha küçük bir görsel deneyin.',
+        );
       }
-      throw new Error(`Analiz hatası: ${response.status}`);
+      throw new Error(
+        detail
+          ? `Analiz hatası (${response.status}): ${detail.slice(0, 200)}`
+          : `Analiz hatası: ${response.status}`,
+      );
     }
     const data = await response.json();
     return {
@@ -300,15 +303,13 @@ export const uploadImageForAnalysis = async (
       bkuMrlEnrichment: data.bkuMrlEnrichment,
     };
   } catch (error) {
-    return {
-      id: Date.now().toString(),
-      imageUri,
-      timestamp: new Date().toISOString(),
-      diseaseName: "Bağlantı Hatası",
-      confidence: 0,
-      recommendation: "Sunucuya bağlanılamadı.",
-      status: 'warning'
-    };
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Analiz zaman aşımı (2 dk). Tekrar deneyin veya BKÜ kapalı deneyin.');
+    }
+    const msg = error instanceof Error ? error.message : 'Sunucuya bağlanılamadı.';
+    throw new Error(msg.includes('Network request failed') ? 'Ağ hatası: sunucuya ulaşılamadı.' : msg);
+  } finally {
+    clearTimeout(timeoutId);
   }
 };
 

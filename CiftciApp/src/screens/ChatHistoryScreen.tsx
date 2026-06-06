@@ -12,9 +12,11 @@ import {
   UIManager,
   StatusBar
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Trash2, ChevronDown, ChevronUp, Calendar, MessageCircle } from 'lucide-react-native';
+import { Screen } from '../components/ui/Screen';
+import { StackHeader } from '../components/ui/StackHeader';
+import { Trash2, ChevronDown, ChevronUp, Calendar, MessageCircle } from 'lucide-react-native';
 import { getChatHistory, clearChatHistory } from '../services/apiService';
+import { colors, spacing, radius, typography, shadow } from '../theme';
 
 // Android için animasyon aktivasyonu
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -48,14 +50,14 @@ const DateGroup = ({ title, messages }: { title: string, messages: HistoryItem[]
       >
         <View style={styles.headerLeft}>
           <View style={[styles.iconBox, expanded ? styles.iconBoxActive : styles.iconBoxInactive]}>
-             <Calendar size={20} color={expanded ? "#fff" : "#16a34a"} />
+             <Calendar size={20} color={expanded ? colors.textOnPrimary : colors.primary} />
           </View>
           <View>
              <Text style={styles.groupTitle}>{title}</Text>
              <Text style={styles.groupSubtitle}>{messages.length} Mesaj</Text>
           </View>
         </View>
-        {expanded ? <ChevronUp size={20} color="#6b7280" /> : <ChevronDown size={20} color="#9ca3af" />}
+        {expanded ? <ChevronUp size={20} color={colors.textSecondary} /> : <ChevronDown size={20} color={colors.textMuted} />}
       </TouchableOpacity>
 
       {/* Mesajlar Listesi (Sadece expanded ise görünür) */}
@@ -167,37 +169,34 @@ export default function ChatHistoryScreen({ navigation }: any) {
   }, [history]);
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <ArrowLeft size={24} color="#1f2937" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Sohbet Geçmişi</Text>
-
-        {history.length > 0 && (
-          <TouchableOpacity onPress={handleClearHistory} style={styles.clearBtn}>
-            <Trash2 size={22} color="#ef4444" />
-          </TouchableOpacity>
-        )}
-      </View>
+    <Screen edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
+      <StackHeader
+        title="Sohbet Geçmişi"
+        onBack={() => navigation.goBack()}
+        right={
+          history.length > 0 ? (
+            <TouchableOpacity onPress={handleClearHistory} style={styles.clearBtn}>
+              <Trash2 size={20} color={colors.critical} />
+            </TouchableOpacity>
+          ) : undefined
+        }
+      />
 
       {loading ? (
-        <View style={styles.center}><ActivityIndicator size="large" color="#16a34a"/></View>
+        <View style={styles.center}><ActivityIndicator size="large" color={colors.primary}/></View>
       ) : (
         <FlatList
           data={groupedHistory}
           keyExtractor={(item, index) => index.toString()}
-          contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+          contentContainerStyle={{ padding: spacing.lg, paddingBottom: 40 }}
           renderItem={({ item }) => (
             <DateGroup title={item.title} messages={item.data} />
           )}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <View style={styles.emptyIconBox}>
-                 <MessageCircle size={48} color="#9ca3af" />
+                 <MessageCircle size={48} color={colors.textMuted} />
               </View>
               <Text style={styles.emptyTitle}>Henüz Sohbet Yok</Text>
               <Text style={styles.emptyText}>Asistanla yaptığınız konuşmalar burada tarihe göre gruplanarak saklanır.</Text>
@@ -205,120 +204,84 @@ export default function ChatHistoryScreen({ navigation }: any) {
           }
         />
       )}
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6'
-  },
-  backBtn: { padding: 4, marginRight: 12 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: '#1f2937', flex: 1 },
-  clearBtn: { padding: 8, backgroundColor: '#fef2f2', borderRadius: 8 },
-
-  // Date Group Card
+  clearBtn: { padding: 8, backgroundColor: '#FEF2F2', borderRadius: radius.sm },
   groupContainer: {
     marginBottom: 16,
-    backgroundColor: '#fff',
-    borderRadius: 20,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
     overflow: 'hidden',
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
     borderWidth: 1,
-    borderColor: '#f3f4f6'
+    borderColor: colors.borderLight,
+    ...shadow.soft,
   },
   groupHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#fff'
+    backgroundColor: colors.surface,
   },
-  groupHeaderActive: {
-    backgroundColor: '#f8fafc', // Açılınca hafif renk değişsin
-  },
+  groupHeaderActive: { backgroundColor: colors.bg },
   headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   iconBox: {
     width: 40,
     height: 40,
     borderRadius: 20,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
-  iconBoxInactive: { backgroundColor: '#dcfce7' },
-  iconBoxActive: { backgroundColor: '#16a34a' },
-
-  groupTitle: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
-  groupSubtitle: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-
-  // Messages List inside Group
+  iconBoxInactive: { backgroundColor: colors.primarySoft },
+  iconBoxActive: { backgroundColor: colors.primary },
+  groupTitle: { ...typography.h3, color: colors.text },
+  groupSubtitle: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
   messagesList: {
     padding: 16,
     paddingTop: 0,
-    backgroundColor: '#f8fafc',
+    backgroundColor: colors.bg,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9'
+    borderTopColor: colors.borderLight,
   },
-
-  // Mesaj Baloncukları (ChatScreen ile uyumlu Modern Tasarım)
   msgRow: { marginVertical: 6, width: '100%' },
   rowUser: { alignItems: 'flex-end' },
   rowAi: { alignItems: 'flex-start' },
-
   bubble: {
     maxWidth: '85%',
     padding: 12,
     borderRadius: 18,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    ...shadow.soft,
   },
   bubbleUser: {
-    backgroundColor: '#16a34a',
-    borderBottomRightRadius: 2
+    backgroundColor: colors.primary,
+    borderBottomRightRadius: 2,
   },
   bubbleAi: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     borderBottomLeftRadius: 2,
     borderWidth: 1,
-    borderColor: '#e2e8f0'
+    borderColor: colors.borderLight,
   },
-
   msgText: { fontSize: 14, lineHeight: 20 },
-  textUser: { color: '#fff' },
-  textAi: { color: '#334155' },
-
+  textUser: { color: colors.textOnPrimary },
+  textAi: { color: colors.text },
   timeText: { fontSize: 10, marginTop: 4, alignSelf: 'flex-end' },
   timeUser: { color: 'rgba(255,255,255,0.8)' },
-  timeAi: { color: '#94a3b8' },
-
-  // Empty State
+  timeAi: { color: colors.textMuted },
   emptyContainer: { alignItems: 'center', marginTop: 80, paddingHorizontal: 40 },
   emptyIconBox: {
     width: 100,
     height: 100,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.bgDeep,
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24
+    marginBottom: 24,
   },
-  emptyTitle: { fontSize: 20, fontWeight: 'bold', color: '#1f2937', marginBottom: 8 },
-  emptyText: { color: '#6b7280', fontSize: 15, textAlign: 'center', lineHeight: 22 }
+  emptyTitle: { ...typography.h2, color: colors.text, marginBottom: 8 },
+  emptyText: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
 });

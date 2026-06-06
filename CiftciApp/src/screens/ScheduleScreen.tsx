@@ -1,7 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, RefreshControl } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Calendar, CheckCircle, Circle, Clock, ThumbsUp, Trash2 } from 'lucide-react-native';
+import { Screen } from '../components/ui/Screen';
+import { StackHeader } from '../components/ui/StackHeader';
+import { Calendar, CheckCircle, Circle, Clock, ThumbsUp, Trash2 } from 'lucide-react-native';
+import { colors, spacing, radius, typography, shadow } from '../theme';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import { getTasks, updateTaskStatus, deleteTask } from '../services/apiService';
@@ -111,21 +113,21 @@ export default function ScheduleScreen({ navigation }: any) {
   };
 
   const renderItem = ({ item }: { item: Task }) => {
-    let iconColor = "#d1d5db";
+    let iconColor = colors.textMuted;
     let IconComponent = Circle;
     let cardStyle = styles.card;
     let statusText = "";
 
     if (item.status === 'completed') {
-        iconColor = "#16a34a";
+        iconColor = colors.healthy;
         IconComponent = CheckCircle;
     } else if (item.status === 'approved') {
-        iconColor = "#2563eb";
+        iconColor = colors.primary;
         IconComponent = Clock;
     } else if (item.status === 'pending') {
-        iconColor = "#f59e0b";
+        iconColor = colors.warning;
         IconComponent = ThumbsUp;
-        cardStyle = {...styles.card, borderLeftWidth: 4, borderLeftColor: '#f59e0b'};
+        cardStyle = {...styles.card, borderLeftWidth: 4, borderLeftColor: colors.warning};
         statusText = "Onay Bekliyor";
     }
 
@@ -144,7 +146,7 @@ export default function ScheduleScreen({ navigation }: any) {
           </Text>
 
           <View style={styles.dateRow}>
-            <Calendar size={14} color="#9ca3af" />
+            <Calendar size={14} color={colors.textMuted} />
             <Text style={styles.date}>{item.date_text}</Text>
             {item.status === 'pending' && (
                 <View style={styles.pendingBadgeContainer}>
@@ -156,93 +158,74 @@ export default function ScheduleScreen({ navigation }: any) {
 
         {/* SİLME BUTONU */}
         <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(item)}>
-            <Trash2 size={20} color="#ef4444" />
+            <Trash2 size={20} color={colors.critical} />
         </TouchableOpacity>
       </TouchableOpacity>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <ArrowLeft size={24} color="#374151" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Planlanan Görevler</Text>
-      </View>
+    <Screen edges={['top', 'left', 'right']}>
+      <StackHeader title="Planlanan Görevler" onBack={() => navigation.goBack()} />
 
       {loading ? (
           <View style={styles.center}>
-              <ActivityIndicator size="large" color="#16a34a" />
+              <ActivityIndicator size="large" color={colors.primary} />
           </View>
       ) : (
           <FlatList
             data={tasks}
             keyExtractor={item => item.id.toString()}
-            contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+            contentContainerStyle={{ padding: spacing.lg, paddingBottom: 40 }}
             refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={() => {setRefreshing(true); fetchTasks();}} colors={["#16a34a"]} />
+                <RefreshControl refreshing={refreshing} onRefresh={() => {setRefreshing(true); fetchTasks();}} colors={[colors.primary]} />
             }
             renderItem={renderItem}
             ListEmptyComponent={
                 <View style={styles.emptyState}>
-                    <Clock size={48} color="#e5e7eb" />
+                    <Clock size={48} color={colors.border} />
                     <Text style={styles.emptyText}>Henüz bir planınız yok.</Text>
                     <Text style={styles.emptySubText}>Asistanınızla konuşarak yeni görevler oluşturabilirsiniz.</Text>
                 </View>
             }
           />
       )}
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-    elevation: 2
-  },
-  backBtn: { marginRight: 16 },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#1f2937' },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
     padding: 16,
-    borderRadius: 16,
+    borderRadius: radius.lg,
     marginBottom: 12,
     alignItems: 'center',
     gap: 16,
-    elevation: 1,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 3
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadow.soft,
   },
   checkArea: { padding: 4 },
-  title: { fontWeight: 'bold', color: '#1f2937', fontSize: 16 },
-  titleCompleted: { textDecorationLine: 'line-through', color: '#9ca3af' },
-  titlePending: { color: '#d97706' },
+  title: { fontWeight: '700', color: colors.text, fontSize: 16 },
+  titleCompleted: { textDecorationLine: 'line-through', color: colors.textMuted },
+  titlePending: { color: colors.warning },
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
-  date: { color: '#6b7280', fontSize: 13 },
+  date: { color: colors.textSecondary, fontSize: 13 },
   pendingBadgeContainer: { marginLeft: 'auto' },
   pendingBadge: {
     fontSize: 11,
-    color: '#b45309',
-    fontWeight: 'bold',
-    backgroundColor: '#fef3c7',
+    color: colors.warning,
+    fontWeight: '700',
+    backgroundColor: colors.accentSoft,
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
-    overflow: 'hidden'
   },
-  deleteBtn: { padding: 8, marginLeft: 'auto' }, // Silme butonu stili
+  deleteBtn: { padding: 8, marginLeft: 'auto' },
   emptyState: { alignItems: 'center', marginTop: 80, padding: 20 },
-  emptyText: { color: '#374151', fontSize: 18, fontWeight: '600', marginTop: 16 },
-  emptySubText: { color: '#9ca3af', fontSize: 14, marginTop: 8, textAlign: 'center' }
+  emptyText: { ...typography.h3, color: colors.text, marginTop: 16 },
+  emptySubText: { ...typography.caption, color: colors.textMuted, marginTop: 8, textAlign: 'center' },
 });

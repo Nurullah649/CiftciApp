@@ -1,7 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Bell, Calendar, ArrowLeft, Clock } from 'lucide-react-native';
+import { Screen } from '../components/ui/Screen';
+import { StackHeader } from '../components/ui/StackHeader';
+import { Bell, Calendar, Clock } from 'lucide-react-native';
+import { colors, spacing, radius, typography, shadow } from '../theme';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import { getTasks } from '../services/apiService';
@@ -89,11 +91,11 @@ export default function NotificationsScreen({ navigation }: any) {
 
   const renderItem = ({ item }: { item: Task }) => (
     <View style={styles.card}>
-      <View style={[styles.iconBox, { backgroundColor: item.status === 'approved' ? '#dbeafe' : '#fef3c7' }]}>
+      <View style={[styles.iconBox, { backgroundColor: item.status === 'approved' ? colors.primarySoft : colors.accentSoft }]}>
         {item.status === 'approved' ? (
-            <Clock size={24} color="#2563eb" />
+            <Clock size={24} color={colors.primary} />
         ) : (
-            <Bell size={24} color="#d97706" />
+            <Bell size={24} color={colors.warning} />
         )}
       </View>
       <View style={{ flex: 1 }}>
@@ -102,12 +104,12 @@ export default function NotificationsScreen({ navigation }: any) {
           <Text style={styles.time}>{new Date(item.date_text).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}</Text>
         </View>
         <View style={{flexDirection:'row', alignItems:'center', gap:4}}>
-            <Calendar size={14} color="#6b7280" />
+            <Calendar size={14} color={colors.textMuted} />
             <Text style={styles.desc}>
                 {new Date(item.date_text).toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' })}
             </Text>
         </View>
-        <Text style={[styles.status, { color: item.status === 'approved' ? '#2563eb' : '#d97706' }]}>
+        <Text style={[styles.status, { color: item.status === 'approved' ? colors.primary : colors.warning }]}>
             {item.status === 'approved' ? 'Planlandı' : 'Onay Bekliyor'}
         </Text>
       </View>
@@ -115,49 +117,51 @@ export default function NotificationsScreen({ navigation }: any) {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <ArrowLeft size={24} color="#374151" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Yaklaşan Görevler</Text>
-      </View>
+    <Screen edges={['top', 'left', 'right']}>
+      <StackHeader title="Yaklaşan Görevler" onBack={() => navigation.goBack()} />
 
       {loading ? (
-        <View style={styles.center}><ActivityIndicator size="large" color="#16a34a"/></View>
+        <View style={styles.center}><ActivityIndicator size="large" color={colors.primary}/></View>
       ) : (
         <FlatList
           data={upcomingTasks}
           keyExtractor={item => item.id.toString()}
-          contentContainerStyle={{ padding: 20 }}
+          contentContainerStyle={{ padding: spacing.lg }}
           refreshControl={
              <RefreshControl refreshing={refreshing} onRefresh={() => {setRefreshing(true); loadNotifications();}} />
           }
           renderItem={renderItem}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Bell size={40} color="#d1d5db" />
+              <Bell size={40} color={colors.border} />
               <Text style={styles.emptyText}>Önümüzdeki 1 hafta için plan bulunmuyor.</Text>
             </View>
           }
         />
       )}
-    </SafeAreaView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', padding: 20, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  backBtn: { marginRight: 16 },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#1f2937' },
-  card: { flexDirection: 'row', backgroundColor: '#fff', padding: 16, borderRadius: 16, marginBottom: 12, alignItems: 'center', gap: 16, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 5, elevation: 2 },
+  card: {
+    flexDirection: 'row',
+    backgroundColor: colors.surface,
+    padding: 16,
+    borderRadius: radius.lg,
+    marginBottom: 12,
+    alignItems: 'center',
+    gap: 16,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadow.soft,
+  },
   iconBox: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center' },
-  title: { fontWeight: 'bold', color: '#1f2937', fontSize: 16, flex: 1 },
-  desc: { color: '#6b7280', fontSize: 14 },
-  time: { color: '#16a34a', fontWeight:'bold', fontSize: 12 },
-  status: { fontSize: 12, marginTop: 4, fontWeight: '500' },
+  title: { fontWeight: '700', color: colors.text, fontSize: 16, flex: 1 },
+  desc: { color: colors.textSecondary, fontSize: 14 },
+  time: { color: colors.primary, fontWeight: '700', fontSize: 12 },
+  status: { fontSize: 12, marginTop: 4, fontWeight: '600' },
   emptyContainer: { alignItems: 'center', marginTop: 60, gap: 10 },
-  emptyText: { color: '#9ca3af', fontSize: 16 }
+  emptyText: { ...typography.body, color: colors.textMuted, fontSize: 16 },
 });
