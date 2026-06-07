@@ -78,7 +78,12 @@ export default function AnalysisScreen() {
     setResult(null);
   };
 
-  const borderClr = result ? statusColor(result.status) : colors.primary;
+  const borderClr = result
+    ? result.detected === false
+      ? colors.textMuted
+      : statusColor(result.status)
+    : colors.primary;
+  const showDiagnosis = result && result.detected !== false;
 
   return (
     <Screen>
@@ -152,7 +157,9 @@ export default function AnalysisScreen() {
             {result && (
               <View style={[styles.resultCard, { borderTopColor: borderClr }]}>
                 <View style={styles.resultHead}>
-                  {result.status === 'healthy' ? (
+                  {result.detected === false ? (
+                    <AlertOctagon size={36} color={colors.textMuted} />
+                  ) : result.status === 'healthy' ? (
                     <CheckCircle size={36} color={colors.healthy} />
                   ) : result.status === 'warning' ? (
                     <AlertTriangle size={36} color={colors.warning} />
@@ -162,16 +169,24 @@ export default function AnalysisScreen() {
                   <View style={{ flex: 1, marginLeft: 14 }}>
                     <Text style={styles.diseaseName}>{result.diseaseName}</Text>
                     <Text style={styles.conf}>%{Math.round(result.confidence * 100)} güven</Text>
-                    {result.crop ? <Text style={styles.crop}>Kültür: {result.crop}</Text> : null}
+                    {result.detected === false ? (
+                      <Text style={styles.crop}>
+                        Eşik altı — net yaprak fotoğrafı ile tekrar deneyin
+                      </Text>
+                    ) : result.crop ? (
+                      <Text style={styles.crop}>Kültür: {result.crop}</Text>
+                    ) : null}
                   </View>
                 </View>
 
                 <View style={styles.block}>
-                  <Text style={styles.blockTitle}>Öneri</Text>
+                  <Text style={styles.blockTitle}>
+                    {result.detected === false ? 'Ne yapmalısınız?' : 'Öneri'}
+                  </Text>
                   <Text style={styles.blockBody}>{result.recommendation}</Text>
                 </View>
 
-                {result.activeIngredients && result.activeIngredients.length > 0 && (
+                {showDiagnosis && result.activeIngredients && result.activeIngredients.length > 0 && (
                   <View style={[styles.block, styles.blockAccent]}>
                     <Text style={styles.blockTitle}>Etken maddeler (bilgi)</Text>
                     {result.activeIngredients.map((ing, i) => (
@@ -183,7 +198,7 @@ export default function AnalysisScreen() {
                   </View>
                 )}
 
-                {result.bkuMrlEnrichment?.enabled && (
+                {showDiagnosis && result.bkuMrlEnrichment?.enabled && (
                   <View style={[styles.block, styles.blockBku]}>
                     <Text style={styles.blockTitle}>BKÜ — MRL özeti</Text>
                     {result.bkuMrlEnrichment.resolvedSubstances?.map((sub, idx) => (

@@ -18,11 +18,18 @@ class ActiveIngredientItem(BaseModel):
 class PlantAnalysisResponse(BaseModel):
     """Mobil ve web için analyze-plant çıktısı."""
 
+    detected: bool = Field(
+        True,
+        description="False ise güven eşiği altında; tanı sunulmamıştır",
+    )
     disease_name: str = Field(..., serialization_alias="diseaseName")
-    class_key: str = Field(..., serialization_alias="classKey")
+    class_key: str = Field("", serialization_alias="classKey")
     crop: str = ""
     confidence: float = Field(..., ge=0.0, le=1.0)
-    status: Literal["healthy", "warning", "critical"]
+    confidence_margin: Optional[float] = Field(
+        None, serialization_alias="confidenceMargin", ge=0.0, le=1.0
+    )
+    status: Literal["healthy", "warning", "critical", "unknown"]
     recommendation: str = Field(
         ...,
         description="Kültürel / genel mücadele önerisi (class_labels.json)",

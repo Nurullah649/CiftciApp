@@ -47,6 +47,10 @@ class Settings(BaseSettings):
     PLANT_CHECKPOINT_PATH: Optional[str] = None
     PLANT_LABELS_PATH: Optional[str] = None
     PLANT_TREATMENT_PATH: Optional[str] = None
+    # analyze-plant: altında kalırsa "Bitki tespit edilemedi" (test seti hedefi ~%98 doğruluk)
+    PLANT_MIN_CONFIDENCE: float = 0.60
+    # top1 - top2 olasılık farkı; model iki sınıf arasında kalırsa reddet
+    PLANT_MIN_CONFIDENCE_MARGIN: float = 0.12
 
     # --- BKÜ (Tarım Bakanlığı bitki koruma / MRL canlı tablo) ---
     BKU_BASE_URL: str = "https://bku.tarimorman.gov.tr"

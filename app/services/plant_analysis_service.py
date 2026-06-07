@@ -12,6 +12,7 @@ import io
 import json
 import threading
 from pathlib import Path
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
 from PIL import Image, ImageFile
@@ -25,6 +26,13 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def _project_root() -> Path:
     return Path(__file__).resolve().parents[2]
+
+
+@dataclass(frozen=True)
+class PlantPrediction:
+    class_key: str
+    confidence: float
+    margin: float  # top1 - top2 softmax olasılığı
 
 
 class PlantAnalysisService:
@@ -120,8 +128,8 @@ class PlantAnalysisService:
             self._load_error = str(e)
             logger.exception(f"Bitki modeli yüklenemedi: {e}")
 
-    def predict_image_bytes(self, data: bytes) -> Tuple[str, float]:
-        """Görüntü baytlarından (top1_class_key, confidence). Model yoksa hata fırlatır."""
+    def predict_image_bytes(self, data: bytes) -> PlantPrediction:
+        """Görüntü baytlarından sınıf, güven ve top1-top2 marjı. Model yoksa hata fırlatır."""
         self._ensure_torch_model()
         if self._model is None:
             raise RuntimeError(self._load_error or "Model yüklenemedi")
@@ -134,16 +142,60 @@ class PlantAnalysisService:
             with torch.no_grad():
                 logits = self._model(tensor)
                 probs = torch.softmax(logits, dim=1)[0]
-                conf, idx = probs.max(dim=0)
-                class_key = self._checkpoint_classes[int(idx)]
-                return class_key, float(conf.item())
+                top2 = torch.topk(probs, k=min(2, probs.numel()))
+                conf = float(top2.values[0].item())
+                idx = int(top2.indices[0].item())
+                second = float(top2.values[1].item()) if top2.values.numel() > 1 else 0.0
+                class_key = self._checkpoint_classes[idx]
+                return PlantPrediction(
+                    class_key=class_key,
+                    confidence=conf,
+                    margin=conf - second,
+                )
+
+    def is_confident_enough(self, prediction: PlantPrediction) -> bool:
+        """Eşik altı veya belirsiz (düşük marj) tahminleri reddet."""
+        return (
+            prediction.confidence >= settings.PLANT_MIN_CONFIDENCE
+            and prediction.margin >= settings.PLANT_MIN_CONFIDENCE_MARGIN
+        )
+
+    def build_rejection_payload(self, prediction: PlantPrediction) -> Dict[str, Any]:
+        """Düşük güven / belirsiz görüntü — tanı ve tedavi önerisi sunulmaz."""
+        disc = self._disclaimer or (
+            "Kayıtlı bitki koruma ürününü etiket ve ziraat mühendisi kontrolünde kullanın."
+        )
+        return {
+            "detected": False,
+            "diseaseName": "Bitki tespit edilemedi",
+            "classKey": "",
+            "crop": "",
+            "confidence": round(prediction.confidence, 4),
+            "confidenceMargin": round(prediction.margin, 4),
+            "minConfidenceRequired": settings.PLANT_MIN_CONFIDENCE,
+            "minMarginRequired": settings.PLANT_MIN_CONFIDENCE_MARGIN,
+            "status": "unknown",
+            "recommendation": (
+                "Görüntü güvenle sınıflandırılamadı. Tek bir yaprağı yakın plan, net odak "
+                "ve iyi ışıkta çekip tekrar deneyin. Arka plan mümkün olduğunca sade olsun; "
+                "yaprak dışı (meyve, toprak, el) fotoğraflarından kaçının."
+            ),
+            "activeIngredients": [],
+            "disclaimer": disc,
+            "narrativeSummary": None,
+            "modelLoaded": self._model is not None,
+        }
 
     def build_payload(
         self,
-        class_key: str,
-        confidence: float,
+        prediction: PlantPrediction,
     ) -> Dict[str, Any]:
         """Model çıktısı + JSON birleştirme (LLM hariç)."""
+        if not self.is_confident_enough(prediction):
+            return self.build_rejection_payload(prediction)
+
+        class_key = prediction.class_key
+        confidence = prediction.confidence
         ui = self._classes_ui.get(class_key, {})
         tr_name = ui.get("tr") or class_key
         crop = ui.get("crop") or ""
@@ -158,10 +210,12 @@ class PlantAnalysisService:
         )
 
         return {
+            "detected": True,
             "diseaseName": tr_name,
             "classKey": class_key,
             "crop": crop,
             "confidence": round(confidence, 4),
+            "confidenceMargin": round(prediction.margin, 4),
             "status": status,
             "recommendation": recommendation,
             "activeIngredients": ingredients,

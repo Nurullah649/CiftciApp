@@ -86,5 +86,6 @@ export const shadow = {
 export function statusColor(status?: string): string {
   if (status === 'healthy') return colors.healthy;
   if (status === 'critical') return colors.critical;
+  if (status === 'unknown') return colors.textMuted;
   return colors.warning;
 }

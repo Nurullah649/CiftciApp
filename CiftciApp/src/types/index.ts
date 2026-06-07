@@ -35,10 +35,13 @@ export interface AnalysisResult {
   id: string;
   imageUri: string;
   timestamp: string;
+  /** false ise güven eşiği altında — tanı sunulmamıştır */
+  detected?: boolean;
   diseaseName: string;
   confidence: number;
+  confidenceMargin?: number;
   recommendation: string;
-  status: 'healthy' | 'warning' | 'critical';
+  status: 'healthy' | 'warning' | 'critical' | 'unknown';
   /** API'den (backend birleşik yanıt) */
   crop?: string;
   classKey?: string;

@@ -164,6 +164,8 @@ def analyze(
     labels_path: Path,
     out_json: Optional[Path],
     plot: bool,
+    plot_title: str,
+    plot_out: str,
 ) -> int:
     labels_meta: Dict[str, dict] = {}
     if labels_path.exists():
@@ -406,7 +408,10 @@ def analyze(
         print(f"[INFO] JSON rapor kaydedildi: {out_json}")
 
     if plot:
-        plot_distribution(raw_counts, train_counts, val_counts, test_counts, ML_DIR)
+        plot_distribution(
+            raw_counts, train_counts, val_counts, test_counts, ML_DIR,
+            title=plot_title, out_filename=plot_out,
+        )
 
     print()
     return 0
@@ -418,6 +423,9 @@ def plot_distribution(
     val_counts: Dict[str, int],
     test_counts: Dict[str, int],
     out_dir: Path,
+    *,
+    title: str = "PlantVillage — sınıf başına görsel dağılımı (train/val/test)",
+    out_filename: str = "class_distribution.png",
 ) -> None:
     try:
         import matplotlib
@@ -441,11 +449,11 @@ def plot_distribution(
     ax.set_xticks(n)
     ax.set_xticklabels(classes, rotation=90, fontsize=7)
     ax.set_ylabel("Görsel sayısı")
-    ax.set_title("PlantVillage — sınıf başına görsel dağılımı (train/val/test)")
+    ax.set_title(title)
     ax.legend()
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
-    out_path = out_dir / "class_distribution.png"
+    out_path = out_dir / out_filename
     fig.savefig(out_path, dpi=150)
     plt.close(fig)
     print(f"[INFO] Grafik kaydedildi: {out_path}")
@@ -459,9 +467,15 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=None,
                         help="JSON rapor çıktısı (ör: ml/dataset_report.json)")
     parser.add_argument("--plot", action="store_true",
-                        help="ml/class_distribution.png üret (matplotlib gerekir)")
+                        help="Sınıf dağılım grafiği üret (matplotlib gerekir)")
+    parser.add_argument("--plot-title", type=str,
+                        default="PlantVillage — sınıf başına görsel dağılımı (train/val/test)",
+                        help="Grafik başlığı")
+    parser.add_argument("--plot-out", type=str, default="class_distribution.png",
+                        help="Grafik dosya adı (ml/ altına yazılır)")
     args = parser.parse_args()
-    return analyze(args.raw, args.splits, args.labels, args.out, args.plot)
+    return analyze(args.raw, args.splits, args.labels, args.out, args.plot,
+                   args.plot_title, args.plot_out)
 
 
 if __name__ == "__main__":

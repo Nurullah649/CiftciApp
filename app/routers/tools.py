@@ -87,7 +87,7 @@ async def analyze_plant(
 
     try:
         # CNN CPU inference — event loop'u bloklamasın (ardışık isteklerde timeout/502 önlenir)
-        class_key, confidence = await asyncio.to_thread(
+        prediction = await asyncio.to_thread(
             plant_analysis_service.predict_image_bytes, data
         )
     except RuntimeError as e:
@@ -96,9 +96,9 @@ async def analyze_plant(
             detail=str(e),
         ) from e
 
-    payload = plant_analysis_service.build_payload(class_key, confidence)
+    payload = plant_analysis_service.build_payload(prediction)
 
-    if enrich_bku:
+    if enrich_bku and payload.get("detected", True):
         try:
             payload = await asyncio.wait_for(
                 attach_bku_mrl(payload),
@@ -113,7 +113,7 @@ async def analyze_plant(
                 "infoTr": "BKÜ tablosu şu an yanıt vermedi; tekrar deneyin.",
             }
 
-    if enrich_llm:
+    if enrich_llm and payload.get("detected", True):
         narrative = plant_analysis_service.enrich_with_llm(payload)
         payload["narrativeSummary"] = narrative
 
