@@ -2,11 +2,30 @@
   "_meta": {
     "official_site": "https://bku.tarimorman.gov.tr/Arama/Index",
     "detail_url_pattern": "https://bku.tarimorman.gov.tr/MRLAktifMadde/Details/{id}",
-    "note_tr": "tokens anahtarları küçük harf ve Türkçe karakter ASCII çevrimi ile üretilir; ID’yi BKÜ’de MRL Aktif Madde detay sayfasının URL’sinden alın (ör. .../Details/17). Genel arama autocomplete Id’si bu sayfadaki ID ile aynı olmayabilir.",
+    "note_tr": "tokens anahtarları küçük harf ve Türkçe karakter ASCII çevrimi ile üretilir; ID’yi BKÜ MRL Aktif Madde detay sayfasının URL’sinden alın (ör. .../Details/17). Genel arama autocomplete Id’si bu sayfadaki ID ile aynı olmayabilir.",
     "disclaimer_tr": "Canlı BKÜ MRL tablosu bilgilendirme amaçlıdır; kesin ruhsat ve limitler için BKÜ ve ürün etiketine başvurun."
   },
   "tokens": {
+    "abamectin": 7,
+    "abamektin": 7,
     "azoxystrobin": 17,
-    "azoksistrobin": 17
+    "azoksistrobin": 17,
+    "sulfur": 16,
+    "sulphur": 16,
+    "kukurt": 16,
+    "copper": 18,
+    "bakir": 18,
+    "bakirbilesikleri": 18,
+    "captan": 32,
+    "cymoxanil": 58,
+    "cimoksanil": 58,
+    "difenoconazole": 70,
+    "difenokonazol": 70,
+    "mancozeb": 78,
+    "metalaxyl": 162,
+    "metalaksil": 162,
+    "myclobutanil": 176,
+    "tebuconazole": 307,
+    "tebukonazol": 307
   }
 }

@@ -204,6 +204,9 @@ export default function AnalysisScreen() {
                     {(result.bkuMrlEnrichment.resolvedSubstances?.length ?? 0) > 0 ? (
                       result.bkuMrlEnrichment.resolvedSubstances!.map((sub, idx) => (
                         <View key={idx} style={{ marginTop: 8 }}>
+                          {sub.matchedFromIngredients?.[0] ? (
+                            <Text style={styles.bkuSubstance}>{sub.matchedFromIngredients[0]}</Text>
+                          ) : null}
                           {sub.detailUrl ? (
                             <TouchableOpacity onPress={() => Linking.openURL(sub.detailUrl!)}>
                               <Text style={styles.link}>Resmi detay sayfası</Text>
@@ -326,6 +329,7 @@ const styles = StyleSheet.create({
   ingLine: { color: colors.text, fontSize: 14, marginTop: 6, lineHeight: 20 },
   link: { color: colors.primary, fontWeight: '700', marginBottom: 4 },
   bkuLine: { fontSize: 13, color: colors.textSecondary, marginTop: 4 },
+  bkuSubstance: { fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 2 },
   muted: { fontSize: 12, color: colors.textMuted, fontStyle: 'italic' },
   disclaimer: { fontSize: 11, color: colors.textMuted, fontStyle: 'italic', marginBottom: 12 },
 });

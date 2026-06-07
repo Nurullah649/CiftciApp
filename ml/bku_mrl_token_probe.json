@@ -1,0 +1,14 @@
+{
+  "mapping": {
+    "abamektin": 7,
+    "kukurt": 16,
+    "azoksistrobin": 17,
+    "bakir": 18,
+    "captan": 32,
+    "cimoksanil": 58,
+    "difenokonazol": 70,
+    "mancozeb": 78,
+    "metalaksil": 162,
+    "myclobutanil": 176
+  }
+}

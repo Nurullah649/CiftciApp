@@ -1,0 +1,224 @@
+{
+  "by_search": {
+    "azoksistrobin": [],
+    "azoxystrobin": [
+      {
+        "Id": 10217,
+        "Name": "MRL Aktif Madde: Azoxystrobin"
+      }
+    ],
+    "mancozeb": [
+      {
+        "Id": 10278,
+        "Name": "MRL Aktif Madde: Dithiocarbamates (maneb, mancozeb, metiram, propineb, thiram ve ziram dahil dithiocarbamatlar; CS2 cinsinden)  (1)"
+      },
+      {
+        "Id": 50559,
+        "Name": "MRL Aktif Madde: Dithiocarbamates (maneb, mancozeb, metiram, propineb, thiram ve ziram dahil dithiocarbamatlar; CS2 cinsinden) (1) (2)"
+      }
+    ],
+    "clorotalonil": [],
+    "chlorothalonil": [],
+    "metalaksil": [],
+    "metalaxyl": [
+      {
+        "Id": 10362,
+        "Name": "MRL Aktif Madde: Metalaxyl ve metalaxyl-M (metalaxyl-M dahil diğer bileşik izomer karışımları ile birlikte metalaxyl (izomerler toplamı))"
+      }
+    ],
+    "propikonazol": [],
+    "propiconazole": [],
+    "difenokonazol": [],
+    "abamektin": [],
+    "abamectin": [
+      {
+        "Id": 10207,
+        "Name": "MRL Aktif Madde: Abamectin (avermectin B1a, avermectin B1b ve avermectin B1a'nın delta-8,9 izomeri toplamı) (F)"
+      }
+    ],
+    "kukurt": [],
+    "sulfur": [
+      {
+        "Id": 10216,
+        "Name": "MRL Aktif Madde: Azimsulfuron"
+      },
+      {
+        "Id": 10221,
+        "Name": "MRL Aktif Madde: Bensulfuron-methyl"
+      },
+      {
+        "Id": 10244,
+        "Name": "MRL Aktif Madde: Chlorsulfuron"
+      },
+      {
+        "Id": 10319,
+        "Name": "MRL Aktif Madde: Foramsulfuron"
+      },
+      {
+        "Id": 10327,
+        "Name": "MRL Aktif Madde: Halosulfuron methyl"
+      },
+      {
+        "Id": 10340,
+        "Name": "MRL Aktif Madde: Iodosulfuron-methyl (tuzları dahil iodosulfuron-methyl; iodosulfuron-methyl cinsinden)"
+      },
+      {
+        "Id": 10359,
+        "Name": "MRL Aktif Madde: Mesosulfuron-methyl (mesosulfuron cinsinden)"
+      },
+      {
+        "Id": 10373,
+        "Name": "MRL Aktif Madde: Metsulfuron-methyl"
+      },
+      {
+        "Id": 10378,
+        "Name": "MRL Aktif Madde: Nicosulfuron"
+      },
+      {
+        "Id": 10424,
+        "Name": "MRL Aktif Madde: Rimsulfuron"
+      },
+      {
+        "Id": 10434,
+        "Name": "MRL Aktif Madde: Sulfosulfuron"
+      },
+      {
+        "Id": 10435,
+        "Name": "MRL Aktif Madde: Sulfuryl fluoride (4)"
+      },
+      {
+        "Id": 10449,
+        "Name": "MRL Aktif Madde: Thifensulfuron-methyl"
+      },
+      {
+        "Id": 10466,
+        "Name": "MRL Aktif Madde: Tritosulfuron"
+      }
+    ],
+    "captan": [
+      {
+        "Id": 10232,
+        "Name": "MRL Aktif Madde: Captan (R) (Captan ve THPI toplamı; captan cinsinden)"
+      }
+    ],
+    "myclobutanil": [
+      {
+        "Id": 50623,
+        "Name": "MRL Aktif Madde: Myclobutanil (bileşen izomerler toplamı) (R)"
+      }
+    ],
+    "cimoksanil": [],
+    "cymoxanil": [
+      {
+        "Id": 10258,
+        "Name": "MRL Aktif Madde: Cymoxanil"
+      }
+    ],
+    "bakir": [],
+    "copper": [
+      {
+        "Id": 50522,
+        "Name": "MRL Aktif Madde: Bakır bileşikleri (Copper compounds)"
+      }
+    ]
+  },
+  "valid_details": {
+    "1": "MRL Aktif Madde Detay",
+    "2": "MRL Aktif Madde Detay",
+    "3": "MRL Aktif Madde Detay",
+    "4": "MRL Aktif Madde Detay",
+    "5": "MRL Aktif Madde Detay",
+    "6": "MRL Aktif Madde Detay",
+    "7": "MRL Aktif Madde Detay",
+    "8": "MRL Aktif Madde Detay",
+    "9": "MRL Aktif Madde Detay",
+    "11": "MRL Aktif Madde Detay",
+    "12": "MRL Aktif Madde Detay",
+    "13": "MRL Aktif Madde Detay",
+    "15": "MRL Aktif Madde Detay",
+    "16": "MRL Aktif Madde Detay",
+    "17": "MRL Aktif Madde Detay",
+    "18": "MRL Aktif Madde Detay",
+    "19": "MRL Aktif Madde Detay",
+    "20": "MRL Aktif Madde Detay",
+    "21": "MRL Aktif Madde Detay",
+    "22": "MRL Aktif Madde Detay",
+    "23": "MRL Aktif Madde Detay",
+    "25": "MRL Aktif Madde Detay",
+    "26": "MRL Aktif Madde Detay",
+    "27": "MRL Aktif Madde Detay",
+    "28": "MRL Aktif Madde Detay",
+    "29": "MRL Aktif Madde Detay",
+    "30": "MRL Aktif Madde Detay",
+    "32": "MRL Aktif Madde Detay",
+    "34": "MRL Aktif Madde Detay",
+    "35": "MRL Aktif Madde Detay",
+    "36": "MRL Aktif Madde Detay",
+    "38": "MRL Aktif Madde Detay",
+    "44": "MRL Aktif Madde Detay",
+    "45": "MRL Aktif Madde Detay",
+    "46": "MRL Aktif Madde Detay",
+    "47": "MRL Aktif Madde Detay",
+    "48": "MRL Aktif Madde Detay",
+    "49": "MRL Aktif Madde Detay",
+    "51": "MRL Aktif Madde Detay",
+    "52": "MRL Aktif Madde Detay",
+    "53": "MRL Aktif Madde Detay",
+    "54": "MRL Aktif Madde Detay",
+    "55": "MRL Aktif Madde Detay",
+    "57": "MRL Aktif Madde Detay",
+    "58": "MRL Aktif Madde Detay",
+    "59": "MRL Aktif Madde Detay",
+    "60": "MRL Aktif Madde Detay",
+    "61": "MRL Aktif Madde Detay",
+    "62": "MRL Aktif Madde Detay",
+    "63": "MRL Aktif Madde Detay",
+    "64": "MRL Aktif Madde Detay",
+    "66": "MRL Aktif Madde Detay",
+    "67": "MRL Aktif Madde Detay",
+    "68": "MRL Aktif Madde Detay",
+    "69": "MRL Aktif Madde Detay",
+    "70": "MRL Aktif Madde Detay",
+    "71": "MRL Aktif Madde Detay",
+    "72": "MRL Aktif Madde Detay",
+    "74": "MRL Aktif Madde Detay",
+    "75": "MRL Aktif Madde Detay",
+    "76": "MRL Aktif Madde Detay",
+    "77": "MRL Aktif Madde Detay",
+    "78": "MRL Aktif Madde Detay",
+    "79": "MRL Aktif Madde Detay",
+    "80": "MRL Aktif Madde Detay",
+    "81": "MRL Aktif Madde Detay",
+    "82": "MRL Aktif Madde Detay",
+    "83": "MRL Aktif Madde Detay",
+    "84": "MRL Aktif Madde Detay",
+    "87": "MRL Aktif Madde Detay",
+    "88": "MRL Aktif Madde Detay",
+    "89": "MRL Aktif Madde Detay",
+    "90": "MRL Aktif Madde Detay",
+    "92": "MRL Aktif Madde Detay",
+    "93": "MRL Aktif Madde Detay",
+    "94": "MRL Aktif Madde Detay",
+    "96": "MRL Aktif Madde Detay",
+    "97": "MRL Aktif Madde Detay",
+    "98": "MRL Aktif Madde Detay",
+    "100": "MRL Aktif Madde Detay",
+    "101": "MRL Aktif Madde Detay",
+    "102": "MRL Aktif Madde Detay",
+    "104": "MRL Aktif Madde Detay",
+    "105": "MRL Aktif Madde Detay",
+    "106": "MRL Aktif Madde Detay",
+    "107": "MRL Aktif Madde Detay",
+    "108": "MRL Aktif Madde Detay",
+    "110": "MRL Aktif Madde Detay",
+    "111": "MRL Aktif Madde Detay",
+    "112": "MRL Aktif Madde Detay",
+    "113": "MRL Aktif Madde Detay",
+    "114": "MRL Aktif Madde Detay",
+    "116": "MRL Aktif Madde Detay",
+    "117": "MRL Aktif Madde Detay",
+    "118": "MRL Aktif Madde Detay",
+    "119": "MRL Aktif Madde Detay",
+    "120": "MRL Aktif Madde Detay"
+  }
+}

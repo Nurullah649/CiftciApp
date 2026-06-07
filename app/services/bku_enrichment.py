@@ -63,16 +63,28 @@ def _split_ingredient_phrase(name: str) -> List[str]:
 
 
 _map_cache: Optional[Dict[str, Any]] = None
+_map_cache_path: Optional[Path] = None
+_map_cache_mtime: Optional[float] = None
 
 
 def load_map_file() -> Dict[str, Any]:
     """BKÜ token→Details ID haritasını yükle (startup veya ilk istek)."""
-    global _map_cache
-    if _map_cache is not None:
-        return _map_cache
+    global _map_cache, _map_cache_path, _map_cache_mtime
 
     raw_path = settings.BKU_MRL_MAP_PATH
     path = Path(raw_path) if raw_path else _project_root() / "ml" / "bku_mrl_active_map.json"
+
+    try:
+        mtime = path.stat().st_mtime if path.is_file() else None
+    except OSError:
+        mtime = None
+
+    if _map_cache is not None and _map_cache_path == path and _map_cache_mtime == mtime:
+        return _map_cache
+
+    _map_cache_path = path
+    _map_cache_mtime = mtime
+
     if not path.is_file():
         logger.warning(f"bku_mrl_active_map.json bulunamadı: {path}")
         _map_cache = {"_meta": {}, "tokens": {}}
@@ -90,13 +102,39 @@ def load_map_file() -> Dict[str, Any]:
 
 
 def reset_map_cache_for_tests() -> None:
-    global _map_cache
+    global _map_cache, _map_cache_path, _map_cache_mtime
     _map_cache = None
+    _map_cache_path = None
+    _map_cache_mtime = None
 
 
 def map_token_count() -> int:
     data = load_map_file()
     return len(data.get("tokens") or {})
+
+
+def _lookup_detail_id(normalized: str, token_map: Dict[str, Any]) -> Optional[int]:
+    """Tam token eşleşmesi; yoksa en uzun ortak önek/alt dize eşleşmesi."""
+    direct = token_map.get(normalized)
+    if direct is not None:
+        try:
+            return int(direct)
+        except (TypeError, ValueError):
+            return None
+
+    best_key: Optional[str] = None
+    best_id: Optional[int] = None
+    for key, bid in token_map.items():
+        if len(key) < 4:
+            continue
+        if normalized.startswith(key) or key.startswith(normalized):
+            if best_key is None or len(key) > len(best_key):
+                try:
+                    best_id = int(bid)
+                    best_key = key
+                except (TypeError, ValueError):
+                    continue
+    return best_id
 
 
 def resolve_detail_ids_for_payload(active_ingredients: Iterable[Dict[str, Any]]) -> Tuple[Dict[int, Dict[str, Any]], List[Dict[str, Any]]]:
@@ -122,13 +160,10 @@ def resolve_detail_ids_for_payload(active_ingredients: Iterable[Dict[str, Any]])
             nt = _normalize_lookup_token(piece)
             if not nt:
                 continue
-            bid = token_map.get(nt)
+            bid = _lookup_detail_id(nt, token_map)
             if bid is None:
                 continue
-            try:
-                iid = int(bid)
-            except (TypeError, ValueError):
-                continue
+            iid = bid
             phrase_hits.append(iid)
             bucket = resolved.setdefault(iid, {"matched_tokens": [], "matched_from_phrases": []})
             if nt not in bucket["matched_tokens"]:
