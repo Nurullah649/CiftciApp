@@ -155,10 +155,11 @@ class PlantAnalysisService:
 
     def is_confident_enough(self, prediction: PlantPrediction) -> bool:
         """Eşik altı veya belirsiz (düşük marj) tahminleri reddet."""
-        return (
-            prediction.confidence >= settings.PLANT_MIN_CONFIDENCE
-            and prediction.margin >= settings.PLANT_MIN_CONFIDENCE_MARGIN
-        )
+        if prediction.confidence < settings.PLANT_MIN_CONFIDENCE:
+            return False
+        if prediction.confidence >= settings.PLANT_HIGH_CONFIDENCE_BYPASS:
+            return True
+        return prediction.margin >= settings.PLANT_MIN_CONFIDENCE_MARGIN
 
     def build_rejection_payload(self, prediction: PlantPrediction) -> Dict[str, Any]:
         """Düşük güven / belirsiz görüntü — tanı ve tedavi önerisi sunulmaz."""

@@ -201,22 +201,34 @@ export default function AnalysisScreen() {
                 {showDiagnosis && result.bkuMrlEnrichment?.enabled && (
                   <View style={[styles.block, styles.blockBku]}>
                     <Text style={styles.blockTitle}>BKÜ — MRL özeti</Text>
-                    {result.bkuMrlEnrichment.resolvedSubstances?.map((sub, idx) => (
-                      <View key={idx} style={{ marginTop: 8 }}>
-                        {sub.detailUrl ? (
-                          <TouchableOpacity onPress={() => Linking.openURL(sub.detailUrl!)}>
-                            <Text style={styles.link}>Resmi detay sayfası</Text>
-                          </TouchableOpacity>
-                        ) : null}
-                        {sub.sampleRows?.slice(0, 6).map((row, j) => (
-                          <Text key={j} style={styles.bkuLine}>
-                            {row.mrlUrunAdi} — MRL {row.mrlOrani ?? '—'}
-                          </Text>
-                        ))}
-                      </View>
-                    ))}
-                    {result.bkuMrlEnrichment.errors?.includes('bku_timeout') && (
+                    {(result.bkuMrlEnrichment.resolvedSubstances?.length ?? 0) > 0 ? (
+                      result.bkuMrlEnrichment.resolvedSubstances!.map((sub, idx) => (
+                        <View key={idx} style={{ marginTop: 8 }}>
+                          {sub.detailUrl ? (
+                            <TouchableOpacity onPress={() => Linking.openURL(sub.detailUrl!)}>
+                              <Text style={styles.link}>Resmi detay sayfası</Text>
+                            </TouchableOpacity>
+                          ) : null}
+                          {sub.sampleRows?.slice(0, 6).map((row, j) => (
+                            <Text key={j} style={styles.bkuLine}>
+                              {row.mrlUrunAdi} — MRL {row.mrlOrani ?? '—'}
+                            </Text>
+                          ))}
+                        </View>
+                      ))
+                    ) : result.bkuMrlEnrichment.errors?.some((e) => e.includes('bku_timeout')) ? (
                       <Text style={styles.muted}>BKÜ yanıt vermedi; tekrar deneyin.</Text>
+                    ) : (result.bkuMrlEnrichment.lookupFailures?.length ?? 0) > 0 ? (
+                      <Text style={styles.muted}>
+                        Etken maddeler için BKÜ MRL eşlemesi henüz tanımlı değil. Resmi site:
+                        {' '}
+                        {result.bkuMrlEnrichment.sourceHomepage ?? 'bku.tarimorman.gov.tr'}
+                      </Text>
+                    ) : (
+                      <Text style={styles.muted}>
+                        {result.bkuMrlEnrichment.infoTr ??
+                          'BKÜ tablosundan örnek satır alınamadı; resmi siteye başvurun.'}
+                      </Text>
                     )}
                   </View>
                 )}

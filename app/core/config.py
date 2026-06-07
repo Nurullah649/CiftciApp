@@ -49,8 +49,10 @@ class Settings(BaseSettings):
     PLANT_TREATMENT_PATH: Optional[str] = None
     # analyze-plant: altında kalırsa "Bitki tespit edilemedi" (test seti hedefi ~%98 doğruluk)
     PLANT_MIN_CONFIDENCE: float = 0.60
-    # top1 - top2 olasılık farkı; model iki sınıf arasında kalırsa reddet
-    PLANT_MIN_CONFIDENCE_MARGIN: float = 0.12
+    # top1 - top2 olasılık farkı; benzer sınıflar (ör. erken/geç yanıklık) düşük marj verebilir
+    PLANT_MIN_CONFIDENCE_MARGIN: float = 0.06
+    # Bu güvenin üstünde marj şartı uygulanmaz (yüksek olasılık yeterli kabul edilir)
+    PLANT_HIGH_CONFIDENCE_BYPASS: float = 0.72
 
     # --- BKÜ (Tarım Bakanlığı bitki koruma / MRL canlı tablo) ---
     BKU_BASE_URL: str = "https://bku.tarimorman.gov.tr"
