@@ -1,0 +1,64 @@
+  1| T.C
+  2| KONYA TEKNİ ÜNİVERSİTESİ BİLGİSAYAR MÜHENDİSLİĞİ
+  3| BİLGİSAYAR MÜHENDİSLİĞİ UYGULAMASI – 2
+  4| (BİTİRME PROJESİ-2) ARA RAPOR FORMU
+  5| Öğrencinin Adı- Soyadı
+  6| Muhammed Bedir Ağdemir
+  7| Nurullah Kurnaz
+  8| Seyyit Mehmet Selvi
+  9| Numarası:
+ 10| 221220065
+ 11| 221220013
+ 12| Danışmanı Adı Soyadı:
+ 13| Ersin Kaya
+ 14| Sınav Tarihi:
+ 15| 11.06.2026
+ 16| Projenin Konusu: ÇiftçiApp (Yapay Zeka Destekli Ziraat Asistanı)
+ 17| DÖNEM İÇİ YAPILAN ÇALIŞMALARIN ÖZETİ
+ 18| Proje kapsamında dönem içinde Bitki Hastalık Analizi, Etken Madde Önerisi ve BKÜ (Bitki Koruma Ürünleri Veri Tabanı) entegrasyonu modülleri ile mobil arayüz iyileştirmeleri üzerinde çalışılmıştır.
+ 19| Bitki hastalığı teşhisi görüntü sınıflandırması (CNN) yöntemiyle gerçekleştirilmektedir. Model olarak mobil ve sunucu tarafı çıkarıma uygun MobileNetV2 mimarisi kullanılmıştır. Model; PlantVillage, PlantDoc ve Türkiye kaynaklı zeytin veri seti birleştirilerek oluşturulan 60.627 görselli, 41 sınıflı hibrit veri seti üzerinde iki aşamalı transfer learning ile eğitilmiştir. En iyi model ağırlıkları best.pt dosyasında saklanmaktadır.
+ 20| Kullanıcı mobil uygulama üzerinden bitki yaprak fotoğrafını yükler; istek POST /tools/analyze-plant uç noktasına iletilir. CNN hastalık sınıfını ve güven skorunu üretir; sonuç Türkçe hastalık adı, bitki türü, risk durumu ve kültürel öneri ile zenginleştirilir.
+ 21| Etken madde önerisi, yapay zekânın ticari ürün adı veya doz uydurmasını önlemek amacıyla T.C. Tarım ve Orman Bakanlığı BKÜ web veri tabanı entegrasyonu ile sunulmaktadır. CNN tahmininden elde edilen sınıf anahtarı treatment_active_ingredients.json dosyasındaki etken madde listesine eşlenir; ardından bku_mrl_active_map.json üzerinden BKÜ MRL Aktif Madde detay sayfalarına canlı sorgu yapılarak ruhsatlı ürün ve MRL oranı bilgileri analiz sonucuna eklenir. Bağımsız BKÜ arama uçları (/tools/bku/catalog, /tools/bku/autocomplete, /tools/bku/faq-search) geliştirilmiştir.
+ 22| Veri seti hazırlığında önce PlantVillage temel veri seti (38 sınıf, 54.305 görsel) indirilmiş ve analiz edilmiştir (Şekil 1). Ardından PlantDoc (saha görselleri) ve zeytin veri seti eklenerek hibrit veri seti oluşturulmuştur (Şekil 2). Veri bölünmesi %70 eğitim, %15 doğrulama ve %15 test oranında yapılmış; PlantVillage için yaprak bazlı (leaf-aware) bölme ile veri sızıntısı önlenmiştir.
+ 23| Mobil uygulamada analiz ekranı güncellenmiş; sonuç kartında hastalık tanısı, öneri, etken madde listesi, BKÜ MRL özeti ve yasal uyarı metni gösterilmektedir.
+ 24| KAYNAK ARAŞTIRMASI
+ 25| Bitki hastalığı görüntü sınıflandırması için PlantVillage veri seti incelenmiştir. Hughes ve Salathé (2015), açık erişimli bitki sağlığı görüntü deposunun mobil teşhis sistemlerinin geliştirilmesine olanak sağladığını belirtmiştir. Mohanty ve arkadaşları (2016), derin öğrenme ile PlantVillage üzerinde yüksek doğruluk elde edilebileceğini göstermiştir. PlantVillage görselleri laboratuvar ortamında çekildiğinden saha genellemesi sınırlıdır; bu nedenle PlantDoc veri seti (Singh ve ark., 2020) araştırılmış ve hibrit veri setine dahil edilmiştir. Türkiye özelinde zeytin yaprak hastalıkları için Uguz ve Uysal (2020) veri seti değerlendirilmiş ve üç yeni sınıf olarak entegre edilmiştir.
+ 26| Model mimarisi seçiminde MobileNetV2 (Sandler ve ark., 2018) tercih edilmiştir. Hafif yapısı sayesinde mobil istemci ve CPU tabanlı sunucu çıkarımına uygundur.
+ 27| Etken madde ve ruhsatlı preparat bilgisi için BKÜ (Bitki Koruma Ürünleri Veri Tabanı) resmî kaynak olarak belirlenmiştir. Yapay zekâ modellerinin ticari ürün adı uydurma riski nedeniyle etken madde önerisi BKÜ’nün canlı web uçlarına bağlanan istemci mimarisi ile çözülmüştür. BKÜ sitesinin autocomplete JSON ve DataTables POST tabanlı uçları ile CSRF koruması kullandığı tespit edilmiş; buna uygun backend istemcisi tasarlanmıştır.
+ 28| Veri seti dengesizliği için Cui ve arkadaşları (2019) ile Lin ve arkadaşları (2017) çalışmaları incelenmiş; projede sqrt tabanlı sınıf ağırlıklandırması uygulanmıştır. Veri seti dağılım analizi analyze_dataset.py scripti ile nicel olarak raporlanmıştır (Şekil 1 ve Şekil 2).
+ 29| PROJEDE KULLANILAN MATERYAL VE METOTLAR
+ 30| 3.1 Donanım ve Yazılım Ortamı
+ 31| Model eğitimi NVIDIA GPU destekli yerel geliştirme ortamında gerçekleştirilmiştir. Eğitimde Python 3.13, PyTorch 2.5.1, torchvision 0.20.1 kullanılmıştır. Production backend FastAPI tabanlıdır; BKÜ entegrasyonu için httpx (async HTTP) kullanılmıştır. Mobil istemci React Native (Expo SDK 54) ve TypeScript ile geliştirilmiştir.
+ 32| 3.2 Veri Seti
+ 33| Proje kapsamında iki aşamalı veri seti stratejisi izlenmiştir.
+ 34| 3.2.1 PlantVillage temel veri seti
+ 35| PlantVillage (Mohanty ve ark., 2016), HuggingFace üzerinden indirilmiştir. Toplam 54.305 görsel, 38 sınıf içermektedir. Görseller 224×224 piksel RGB formatına dönüştürülmüş; ImageNet normalizasyonu uygulanmıştır. Sınıf bazında görsel dağılımı ve train/validation/test bölünmesi Şekil 1’de sunulmuştur.
+ 36| Şekil 1. PlantVillage temel veri setinde sınıfların eğitim (train), doğrulama (validation) ve test kümelerine göre görsel sayısı dağılımı (üst üste yığılmış çubuk grafik; mavi: eğitim, turuncu: doğrulama, yeşil: test). Toplam 54.305 görsel, 38 sınıf. Sınıflar toplam görsel sayısına göre azalan sırada dizilmiştir. Bu veri seti hibrit koleksiyonun temelini oluşturmaktadır.
+ 37| 3.2.2 Hibrit veri seti
+ 38| PlantVillage temel setine PlantDoc (2.922 görsel, saha koşulları) ve Zeytin veri seti (3.400 görsel, Denizli/TR, 3 sınıf) eklenerek hibrit koleksiyon oluşturulmuştur. Toplam 60.627 görsel, 41 sınıf elde edilmiştir. Kaynak dağılımı: PlantVillage %89,6, PlantDoc %4,8, Zeytin %5,6. Hibrit veri seti sınıf dağılımı Şekil 2’de gösterilmiştir.
+ 39| Şekil 2. Hibrit bitki hastalığı veri setinde (PlantVillage + PlantDoc + Zeytin) sınıfların eğitim, doğrulama ve test kümelerine göre görsel sayısı dağılımı. Toplam 60.627 görsel, 41 sınıf. Zeytin sınıfları (Olive___healthy, Olive___Aculus_olearius, Olive___Peacock_spot) PlantVillage setinde bulunmamaktadır.
+ 40| PlantVillage görselleri için yaprak bazlı (leaf-aware) bölme uygulanmıştır. Aynı yaprağın farklı açılardan çekilmiş görselleri tek split’te tutularak yapay yüksek doğruluk riski önlenmiştir. Dengesiz sınıflar için eğitimde √(N/n_c) tabanlı sınıf ağırlıklandırması kullanılmıştır.
+ 41| 3.3 CNN Modeli ve Eğitim Metodu
+ 42| MobileNetV2 mimarisi ImageNet ön-eğitimli ağırlıklarla yüklenmiş; sınıflandırma başlığı Dropout(0,3) + Linear(1280 → 41) olarak değiştirilmiştir. Eğitim iki aşamalıdır: (1) donuk backbone üzerinde classifier eğitimi (3 epoch), (2) son 4 bloğun fine-tune edilmesi (7 epoch). Kayıp fonksiyonu: CrossEntropyLoss (label smoothing = 0,1). Optimizasyon: AdamW, batch size = 64.
+ 43| 3.4 Bitki Analizi Çıkarım Akışı
+ 44| Kullanıcı fotoğraf yükler → MobileNetV2 sınıf ve güven skoru üretir → class_labels.json ile Türkçe ad ve öneri eşlenir → etken madde modülü devreye girer.
+ 45| 3.5 Etken Madde Önerisi ve BKÜ Entegrasyonu
+ 46| Etken madde önerisi üç katmanlıdır:
+ 47| Sınıf → etken madde: treatment_active_ingredients.json (41 sınıf, kural tabanlı)
+ 48| Etken madde → BKÜ kimlik: bku_mrl_active_map.json
+ 49| Canlı BKÜ sorgusu: CSRF token alınır → MRL DataTables JSON çekilir → ruhsatlı ürün satırları eklenir
+ 50| BKÜ modül kataloğu: genel arama, ruhsatlı ürün indeksi, MRL oranı, geçici tavsiye, tavsiye arama ve alternatif mücadele. enrich_bku=true ile analiz sonucuna BKÜ MRL özeti eklenir.
+ 51| 3.6 Değerlendirme Metrikleri
+ 52| CNN: Top-1/Top-3 Accuracy, precision, recall, F1, confusion matrix. BKÜ: eşleşme oranı, yanıt süresi. Hedef: test Top-1 ≥ %97.
+ 53| DÖNEM SONU HEDEFLERİNİN DEĞERLENDİRİLMESİ
+ 54| KAYNAKLAR
+ 55| Hughes, D., Salathé, M., 2015; "An Open Access Repository of Images on Plant Health to Enable the Development of Mobile Disease Diagnostics", arXiv:1511.08060.
+ 56| Mohanty, S.P., Hughes, D.P., Salathé, M., 2016; "Using Deep Learning for Image-Based Plant Disease Detection", Frontiers in Plant Science, Cilt 7, s. 1419.
+ 57| Singh, D., et al., 2020; "PlantDoc: A Dataset for Visual Plant Disease Detection", arXiv:2004.03648.
+ 58| Sandler, M., et al., 2018; "MobileNetV2: Inverted Residuals and Linear Bottlenecks", IEEE/CVF CVPR, s. 4510–4520.
+ 59| Uguz, S., Uysal, N., 2020; "Classification of Olive Leaf Diseases Using Deep Convolutional Neural Networks", Neural Computing and Applications, Cilt 32, s. 15373–15387.
+ 60| Cui, Y., et al., 2019; "Class-Balanced Loss Based on Effective Number of Samples", IEEE/CVF CVPR, s. 9268–9277.
+ 61| Lin, T.Y., et al., 2017; "Focal Loss for Dense Object Detection", IEEE ICCV, s. 2980–2988.
+ 62| Mohanty, S.P., 2016; "PlantVillage Dataset", HuggingFace, https://huggingface.co/datasets/mohanty/PlantVillage, erişim tarihi: 06.06.2026.
+ 63| Lam, T.N., 2020; "PlantDoc Dataset", HuggingFace, https://huggingface.co/datasets/LamTNguyen/PlantDoc, erişim tarihi: 06.06.2026.
+ 64| T.C. Tarım ve Orman Bakanlığı, 2026; "Bitki Koruma Ürünleri Veri Tabanı (BKÜ)", https://bku.tarimorman.gov.tr/Arama/Index, erişim tarihi: 06.06.2026.

@@ -1,0 +1,38 @@
+﻿
+============================================================
+Bitirme-2_AraRapor_KTUN (1).docx
+============================================================
+  Tablo: 3x1 | tblInd=yok | jc=center
+  Icerik: DÍNEM SONU HEDEFLER¦N¦N DEºERLEND¦R¦LMES¦ | s  Tablo 2 ù D÷nem hedefleri ve gerekle■me durumu | Hed...
+  (nested tablo - icerikte Tablo2/D÷nem Sonu eslesmesi)
+  Tablo: 12x3 | tblInd=yok | jc=yok
+  Icerik: Hedef | Durum | A²klama | Hibrit veri seti (41 s²n²f) | Gerekle■ti | 60.627 g÷rsel, leaf-aware b÷l...
+  (nested tablo - icerikte Tablo2/D÷nem Sonu eslesmesi)
+
+  --- Tum tablolar tblInd / jc ---
+  #0: tblInd=- jc=center | Í­rencinin Ad²- Soyad²
+  #1: tblInd=- jc=- | PROJEDE KULLANILAN MATERYAL VE METOTLARÌekil
+  #2: tblInd=- jc=- | Parametre
+  #3: tblInd=- jc=- | Metrik
+  #4: tblInd=- jc=center | DÍNEM SONU HEDEFLER¦N¦N DEºERLEND¦R¦LMES¦
+  #5: tblInd=- jc=- | Hedef
+  Paragraf jc=both
+
+============================================================
+Bitirme-2_AraRapor_KTUN_DUZGUN.docx
+============================================================
+  Tablo: 3x1 | tblInd=yok | jc=center
+  Icerik: DÍNEM SONU HEDEFLER¦N¦N DEºERLEND¦R¦LMES¦ | s  Tablo 2 ù D÷nem hedefleri ve gerekle■me durumu | Hed...
+  (nested tablo - icerikte Tablo2/D÷nem Sonu eslesmesi)
+  Tablo: 12x3 | tblInd=yok | jc=yok
+  Icerik: Hedef | Durum | A²klama | Hibrit veri seti (41 s²n²f) | Gerekle■ti | 60.627 g÷rsel, leaf-aware b÷l...
+  (nested tablo - icerikte Tablo2/D÷nem Sonu eslesmesi)
+
+  --- Tum tablolar tblInd / jc ---
+  #0: tblInd=- jc=center | Í­rencinin Ad²- Soyad²
+  #1: tblInd=- jc=- | PROJEDE KULLANILAN MATERYAL VE METOTLARÌekil
+  #2: tblInd=- jc=- | Parametre
+  #3: tblInd=- jc=- | Metrik
+  #4: tblInd=- jc=center | DÍNEM SONU HEDEFLER¦N¦N DEºERLEND¦R¦LMES¦
+  #5: tblInd=- jc=- | Hedef
+  Paragraf jc=both

@@ -29,7 +29,9 @@ import random
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Literal, Optional, Tuple
+
+PlotOrientation = Literal["landscape", "portrait"]
 
 if hasattr(sys.stdout, "reconfigure"):
     try:
@@ -166,6 +168,8 @@ def analyze(
     plot: bool,
     plot_title: str,
     plot_out: str,
+    plot_orientation: PlotOrientation,
+    plot_combined_page: bool,
 ) -> int:
     labels_meta: Dict[str, dict] = {}
     if labels_path.exists():
@@ -410,11 +414,98 @@ def analyze(
     if plot:
         plot_distribution(
             raw_counts, train_counts, val_counts, test_counts, ML_DIR,
-            title=plot_title, out_filename=plot_out,
+            title=plot_title, out_filename=plot_out, orientation=plot_orientation,
+        )
+
+    if plot_combined_page:
+        pv_raw = {k: v for k, v in raw_counts.items() if not k.startswith("Olive___")}
+        pv_train = {k: v for k, v in train_counts.items() if not k.startswith("Olive___")}
+        pv_val = {k: v for k, v in val_counts.items() if not k.startswith("Olive___")}
+        pv_test = {k: v for k, v in test_counts.items() if not k.startswith("Olive___")}
+        plot_combined_distribution_page(
+            ML_DIR,
+            top_panel=(
+                pv_raw,
+                pv_train,
+                pv_val,
+                pv_test,
+                "PlantVillage — sınıf başına görsel dağılımı (train/val/test)",
+            ),
+            bottom_panel=(
+                raw_counts,
+                train_counts,
+                val_counts,
+                test_counts,
+                "Hibrit veri seti — sınıf başına görsel dağılımı (train/val/test)",
+            ),
+            out_filename="class_distribution_combined_page.png",
         )
 
     print()
     return 0
+
+
+def _short_class_label(name: str, max_len: int = 34) -> str:
+    s = name.replace("___", " / ").replace("_", " ")
+    return s if len(s) <= max_len else s[: max_len - 1] + "…"
+
+
+def _stacked_counts(
+    raw_counts: Dict[str, int],
+    train_counts: Dict[str, int],
+    val_counts: Dict[str, int],
+    test_counts: Dict[str, int],
+) -> Tuple[List[str], List[int], List[int], List[int], List[int]]:
+    classes = sorted(raw_counts, key=lambda k: -raw_counts[k])
+    train_v = [train_counts.get(c, 0) for c in classes]
+    val_v = [val_counts.get(c, 0) for c in classes]
+    test_v = [test_counts.get(c, 0) for c in classes]
+    raw_v = [raw_counts.get(c, 0) for c in classes]
+    return classes, raw_v, train_v, val_v, test_v
+
+
+def _draw_stacked_panel(
+    ax,
+    classes: List[str],
+    train_v: List[int],
+    val_v: List[int],
+    test_v: List[int],
+    *,
+    title: str,
+    orientation: PlotOrientation,
+    show_legend: bool,
+) -> None:
+    labels = [_short_class_label(c) for c in classes]
+    if orientation == "portrait":
+        y = list(range(len(classes)))
+        ax.barh(y, train_v, label="train", color="#1f77b4", height=0.82)
+        ax.barh(y, val_v, left=train_v, label="val", color="#ff7f0e", height=0.82)
+        ax.barh(
+            y,
+            test_v,
+            left=[a + b for a, b in zip(train_v, val_v)],
+            label="test",
+            color="#2ca02c",
+            height=0.82,
+        )
+        ax.set_yticks(y)
+        ax.set_yticklabels(labels, fontsize=5.5)
+        ax.invert_yaxis()
+        ax.set_xlabel("Görsel sayısı", fontsize=9)
+        ax.grid(axis="x", alpha=0.3)
+    else:
+        x = list(range(len(classes)))
+        ax.bar(x, train_v, label="train", color="#1f77b4")
+        ax.bar(x, val_v, bottom=train_v, label="val", color="#ff7f0e")
+        ax.bar(x, test_v, bottom=[a + b for a, b in zip(train_v, val_v)], label="test", color="#2ca02c")
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels, rotation=90, fontsize=6)
+        ax.set_ylabel("Görsel sayısı")
+        ax.grid(axis="y", alpha=0.3)
+
+    ax.set_title(title, fontsize=10, pad=6)
+    if show_legend:
+        ax.legend(loc="lower right", fontsize=8)
 
 
 def plot_distribution(
@@ -426,6 +517,7 @@ def plot_distribution(
     *,
     title: str = "PlantVillage — sınıf başına görsel dağılımı (train/val/test)",
     out_filename: str = "class_distribution.png",
+    orientation: PlotOrientation = "landscape",
 ) -> None:
     try:
         import matplotlib
@@ -435,28 +527,64 @@ def plot_distribution(
         print("[WARN] matplotlib yok, grafik atlandi (pip install matplotlib).")
         return
 
-    classes = sorted(raw_counts, key=lambda k: -raw_counts[k])
-    n = list(range(len(classes)))
-    raw_v = [raw_counts.get(c, 0) for c in classes]
-    train_v = [train_counts.get(c, 0) for c in classes]
-    val_v = [val_counts.get(c, 0) for c in classes]
-    test_v = [test_counts.get(c, 0) for c in classes]
+    classes, _, train_v, val_v, test_v = _stacked_counts(
+        raw_counts, train_counts, val_counts, test_counts
+    )
+    if orientation == "portrait":
+        height = max(8.0, 0.17 * len(classes) + 1.8)
+        fig, ax = plt.subplots(figsize=(8.27, height))
+    else:
+        fig, ax = plt.subplots(figsize=(14, 8))
 
-    fig, ax = plt.subplots(figsize=(14, 8))
-    ax.bar(n, train_v, label="train", color="#1f77b4")
-    ax.bar(n, val_v, bottom=train_v, label="val", color="#ff7f0e")
-    ax.bar(n, test_v, bottom=[a + b for a, b in zip(train_v, val_v)], label="test", color="#2ca02c")
-    ax.set_xticks(n)
-    ax.set_xticklabels(classes, rotation=90, fontsize=7)
-    ax.set_ylabel("Görsel sayısı")
-    ax.set_title(title)
-    ax.legend()
-    ax.grid(axis="y", alpha=0.3)
+    _draw_stacked_panel(
+        ax, classes, train_v, val_v, test_v,
+        title=title, orientation=orientation, show_legend=True,
+    )
     fig.tight_layout()
     out_path = out_dir / out_filename
-    fig.savefig(out_path, dpi=150)
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"[INFO] Grafik kaydedildi: {out_path}")
+
+
+def plot_combined_distribution_page(
+    out_dir: Path,
+    *,
+    top_panel: Tuple[Dict[str, int], Dict[str, int], Dict[str, int], Dict[str, int], str],
+    bottom_panel: Tuple[Dict[str, int], Dict[str, int], Dict[str, int], Dict[str, int], str],
+    out_filename: str = "class_distribution_combined_page.png",
+) -> None:
+    """Word A4 dikey sayfa için iki grafiği üst üste (yatay çubuk) tek PNG'de üretir."""
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("[WARN] matplotlib yok, birlesik grafik atlandi.")
+        return
+
+    top_raw, top_train, top_val, top_test, top_title = top_panel
+    bot_raw, bot_train, bot_val, bot_test, bot_title = bottom_panel
+    top_classes, _, top_tr, top_va, top_te = _stacked_counts(top_raw, top_train, top_val, top_test)
+    bot_classes, _, bot_tr, bot_va, bot_te = _stacked_counts(bot_raw, bot_train, bot_val, bot_test)
+
+    panel_h = max(4.8, 0.11 * max(len(top_classes), len(bot_classes)) + 2.0)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8.27, panel_h * 2 + 0.8))
+
+    _draw_stacked_panel(
+        ax1, top_classes, top_tr, top_va, top_te,
+        title=top_title, orientation="portrait", show_legend=True,
+    )
+    _draw_stacked_panel(
+        ax2, bot_classes, bot_tr, bot_va, bot_te,
+        title=bot_title, orientation="portrait", show_legend=False,
+    )
+
+    fig.tight_layout(h_pad=1.2)
+    out_path = out_dir / out_filename
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"[INFO] Birlesik grafik kaydedildi: {out_path}")
 
 
 def main() -> int:
@@ -473,9 +601,29 @@ def main() -> int:
                         help="Grafik başlığı")
     parser.add_argument("--plot-out", type=str, default="class_distribution.png",
                         help="Grafik dosya adı (ml/ altına yazılır)")
+    parser.add_argument(
+        "--plot-orientation",
+        choices=("landscape", "portrait"),
+        default="landscape",
+        help="landscape=dikey cubuk (genis), portrait=yatay cubuk (A4 dikey sayfa)",
+    )
+    parser.add_argument(
+        "--plot-combined-page",
+        action="store_true",
+        help="PlantVillage + hibrit grafiklerini tek A4 dikey PNG'de uret",
+    )
     args = parser.parse_args()
-    return analyze(args.raw, args.splits, args.labels, args.out, args.plot,
-                   args.plot_title, args.plot_out)
+    return analyze(
+        args.raw,
+        args.splits,
+        args.labels,
+        args.out,
+        args.plot,
+        args.plot_title,
+        args.plot_out,
+        args.plot_orientation,
+        args.plot_combined_page,
+    )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,177 @@
+Dosya: C:\Users\agdbe\Downloads\Bitirme-2_AraRapor_KTUN (1).docx
+Gomulu gorsel sayisi: 12
+  word/media/image1.png (189 KB)
+  word/media/image10.png (56 KB)
+  word/media/image11.png (99 KB)
+  word/media/image12.png (226 KB)
+  word/media/image2.png (188 KB)
+  word/media/image3.jpeg (57 KB)
+  word/media/image4.jpeg (408 KB)
+  word/media/image5.jpeg (75 KB)
+  word/media/image6.jpeg (286 KB)
+  word/media/image7.png (227 KB)
+  word/media/image8.png (223 KB)
+  word/media/image9.png (60 KB)
+
+--- Metin + gorsel akisi ---
+  1 T.C
+  2 KONYA TEKNİ ÜNİVERSİTESİ BİLGİSAYAR MÜHENDİSLİĞİ
+  3 BİLGİSAYAR MÜHENDİSLİĞİ UYGULAMASI – 2
+  4 (BİTİRME PROJESİ-2) ARA RAPOR FORMU
+  5 Öğrencinin Adı- Soyadı
+  6 Muhammed Bedir Ağdemir
+  7 Nurullah Kurnaz
+  8 Seyyit Mehmet Selvi
+  9 Numarası:
+ 10 221220065
+ 11 221220013
+ 12 Danışmanı Adı Soyadı:
+ 13 Ersin Kaya
+ 14 Sınav Tarihi:
+ 15 11.06.2026
+ 16 Projenin Konusu: ÇiftçiApp (Yapay Zeka Destekli Ziraat Asistanı)
+ 17 DÖNEM İÇİ YAPILAN ÇALIŞMALARIN ÖZETİ
+ 18 Proje kapsamında dönem içinde Bitki Hastalık Analizi, Etken Madde Önerisi ve BKÜ (Bitki Koruma Ürünleri Veri Tabanı) entegrasyonu modülleri ile mobil arayüz iyileştirmeleri üzerinde çalışılmıştır.
+ 19 Bitki hastalığı teşhisi görüntü sınıflandırması (CNN) yöntemiyle gerçekleştirilmektedir. Model olarak mobil ve sunucu tarafı çıkarıma uygun MobileNetV2 mimarisi kullanılmıştır. Model; PlantVillage, Pl
+ 20 Kullanıcı mobil uygulama üzerinden bitki yaprak fotoğrafını yükler; istek POST /tools/analyze-plant uç noktasına iletilir. CNN hastalık sınıfını ve güven skorunu üretir; sonuç Türkçe hastalık adı, bit
+ 21 Etken madde önerisi, yapay zekânın ticari ürün adı veya doz uydurmasını önlemek amacıyla T.C. Tarım ve Orman Bakanlığı BKÜ web veri tabanı entegrasyonu ile sunulmaktadır. CNN tahmininden elde edilen s
+ 22 [GORSEL: media/image1.png] 
+ 23 Şekil 1: PlantVillage Veri Seti
+ 24 [GORSEL: media/image2.png] 
+ 25 Şekil 2: Hibrit Veri Seti
+ 26 Veri seti hazırlığında önce PlantVillage temel veri seti (38 sınıf, 54.305 görsel) indirilmiş ve analiz edilmiştir (Şekil 1). Ardından PlantDoc (saha görselleri) ve zeytin veri seti eklenerek hibrit v
+ 27 Mobil uygulamada analiz ekranı güncellenmiştir: kamera/galeri seçimi, görsel ön küçültme (1024 px), analiz yükleme durumu, sonuç kartı (sağlıklı/uyarı/kritik/bilinmiyor renk kodları), etken madde list
+ 28 Güven eşiği test kümesi analizi (ml/evaluate_report.py) ile kalibre edilmiştir. Seçilen parametreler: min_conf=0,50, min_margin=0,05, high_bypass=0,68. Bu ayarla reddetme oranı %17,1, kabul edilen tah
+ 29 KAYNAK ARAŞTIRMASI
+ 30 Bitki hastalığı görüntü sınıflandırması için PlantVillage veri seti incelenmiştir. Hughes ve Salathé (2015), açık erişimli bitki sağlığı görüntü deposunun mobil teşhis sistemlerinin geliştirilmesine o
+ 31 Model mimarisi seçiminde MobileNetV2 (Sandler ve ark., 2018) tercih edilmiştir. Hafif yapısı sayesinde mobil istemci ve CPU tabanlı sunucu çıkarımına uygundur.
+ 32 Etken madde ve ruhsatlı preparat bilgisi için BKÜ (Bitki Koruma Ürünleri Veri Tabanı) resmî kaynak olarak belirlenmiştir. Yapay zekâ modellerinin ticari ürün adı uydurma riski nedeniyle etken madde ön
+ 33 Veri seti dengesizliği için Cui ve arkadaşları (2019) ile Lin ve arkadaşları (2017) çalışmaları incelenmiş; projede √(N/n_c) tabanlı sınıf ağırlıklandırması uygulanmıştır. Veri seti dağılım analizi an
+ 34 Güven eşiği belirleme için test kümesinde doğru/yanlış tahminlerin softmax güven ve top1–top2 marj dağılımları incelenmiş; eşik–doğruluk–reddetme oranı dengesi evaluate_report.py ile nicel olarak değe
+ 35 PROJEDE KULLANILAN MATERYAL VE METOTLARŞekil
+ 36 3.1 Donanım ve Yazılım Ortamı
+ 37 Model eğitimi NVIDIA GPU destekli yerel geliştirme ortamında gerçekleştirilmiştir. Eğitimde Python 3.13, PyTorch 2.6, torchvision kullanılmıştır. Production backend FastAPI tabanlıdır; bitki CNN çıkar
+ 38 3.2 Veri Seti
+ 39 Proje kapsamında iki aşamalı veri seti stratejisi izlenmiştir.
+ 40 3.2.1 PlantVillage temel veri seti
+ 41 PlantVillage (Mohanty ve ark., 2016), HuggingFace üzerinden indirilmiştir. Toplam 54.305 görsel, 38 sınıf içermektedir. Görseller 224×224 piksel RGB formatına dönüştürülmüş; ImageNet normalizasyonu uy
+ 42 Şekil 1. PlantVillage temel veri setinde sınıfların eğitim (train), doğrulama (validation) ve test kümelerine göre görsel sayısı dağılımı (üst üste yığılmış çubuk grafik; mavi: eğitim, turuncu: doğrul
+ 43 3.2.2 Hibrit veri seti
+ 44 PlantVillage temel setine PlantDoc (2.922 görsel, saha koşulları) ve Zeytin veri seti (3.400 görsel, Denizli/TR, 3 sınıf) eklenerek hibrit koleksiyon oluşturulmuştur. Toplam 60.627 görsel, 41 sınıf el
+ 45 Şekil 2. Hibrit bitki hastalığı veri setinde (PlantVillage + PlantDoc + Zeytin) sınıfların eğitim, doğrulama ve test kümelerine göre görsel sayısı dağılımı. Toplam 60.627 görsel, 41 sınıf. Zeytin sını
+ 46 PlantVillage görselleri için yaprak bazlı (leaf-aware) bölme uygulanmıştır. Aynı yaprağın farklı açılardan çekilmiş görselleri tek split’te tutularak yapay yüksek doğruluk riski önlenmiştir. Dengesiz 
+ 47 3.3 CNN Modeli ve Eğitim Metodu
+ 48 MobileNetV2 mimarisi ImageNet ön-eğitimli ağırlıklarla yüklenmiş; sınıflandırma başlığı Dropout(0,3) + Linear(1280 → 41) olarak değiştirilmiştir. Eğitim iki aşamalıdır: (1) donuk backbone üzerinde cla
+ 49 3.4 Bitki Analizi Çıkarım Akışı
+ 50 Kullanıcı fotoğraf yükler → görsel mobilde küçültülür → MobileNetV2 sınıf, softmax güven skoru ve top1–top2 marj üretir → güven eşiği kontrol edilir → eşik geçilirse class_labels.json ile Türkçe ad, k
+ 51 Güven eşiği kuralları:
+ 52 Parametre
+ 53 Değer
+ 54 Açıklama
+ 55 PLANT_MIN_CONFIDENCE
+ 56 0,50
+ 57 Minimum softmax güven
+ 58 PLANT_MIN_CONFIDENCE_MARGIN
+ 59 0,05
+ 60 top1 − top2 marj
+ 61 PLANT_HIGH_CONFIDENCE_BYPASS
+ 62 0,68
+ 63 Üzerinde marj aranmaz
+ 64 Eşik altında detected: false döner; mobil arayüzde tanı, etken madde ve BKÜ blokları gizlenir; kullanıcıya net yaprak fotoğrafı ile tekrar denemesi önerilir.
+ 65 [GORSEL: media/image3.jpeg] 
+ 66 Şekil 3. Mobil Bitki Analizi ekranı — fotoğraf seçimi ve ipuçları. (Mobil ekran görüntüsü)
+ 67 [GORSEL: media/image4.jpeg] 
+ 68 Şekil 4. Analiz sonuç kartı — tanı, güven skoru, kültür ve öneri. (Mobil ekran görüntüsü)
+ 69 [GORSEL: media/image5.jpeg] 
+ 70 Şekil 5. Düşük güven durumu — “Bitki tespit edilemedi” ekranı. (Mobil ekran görüntüsü)
+ 71 3.5 Etken Madde Önerisi ve BKÜ Entegrasyonu
+ 72 Etken madde önerisi üç katmanlıdır:
+ 73 Sınıf → etken madde: treatment_active_ingredients.json (41 sınıf, kural tabanlı; ticari ürün adı yok)
+ 74 Etken madde → BKÜ kimlik: bku_mrl_active_map.json (20 token: azoksistrobin, mancozeb, metalaksil, bakır bileşikleri vb.)
+ 75 Canlı BKÜ sorgusu: CSRF token alınır → MRL DataTables JSON çekilir → ruhsatlı ürün satırları eklenir
+ 76 BKÜ modül kataloğu: genel arama, ruhsatlı ürün indeksi, MRL oranı, geçici tavsiye, tavsiye arama ve alternatif mücadele. enrich_bku=true ile analiz sonucuna BKÜ MRL özeti eklenir. Mobil uygulama varsa
+ 77 [GORSEL: media/image6.jpeg] 
+ 78 Şekil 6. Etken maddeler bilgi bloğu ve BKÜ MRL özeti. (Mobil ekran görüntüsü)
+ 79 3.6 Değerlendirme Metrikleri
+ 80 CNN performansı test kümesi (8.982 görsel) üzerinde evaluate_report.py ile ölçülmüştür.
+ 81 Tablo 1 — Test kümesi CNN performans özeti
+ 82 Metrik
+ 83 Değer
+ 84 Top-1 doğruluk
+ 85 %95,1
+ 86 Test görsel sayısı
+ 87 8.982
+ 88 Sağlıklı sınıf doğruluğu
+ 89 %98,5
+ 90 Güven eşiği sonrası kabul edilen doğruluk
+ 91 %98,7
+ 92 Reddetme oranı (eşik sonrası)
+ 93 %17,1
+ 94 Sağlıklı sınıf kabul oranı (eşik sonrası)
+ 95 %86,6
+ 96 Domates sağlıklı kabul oranı
+ 97 %91,5
+ 98 BKÜ değerlendirmesi: eşleşme oranı (haritada tanımlı token’lar), yanıt süresi (timeout 20–25 sn), lookupFailures ve bku_timeout hata durumları loglanmaktadır.
+ 99 [GORSEL: media/image7.png] 
+100 Şekil 7. Test kümesi karmaşıklık matrisi (confusion matrix).
+101 [GORSEL: media/image8.png] 
+102 Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+103 [GORSEL: media/image9.png] 
+104 Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+105 [GORSEL: media/image10.png] 
+106 Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+107 [GORSEL: media/image11.png] 
+108 Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+109 [GORSEL: media/image12.png] 
+110 Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+111 Başlangıç hedefi test Top-1 ≥ %97 idi; elde edilen %95,1 değeri hibrit (saha + laboratuvar) veri setinin zorluğunu yansıtmaktadır. Güven eşiği ile kabul edilen alt kümede doğruluk %98,7’ye yükselmekte
+112 DÖNEM SONU HEDEFLERİNİN DEĞERLENDİRİLMESİ
+113 s  Tablo 2 — Dönem hedefleri ve gerçekleşme durumu
+114 Hedef
+115 Durum
+116 Açıklama
+117 Hibrit veri seti (41 sınıf)
+118 Gerçekleşti
+119 60.627 görsel, leaf-aware bölme
+120 MobileNetV2 eğitimi
+121 Gerçekleşti
+122 best.pt kaydedildi
+123 Test Top-1 ≥ %97
+124 Kısmen
+125 %95,1; hibrit set zorluğu
+126 analyze-plant API
+127 Gerçekleşti
+128 JWT korumalı, CNN + JSON
+129 Etken madde JSON eşlemesi
+130 Gerçekleşti
+131 41 sınıf, hallüsinasyon önlemi
+132 BKÜ MRL entegrasyonu
+133 Gerçekleşti
+134 20 token, canlı tablo
+135 Güven eşiği mekanizması
+136 Gerçekleşti
+137 Test ile kalibre edildi
+138 Mobil analiz arayüzü
+139 Gerçekleşti
+140 FAB, sonuç kartı, BKÜ bloğu
+141 Değerlendirme grafikleri
+142 Gerçekleşti
+143 ml/report/ (7 grafik + JSON)
+144 POE sunumu
+145 Devam ediyor
+146 Mobil SS ve demo hazırlığı
+147 Final rapor
+148 Devam ediyor
+149 —
+150 Final dönem planı: BKÜ haritasının genişletilmesi (clorotalonil, propikonazol vb.), analiz geçmişi, top-3 alternatif tanı gösterimi, sohbet asistanı ile analiz birleştirmesi, üretim ortamı stabilizasy
+151 KAYNAKLAR
+152 Hughes, D., Salathé, M., 2015; "An Open Access Repository of Images on Plant Health to Enable the Development of Mobile Disease Diagnostics", arXiv:1511.08060.
+153 Mohanty, S.P., Hughes, D.P., Salathé, M., 2016; "Using Deep Learning for Image-Based Plant Disease Detection", Frontiers in Plant Science, Cilt 7, s. 1419.
+154 Singh, D., et al., 2020; "PlantDoc: A Dataset for Visual Plant Disease Detection", arXiv:2004.03648.
+155 Sandler, M., et al., 2018; "MobileNetV2: Inverted Residuals and Linear Bottlenecks", IEEE/CVF CVPR, s. 4510–4520.
+156 Uguz, S., Uysal, N., 2020; "Classification of Olive Leaf Diseases Using Deep Convolutional Neural Networks", Neural Computing and Applications, Cilt 32, s. 15373–15387.
+157 Cui, Y., et al., 2019; "Class-Balanced Loss Based on Effective Number of Samples", IEEE/CVF CVPR, s. 9268–9277.
+158 Lin, T.Y., et al., 2017; "Focal Loss for Dense Object Detection", IEEE ICCV, s. 2980–2988.
+159 Mohanty, S.P., 2016; "PlantVillage Dataset", HuggingFace, https://huggingface.co/datasets/mohanty/PlantVillage, erişim tarihi: 06.06.2026.
+160 Lam, T.N., 2020; "PlantDoc Dataset", HuggingFace, https://huggingface.co/datasets/LamTNguyen/PlantDoc, erişim tarihi: 06.06.2026.
+161 T.C. Tarım ve Orman Bakanlığı, 2026; "Bitki Koruma Ürünleri Veri Tabanı (BKÜ)", https://bku.tarimorman.gov.tr/Arama/Index, erişim tarihi: 06.06.2026.

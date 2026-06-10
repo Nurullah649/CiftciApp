@@ -1,0 +1,196 @@
+{
+  "n_test": 8982,
+  "top1_accuracy": 0.9513471387218883,
+  "gate": {
+    "min_conf": 0.5,
+    "min_margin": 0.05,
+    "high_bypass": 0.68,
+    "accepted": 7444,
+    "rejected": 1538,
+    "reject_rate": 0.17123135159207303,
+    "top1_accuracy_all": 0.9513471387218883,
+    "accepted_accuracy": 0.9869693713057496,
+    "accepted_recall_correct": 0.8598010532475132
+  },
+  "healthy_summary": {
+    "n": 2499,
+    "accuracy": 0.9847939175670268,
+    "accept_rate": 0.8659463785514205,
+    "accepted_accuracy": 0.9981515711645101
+  },
+  "healthy_per_class": {
+    "Apple___healthy": {
+      "n": 253,
+      "accuracy": 0.9762845849802372,
+      "accept_rate": 0.7786561264822134,
+      "accepted_accuracy": 0.9949238578680203
+    },
+    "Blueberry___healthy": {
+      "n": 239,
+      "accuracy": 0.9916317991631799,
+      "accept_rate": 0.891213389121339,
+      "accepted_accuracy": 1.0
+    },
+    "Cherry_(including_sour)___healthy": {
+      "n": 131,
+      "accuracy": 0.9618320610687023,
+      "accept_rate": 0.8549618320610687,
+      "accepted_accuracy": 1.0
+    },
+    "Corn_(maize)___healthy": {
+      "n": 173,
+      "accuracy": 1.0,
+      "accept_rate": 0.976878612716763,
+      "accepted_accuracy": 1.0
+    },
+    "Grape___healthy": {
+      "n": 76,
+      "accuracy": 0.9605263157894737,
+      "accept_rate": 0.9473684210526315,
+      "accepted_accuracy": 1.0
+    },
+    "Olive___healthy": {
+      "n": 158,
+      "accuracy": 1.0,
+      "accept_rate": 0.9556962025316456,
+      "accepted_accuracy": 1.0
+    },
+    "Peach___healthy": {
+      "n": 69,
+      "accuracy": 0.9855072463768116,
+      "accept_rate": 0.927536231884058,
+      "accepted_accuracy": 1.0
+    },
+    "Pepper,_bell___healthy": {
+      "n": 221,
+      "accuracy": 0.9819004524886877,
+      "accept_rate": 0.8733031674208145,
+      "accepted_accuracy": 0.9948186528497409
+    },
+    "Potato___healthy": {
+      "n": 20,
+      "accuracy": 0.95,
+      "accept_rate": 0.7,
+      "accepted_accuracy": 1.0
+    },
+    "Raspberry___healthy": {
+      "n": 68,
+      "accuracy": 0.9705882352941176,
+      "accept_rate": 0.8970588235294118,
+      "accepted_accuracy": 1.0
+    },
+    "Soybean___healthy": {
+      "n": 765,
+      "accuracy": 0.9921568627450981,
+      "accept_rate": 0.8052287581699347,
+      "accepted_accuracy": 0.9983766233766234
+    },
+    "Strawberry___healthy": {
+      "n": 79,
+      "accuracy": 0.9873417721518988,
+      "accept_rate": 0.9620253164556962,
+      "accepted_accuracy": 1.0
+    },
+    "Tomato___healthy": {
+      "n": 247,
+      "accuracy": 0.97165991902834,
+      "accept_rate": 0.9149797570850202,
+      "accepted_accuracy": 0.995575221238938
+    }
+  },
+  "threshold_sweep": [
+    {
+      "min_conf": 0.35,
+      "min_margin": 0.05,
+      "high_bypass": 0.68,
+      "accepted": 8446,
+      "rejected": 536,
+      "reject_rate": 0.05967490536628813,
+      "top1_accuracy_all": 0.9513471387218883,
+      "accepted_accuracy": 0.973952166706133,
+      "accepted_recall_correct": 0.9626682270333529
+    },
+    {
+      "min_conf": 0.4,
+      "min_margin": 0.05,
+      "high_bypass": 0.68,
+      "accepted": 8222,
+      "rejected": 760,
+      "reject_rate": 0.08461367178802048,
+      "top1_accuracy_all": 0.9513471387218883,
+      "accepted_accuracy": 0.9795670153247386,
+      "accepted_recall_correct": 0.9425394967817438
+    },
+    {
+      "min_conf": 0.45,
+      "min_margin": 0.05,
+      "high_bypass": 0.68,
+      "accepted": 7922,
+      "rejected": 1060,
+      "reject_rate": 0.11801380538855488,
+      "top1_accuracy_all": 0.9513471387218883,
+      "accepted_accuracy": 0.9828326180257511,
+      "accepted_recall_correct": 0.9111761263897016
+    },
+    {
+      "min_conf": 0.5,
+      "min_margin": 0.05,
+      "high_bypass": 0.68,
+      "accepted": 7444,
+      "rejected": 1538,
+      "reject_rate": 0.17123135159207303,
+      "top1_accuracy_all": 0.9513471387218883,
+      "accepted_accuracy": 0.9869693713057496,
+      "accepted_recall_correct": 0.8598010532475132
+    },
+    {
+      "min_conf": 0.55,
+      "min_margin": 0.05,
+      "high_bypass": 0.68,
+      "accepted": 6770,
+      "rejected": 2212,
+      "reject_rate": 0.246270318414607,
+      "top1_accuracy_all": 0.9513471387218883,
+      "accepted_accuracy": 0.9903988183161004,
+      "accepted_recall_correct": 0.7846693973083675
+    },
+    {
+      "min_conf": 0.6,
+      "min_margin": 0.05,
+      "high_bypass": 0.68,
+      "accepted": 5881,
+      "rejected": 3101,
+      "reject_rate": 0.34524604765085726,
+      "top1_accuracy_all": 0.9513471387218883,
+      "accepted_accuracy": 0.9920081618772317,
+      "accepted_recall_correct": 0.6827384435342305
+    },
+    {
+      "min_conf": 0.65,
+      "min_margin": 0.05,
+      "high_bypass": 0.68,
+      "accepted": 4828,
+      "rejected": 4154,
+      "reject_rate": 0.462480516588733,
+      "top1_accuracy_all": 0.9513471387218883,
+      "accepted_accuracy": 0.9944076222038111,
+      "accepted_recall_correct": 0.561849034523113
+    },
+    {
+      "min_conf": 0.7,
+      "min_margin": 0.05,
+      "high_bypass": 0.68,
+      "accepted": 3749,
+      "rejected": 5233,
+      "reject_rate": 0.5826096637719884,
+      "top1_accuracy_all": 0.9513471387218883,
+      "accepted_accuracy": 0.9954654574553214,
+      "accepted_recall_correct": 0.43674663545933295
+    }
+  ],
+  "recommended_api_thresholds": {
+    "PLANT_MIN_CONFIDENCE": 0.5,
+    "PLANT_MIN_CONFIDENCE_MARGIN": 0.05,
+    "PLANT_HIGH_CONFIDENCE_BYPASS": 0.68
+  }
+}

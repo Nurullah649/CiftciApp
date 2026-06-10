@@ -1,0 +1,61 @@
+SEKIL 8-9 DIAGNOSIS
+
+============================================================
+DOSYA: Bitirme-2_AraRapor_KTUN (1).docx
+============================================================
+Toplam paragraf: 265
+Sekil 8 para index: 117, Sekil 9 para index: 119
+
+--- Paragraf 111 .. 127 ---
+   111[BOS_SATIR] (bos)
+   112[BOS_SATIR] (bos)
+   113[GORSEL] (bos)
+   114 Şekil 7. Test kümesi karmaşıklık matrisi (confusion matrix).
+   115[BOS_SATIR] (bos)
+   116[GORSEL] (bos)
+   117 Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+   118[GORSEL] (bos)
+   119 Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+   120[GORSEL] (bos)
+   121 Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+   122[GORSEL] (bos)
+   123 Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+   124[GORSEL] (bos)
+   125 Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+   126 Başlangıç hedefi test Top-1 ≥ %97 idi; elde edilen %95,1 değeri hibrit (saha + laboratuvar) veri set
+
+Sekil 8 ile 9 arasi: 1 paragraf, 0 bos, 1 gorsel
+
+--- Bos / tek hucreli tablolar ---
+
+--- Sabit yukseklikli hucreler ---
+
+============================================================
+DOSYA: Bitirme-2_AraRapor_KTUN_SAYFA_SONLU.docx
+============================================================
+Toplam paragraf: 275
+Sekil 8 para index: 124, Sekil 9 para index: 126
+
+--- Paragraf 118 .. 134 ---
+   118 BKÜ değerlendirmesi: eşleşme oranı (haritada tanımlı token’lar), yanıt süresi (timeout 20–25 sn), lo
+   119[BOS_SATIR] (bos)
+   120[BOS_SATIR] (bos)
+   121[GORSEL] (bos)
+   122[SAYFA_SONU] Şekil 7. Test kümesi karmaşıklık matrisi (confusion matrix).
+   123[GORSEL] (bos)
+   124[SAYFA_SONU] Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+   125[GORSEL] (bos)
+   126[SAYFA_SONU] Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+   127[GORSEL] (bos)
+   128[SAYFA_SONU] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+   129[GORSEL] (bos)
+   130[SAYFA_SONU] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+   131[GORSEL] (bos)
+   132 Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+   133 Başlangıç hedefi test Top-1 ≥ %97 idi; elde edilen %95,1 değeri hibrit (saha + laboratuvar) veri set
+
+Sekil 8 ile 9 arasi: 1 paragraf, 0 bos, 1 gorsel
+
+--- Bos / tek hucreli tablolar ---
+
+--- Sabit yukseklikli hucreler ---

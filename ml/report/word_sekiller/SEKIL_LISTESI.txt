@@ -1,0 +1,29 @@
+CIFTCIAPP ARA RAPOR — SEKIL DOSYALARI (12 adet)
+=======================================================
+
+Klasor: ml/report/word_sekiller/
+Her dosya Word'de AYRI bir sayfaya / sekil slotuna gider.
+
+SIRA | DOSYA | WORD BOLUMU
+-------------------------------------------------------
+ 1  | Sekil_01_PlantVillage_veri_seti_dagilimi.png     | 3.2.1
+ 2  | Sekil_02_Hibrit_veri_seti_dagilimi.png           | 3.2.2
+ 3  | Sekil_03_mobil_foto_secimi_ve_ipuclari.jpeg      | 3.4 mobil
+ 4  | Sekil_04_mobil_sonuc_karti_tani_guven.jpeg       | analiz sonucu
+ 5  | Sekil_05_mobil_dusuk_guven_reddedildi.jpeg       | dusuk guven
+ 6  | Sekil_06_mobil_etken_madde_BKU_MRL.jpeg          | 3.5 BKÜ
+ 7  | Sekil_07_karmasiklik_matrisi.png                 | 3.6 Tablo 1 sonrasi
+ 8  | Sekil_08_sinif_F1_skorlari.png                   | 3.6
+ 9  | Sekil_09_guven_dagilimi.png                      | 3.6
+10  | Sekil_10_saglikli_vs_hastalik_guven.png          | 3.6
+11  | Sekil_11_guven_esigi_taramasi.png                | 3.6
+12  | Sekil_12_sinif_kabul_orani.png                   | 3.6
+
+NOT: Sekil_07 ve sonrasi TEKER TEK, birlesik degil.
+Word'de birlesik eski dosyalari (Sekil_07_model_performans_birlesik...)
+varsa silip yukaridaki 7-12 ayri dosyalari kullan.
+
+Yeniden uret:
+  .\venv-ml\Scripts\Activate.ps1
+  python ml/evaluate_report.py
+  python ml/prepare_word_figures.py

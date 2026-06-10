@@ -1,0 +1,422 @@
+Dosya: C:\Users\agdbe\Downloads\Bitirme-2_AraRapor_KTUN (1).docx
+============================================================
+
+Toplam tablo: 6
+Inline gorsel: 12, Anchor (yuzan) gorsel: 0
+
+============================================================
+SEKIL 7-12 BOLGESI (detay)
+============================================================
+P T.C
+P KONYA TEKNİ ÜNİVERSİTESİ BİLGİSAYAR MÜHENDİSLİĞİ
+P BİLGİSAYAR MÜHENDİSLİĞİ UYGULAMASI – 2
+P (BİTİRME PROJESİ-2) ARA RAPOR FORMU
+[TABLO basla: 6 satir x ~2 sutun]
+  P IN:tablo[r1c1] Öğrencinin Adı- Soyadı
+  P IN:tablo[r1c2] Muhammed Bedir Ağdemir
+  P IN:tablo[r1c2] Nurullah Kurnaz
+  P IN:tablo[r1c2] Seyyit Mehmet Selvi
+  P IN:tablo[r2c1] Numarası:
+  P IN:tablo[r2c2] 221220065
+  P IN:tablo[r2c2] 221220013
+  P IN:tablo[r2c2] 221220009
+  P IN:tablo[r3c1] Danışmanı Adı Soyadı:
+  P IN:tablo[r3c2] Ersin Kaya
+  P IN:tablo[r4c1] Sınav Tarihi:
+  P IN:tablo[r4c2] 11.06.2026
+  P IN:tablo[r5c1] Projenin Konusu: ÇiftçiApp (Yapay Zeka Destekli Ziraat Asistanı)
+  P IN:tablo[r6c1] DÖNEM İÇİ YAPILAN ÇALIŞMALARIN ÖZETİ
+  P IN:tablo[r6c1] Proje kapsamında dönem içinde Bitki Hastalık Analizi, Etken Madde Önerisi ve BKÜ (Bitki Koruma Ürünleri Veri Tabanı) ent
+  P IN:tablo[r6c1] Bitki hastalığı teşhisi görüntü sınıflandırması (CNN) yöntemiyle gerçekleştirilmektedir. Model olarak mobil ve sunucu ta
+  P IN:tablo[r6c1] Kullanıcı mobil uygulama üzerinden bitki yaprak fotoğrafını yükler; istek POST /tools/analyze-plant uç noktasına iletili
+  P IN:tablo[r6c1] Etken madde önerisi, yapay zekânın ticari ürün adı veya doz uydurmasını önlemek amacıyla T.C. Tarım ve Orman Bakanlığı B
+  P IN:tablo[r6c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r6c1] Şekil 1: PlantVillage Veri Seti
+  P IN:tablo[r6c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r6c1] Şekil 2: Hibrit Veri Seti (PlantVillage veri setindeki eksikliklere göre artırılmıştır.)
+  P IN:tablo[r6c1] Veri seti hazırlığında önce PlantVillage temel veri seti (38 sınıf, 54.305 görsel) indirilmiş ve analiz edilmiştir (Şeki
+  P IN:tablo[r6c1] Mobil uygulamada analiz ekranı güncellenmiştir: kamera/galeri seçimi, görsel ön küçültme (1024 px), analiz yükleme durum
+  P IN:tablo[r6c1] Güven eşiği test kümesi analizi (ml/evaluate_report.py) ile kalibre edilmiştir. Seçilen parametreler: min_conf=0,50, min
+  P IN:tablo[r6c1] [spaceAfter=120] KAYNAK ARAŞTIRMASI
+  P IN:tablo[r6c1] Bitki hastalığı teşhisinde derin öğrenme tabanlı görüntü sınıflandırması son yıllarda yaygınlaşmıştır. Hughes ve Salathé
+  P IN:tablo[r6c1] Transfer öğrenme (transfer learning), sınırlı etiketli tarım verisiyle yüksek performans elde etmenin temel yöntemlerind
+  P IN:tablo[r6c1] Veri artırma (data augmentation) ve dengesiz sınıf dağılımı, tarım görüntü sınıflandırmasında kritik konulardır. Shorten
+  P IN:tablo[r6c1] Üretim ortamında yalnızca doğruluk metriği yeterli değildir; düşük güvenli tahminlerin kullanıcıya sunulması yanlış teşh
+  P IN:tablo[r6c1] Etken madde ve ruhsatlı preparat bilgisi için resmî kaynak olarak T.C. Tarım ve Orman Bakanlığı BKÜ (Bitki Koruma Ürünle
+  P IN:tablo[r6c1] Mobil tarım uygulamalarında kullanıcı deneyimi ve sahada erişilebilirlik önemlidir. Kamilaris ve arkadaşları (2017) akıl
+[TABLO bitis]
+[TABLO basla: 1 satir x ~1 sutun]
+  P IN:tablo[r1c1] [spaceAfter=120] PROJEDE KULLANILAN MATERYAL VE METOTLARŞekil
+  P IN:tablo[r1c1] 3.1 Donanım ve Yazılım Ortamı
+  P IN:tablo[r1c1] Model eğitimi NVIDIA GPU destekli yerel geliştirme ortamında gerçekleştirilmiştir. Eğitimde Python 3.13, PyTorch 2.6, to
+  P IN:tablo[r1c1] 3.2 Veri Seti
+  P IN:tablo[r1c1] Proje kapsamında iki aşamalı veri seti stratejisi izlenmiştir.
+  P IN:tablo[r1c1] 3.2.1 PlantVillage temel veri seti
+  P IN:tablo[r1c1] PlantVillage (Mohanty ve ark., 2016), HuggingFace üzerinden indirilmiştir. Toplam 54.305 görsel, 38 sınıf içermektedir. 
+  P IN:tablo[r1c1] Şekil 1. PlantVillage temel veri setinde sınıfların eğitim (train), doğrulama (validation) ve test kümelerine göre görse
+  P IN:tablo[r1c1] 3.2.2 Hibrit veri seti
+  P IN:tablo[r1c1] PlantVillage temel setine PlantDoc (2.922 görsel, saha koşulları) ve Zeytin veri seti (3.400 görsel, Denizli/TR, 3 sınıf
+  P IN:tablo[r1c1] Şekil 2. Hibrit bitki hastalığı veri setinde (PlantVillage + PlantDoc + Zeytin) sınıfların eğitim, doğrulama ve test küm
+  P IN:tablo[r1c1] asdasdasdsadbulunmamaktadır. (Dosya: ml/class_distribution_hybrid.png)
+  P IN:tablo[r1c1] PlantVillage görselleri için yaprak bazlı (leaf-aware) bölme uygulanmıştır. Aynı yaprağın farklı açılardan çekilmiş görs
+  P IN:tablo[r1c1] 3.3 CNN Modeli ve Eğitim Metodu
+  P IN:tablo[r1c1] MobileNetV2 mimarisi ImageNet ön-eğitimli ağırlıklarla yüklenmiş; sınıflandırma başlığı Dropout(0,3) + Linear(1280 → 41)
+  P IN:tablo[r1c1] 3.4 Bitki Analizi Çıkarım Akışı
+  P IN:tablo[r1c1] Kullanıcı fotoğraf yükler → görsel mobilde küçültülür → MobileNetV2 sınıf, softmax güven skoru ve top1–top2 marj üretir 
+  P IN:tablo[r1c1] Güven eşiği kuralları:
+  [TABLO basla: 4 satir x ~3 sutun]
+    P IN:tablo[r1c1] Parametre
+    P IN:tablo[r1c2] Değer
+    P IN:tablo[r1c3] Açıklama
+    P IN:tablo[r2c1] PLANT_MIN_CONFIDENCE
+    P IN:tablo[r2c2] 0,50
+    P IN:tablo[r2c3] Minimum softmax güven
+    P IN:tablo[r3c1] PLANT_MIN_CONFIDENCE_MARGIN
+    P IN:tablo[r3c2] 0,05
+    P IN:tablo[r3c3] top1 − top2 marj
+    P IN:tablo[r4c1] PLANT_HIGH_CONFIDENCE_BYPASS
+    P IN:tablo[r4c2] 0,68
+    P IN:tablo[r4c3] Üzerinde marj aranmaz
+  [TABLO bitis]
+  P IN:tablo[r1c1] Eşik altında detected: false döner; mobil arayüzde tanı, etken madde ve BKÜ blokları gizlenir; kullanıcıya net yaprak fo
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 3. Mobil Bitki Analizi ekranı — fotoğraf seçimi ve ipuçları. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 4. Analiz sonuç kartı — tanı, güven skoru, kültür ve öneri. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 5. Düşük güven durumu — “Bitki tespit edilemedi” ekranı. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] 3.5 Etken Madde Önerisi ve BKÜ Entegrasyonu
+  P IN:tablo[r1c1] Etken madde önerisi üç katmanlıdır:
+  P IN:tablo[r1c1] Sınıf → etken madde: treatment_active_ingredients.json (41 sınıf, kural tabanlı; ticari ürün adı yok)
+  P IN:tablo[r1c1] Etken madde → BKÜ kimlik: bku_mrl_active_map.json (20 token: azoksistrobin, mancozeb, metalaksil, bakır bileşikleri vb.)
+  P IN:tablo[r1c1] Canlı BKÜ sorgusu: CSRF token alınır → MRL DataTables JSON çekilir → ruhsatlı ürün satırları eklenir
+  P IN:tablo[r1c1] BKÜ modül kataloğu: genel arama, ruhsatlı ürün indeksi, MRL oranı, geçici tavsiye, tavsiye arama ve alternatif mücadele.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 6. Etken maddeler bilgi bloğu ve BKÜ MRL özeti. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] 3.6 Değerlendirme Metrikleri
+  P IN:tablo[r1c1] CNN performansı test kümesi (8.982 görsel) üzerinde evaluate_report.py ile ölçülmüştür.
+  P IN:tablo[r1c1] Tablo 1 — Test kümesi CNN performans özeti
+  [TABLO basla: 8 satir x ~2 sutun]
+    P IN:tablo[r1c1] Metrik
+    P IN:tablo[r1c2] Değer
+    P IN:tablo[r2c1] Top-1 doğruluk
+    P IN:tablo[r2c2] %95,1
+    P IN:tablo[r3c1] Test görsel sayısı
+    P IN:tablo[r3c2] 8.982
+    P IN:tablo[r4c1] Sağlıklı sınıf doğruluğu
+    P IN:tablo[r4c2] %98,5
+    P IN:tablo[r5c1] Güven eşiği sonrası kabul edilen doğruluk
+    P IN:tablo[r5c2] %98,7
+    P IN:tablo[r6c1] Reddetme oranı (eşik sonrası)
+    P IN:tablo[r6c2] %17,1
+    P IN:tablo[r7c1] Sağlıklı sınıf kabul oranı (eşik sonrası)
+    P IN:tablo[r7c2] %86,6
+    P IN:tablo[r8c1] Domates sağlıklı kabul oranı
+    P IN:tablo[r8c2] %91,5
+  [TABLO bitis]
+  P IN:tablo[r1c1] BKÜ değerlendirmesi: eşleşme oranı (haritada tanımlı token’lar), yanıt süresi (timeout 20–25 sn), lookupFailures ve bku_
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 7. Test kümesi karmaşıklık matrisi (confusion matrix).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+  P IN:tablo[r1c1] Başlangıç hedefi test Top-1 ≥ %97 idi; elde edilen %95,1 değeri hibrit (saha + laboratuvar) veri setinin zorluğunu yansı
+  [TABLO basla: 3 satir x ~1 sutun]
+    P IN:tablo[r1c1] DÖNEM SONU HEDEFLERİNİN DEĞERLENDİRİLMESİ
+    P IN:tablo[r1c1] s  Tablo 2 — Dönem hedefleri ve gerçekleşme durumu
+    [TABLO basla: 12 satir x ~3 sutun]
+      P IN:tablo[r1c1] Hedef
+      P IN:tablo[r1c2] Durum
+      P IN:tablo[r1c3] Açıklama
+      P IN:tablo[r2c1] Hibrit veri seti (41 sınıf)
+      P IN:tablo[r2c2] Gerçekleşti
+      P IN:tablo[r2c3] 60.627 görsel, leaf-aware bölme
+      P IN:tablo[r3c1] MobileNetV2 eğitimi
+      P IN:tablo[r3c2] Gerçekleşti
+      P IN:tablo[r3c3] best.pt kaydedildi
+      P IN:tablo[r4c1] Test Top-1 ≥ %97
+      P IN:tablo[r4c2] Kısmen
+      P IN:tablo[r4c3] %95,1; hibrit set zorluğu
+      P IN:tablo[r5c1] analyze-plant API
+      P IN:tablo[r5c2] Gerçekleşti
+      P IN:tablo[r5c3] JWT korumalı, CNN + JSON
+      P IN:tablo[r6c1] Etken madde JSON eşlemesi
+      P IN:tablo[r6c2] Gerçekleşti
+      P IN:tablo[r6c3] 41 sınıf, hallüsinasyon önlemi
+      P IN:tablo[r7c1] BKÜ MRL entegrasyonu
+      P IN:tablo[r7c2] Gerçekleşti
+      P IN:tablo[r7c3] 20 token, canlı tablo
+      P IN:tablo[r8c1] Güven eşiği mekanizması
+      P IN:tablo[r8c2] Gerçekleşti
+      P IN:tablo[r8c3] Test ile kalibre edildi
+      P IN:tablo[r9c1] Mobil analiz arayüzü
+      P IN:tablo[r9c2] Gerçekleşti
+      P IN:tablo[r9c3] FAB, sonuç kartı, BKÜ bloğu
+      P IN:tablo[r10c1] Değerlendirme grafikleri
+      P IN:tablo[r10c2] Gerçekleşti
+      P IN:tablo[r10c3] ml/report/ (7 grafik + JSON)
+      P IN:tablo[r11c1] POE sunumu
+      P IN:tablo[r11c2] Devam ediyor
+      P IN:tablo[r11c3] Mobil SS ve demo hazırlığı
+      P IN:tablo[r12c1] Final rapor
+      P IN:tablo[r12c2] Devam ediyor
+      P IN:tablo[r12c3] —
+    [TABLO bitis]
+    P IN:tablo[r1c1] Final dönem planı: BKÜ haritasının genişletilmesi (clorotalonil, propikonazol vb.), analiz geçmişi, top-3 alternatif tan
+    P IN:tablo[r2c1] KAYNAKLAR
+    P IN:tablo[r3c1] Hughes, D., Salathé, M., 2015; "An Open Access Repository of Images on Plant Health to Enable the Development of Mobile 
+    P IN:tablo[r3c1] Mohanty, S.P., Hughes, D.P., Salathé, M., 2016; "Using Deep Learning for Image-Based Plant Disease Detection", Frontiers
+    P IN:tablo[r3c1] Singh, D., et al., 2020; "PlantDoc: A Dataset for Visual Plant Disease Detection", arXiv:2004.03648.
+    P IN:tablo[r3c1] Sandler, M., et al., 2018; "MobileNetV2: Inverted Residuals and Linear Bottlenecks", IEEE/CVF CVPR, s. 4510–4520.
+    P IN:tablo[r3c1] Uguz, S., Uysal, N., 2020; "Classification of Olive Leaf Diseases Using Deep Convolutional Neural Networks", Neural Comp
+    P IN:tablo[r3c1] Cui, Y., et al., 2019; "Class-Balanced Loss Based on Effective Number of Samples", IEEE/CVF CVPR, s. 9268–9277.
+    P IN:tablo[r3c1] Lin, T.Y., et al., 2017; "Focal Loss for Dense Object Detection", IEEE ICCV, s. 2980–2988.
+    P IN:tablo[r3c1] Mohanty, S.P., 2016; "PlantVillage Dataset", HuggingFace, https://huggingface.co/datasets/mohanty/PlantVillage, erişim t
+    P IN:tablo[r3c1] Lam, T.N., 2020; "PlantDoc Dataset", HuggingFace, https://huggingface.co/datasets/LamTNguyen/PlantDoc, erişim tarihi: 06
+    P IN:tablo[r3c1] T.C. Tarım ve Orman Bakanlığı, 2026; "Bitki Koruma Ürünleri Veri Tabanı (BKÜ)", https://bku.tarimorman.gov.tr/Arama/Inde
+  [TABLO bitis]
+[TABLO bitis]
+[BOLUM AYARI / sayfa sonu ayarlari]
+
+============================================================
+SEKIL 8 CEVRESI (filtre)
+============================================================
+  P IN:tablo[r6c1] Proje kapsamında dönem içinde Bitki Hastalık Analizi, Etken Madde Önerisi ve BKÜ (Bitki Koruma Ürünleri Veri Tabanı) ent
+  P IN:tablo[r6c1] Bitki hastalığı teşhisi görüntü sınıflandırması (CNN) yöntemiyle gerçekleştirilmektedir. Model olarak mobil ve sunucu ta
+  P IN:tablo[r6c1] Kullanıcı mobil uygulama üzerinden bitki yaprak fotoğrafını yükler; istek POST /tools/analyze-plant uç noktasına iletili
+  P IN:tablo[r6c1] Etken madde önerisi, yapay zekânın ticari ürün adı veya doz uydurmasını önlemek amacıyla T.C. Tarım ve Orman Bakanlığı B
+  P IN:tablo[r6c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r6c1] Şekil 1: PlantVillage Veri Seti
+  P IN:tablo[r6c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r6c1] Şekil 2: Hibrit Veri Seti (PlantVillage veri setindeki eksikliklere göre artırılmıştır.)
+  P IN:tablo[r6c1] Veri seti hazırlığında önce PlantVillage temel veri seti (38 sınıf, 54.305 görsel) indirilmiş ve analiz edilmiştir (Şeki
+  P IN:tablo[r6c1] Mobil uygulamada analiz ekranı güncellenmiştir: kamera/galeri seçimi, görsel ön küçültme (1024 px), analiz yükleme durum
+  P IN:tablo[r6c1] Güven eşiği test kümesi analizi (ml/evaluate_report.py) ile kalibre edilmiştir. Seçilen parametreler: min_conf=0,50, min
+  P IN:tablo[r6c1] [spaceAfter=120] KAYNAK ARAŞTIRMASI
+  P IN:tablo[r6c1] Bitki hastalığı teşhisinde derin öğrenme tabanlı görüntü sınıflandırması son yıllarda yaygınlaşmıştır. Hughes ve Salathé
+  P IN:tablo[r6c1] Transfer öğrenme (transfer learning), sınırlı etiketli tarım verisiyle yüksek performans elde etmenin temel yöntemlerind
+---
+  P IN:tablo[r6c1] Kullanıcı mobil uygulama üzerinden bitki yaprak fotoğrafını yükler; istek POST /tools/analyze-plant uç noktasına iletili
+  P IN:tablo[r6c1] Etken madde önerisi, yapay zekânın ticari ürün adı veya doz uydurmasını önlemek amacıyla T.C. Tarım ve Orman Bakanlığı B
+  P IN:tablo[r6c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r6c1] Şekil 1: PlantVillage Veri Seti
+  P IN:tablo[r6c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r6c1] Şekil 2: Hibrit Veri Seti (PlantVillage veri setindeki eksikliklere göre artırılmıştır.)
+  P IN:tablo[r6c1] Veri seti hazırlığında önce PlantVillage temel veri seti (38 sınıf, 54.305 görsel) indirilmiş ve analiz edilmiştir (Şeki
+  P IN:tablo[r6c1] Mobil uygulamada analiz ekranı güncellenmiştir: kamera/galeri seçimi, görsel ön küçültme (1024 px), analiz yükleme durum
+  P IN:tablo[r6c1] Güven eşiği test kümesi analizi (ml/evaluate_report.py) ile kalibre edilmiştir. Seçilen parametreler: min_conf=0,50, min
+  P IN:tablo[r6c1] [spaceAfter=120] KAYNAK ARAŞTIRMASI
+  P IN:tablo[r6c1] Bitki hastalığı teşhisinde derin öğrenme tabanlı görüntü sınıflandırması son yıllarda yaygınlaşmıştır. Hughes ve Salathé
+  P IN:tablo[r6c1] Transfer öğrenme (transfer learning), sınırlı etiketli tarım verisiyle yüksek performans elde etmenin temel yöntemlerind
+  P IN:tablo[r6c1] Veri artırma (data augmentation) ve dengesiz sınıf dağılımı, tarım görüntü sınıflandırmasında kritik konulardır. Shorten
+  P IN:tablo[r6c1] Üretim ortamında yalnızca doğruluk metriği yeterli değildir; düşük güvenli tahminlerin kullanıcıya sunulması yanlış teşh
+---
+    P IN:tablo[r4c2] 0,68
+    P IN:tablo[r4c3] Üzerinde marj aranmaz
+  [TABLO bitis]
+  P IN:tablo[r1c1] Eşik altında detected: false döner; mobil arayüzde tanı, etken madde ve BKÜ blokları gizlenir; kullanıcıya net yaprak fo
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 3. Mobil Bitki Analizi ekranı — fotoğraf seçimi ve ipuçları. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 4. Analiz sonuç kartı — tanı, güven skoru, kültür ve öneri. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 5. Düşük güven durumu — “Bitki tespit edilemedi” ekranı. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] 3.5 Etken Madde Önerisi ve BKÜ Entegrasyonu
+  P IN:tablo[r1c1] Etken madde önerisi üç katmanlıdır:
+  P IN:tablo[r1c1] Sınıf → etken madde: treatment_active_ingredients.json (41 sınıf, kural tabanlı; ticari ürün adı yok)
+  P IN:tablo[r1c1] Etken madde → BKÜ kimlik: bku_mrl_active_map.json (20 token: azoksistrobin, mancozeb, metalaksil, bakır bileşikleri vb.)
+---
+  [TABLO bitis]
+  P IN:tablo[r1c1] Eşik altında detected: false döner; mobil arayüzde tanı, etken madde ve BKÜ blokları gizlenir; kullanıcıya net yaprak fo
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 3. Mobil Bitki Analizi ekranı — fotoğraf seçimi ve ipuçları. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 4. Analiz sonuç kartı — tanı, güven skoru, kültür ve öneri. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 5. Düşük güven durumu — “Bitki tespit edilemedi” ekranı. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] 3.5 Etken Madde Önerisi ve BKÜ Entegrasyonu
+  P IN:tablo[r1c1] Etken madde önerisi üç katmanlıdır:
+  P IN:tablo[r1c1] Sınıf → etken madde: treatment_active_ingredients.json (41 sınıf, kural tabanlı; ticari ürün adı yok)
+  P IN:tablo[r1c1] Etken madde → BKÜ kimlik: bku_mrl_active_map.json (20 token: azoksistrobin, mancozeb, metalaksil, bakır bileşikleri vb.)
+  P IN:tablo[r1c1] Canlı BKÜ sorgusu: CSRF token alınır → MRL DataTables JSON çekilir → ruhsatlı ürün satırları eklenir
+  P IN:tablo[r1c1] BKÜ modül kataloğu: genel arama, ruhsatlı ürün indeksi, MRL oranı, geçici tavsiye, tavsiye arama ve alternatif mücadele.
+---
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 3. Mobil Bitki Analizi ekranı — fotoğraf seçimi ve ipuçları. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 4. Analiz sonuç kartı — tanı, güven skoru, kültür ve öneri. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 5. Düşük güven durumu — “Bitki tespit edilemedi” ekranı. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] 3.5 Etken Madde Önerisi ve BKÜ Entegrasyonu
+  P IN:tablo[r1c1] Etken madde önerisi üç katmanlıdır:
+  P IN:tablo[r1c1] Sınıf → etken madde: treatment_active_ingredients.json (41 sınıf, kural tabanlı; ticari ürün adı yok)
+  P IN:tablo[r1c1] Etken madde → BKÜ kimlik: bku_mrl_active_map.json (20 token: azoksistrobin, mancozeb, metalaksil, bakır bileşikleri vb.)
+  P IN:tablo[r1c1] Canlı BKÜ sorgusu: CSRF token alınır → MRL DataTables JSON çekilir → ruhsatlı ürün satırları eklenir
+  P IN:tablo[r1c1] BKÜ modül kataloğu: genel arama, ruhsatlı ürün indeksi, MRL oranı, geçici tavsiye, tavsiye arama ve alternatif mücadele.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 6. Etken maddeler bilgi bloğu ve BKÜ MRL özeti. (Mobil ekran görüntüsü)
+---
+  P IN:tablo[r1c1] Sınıf → etken madde: treatment_active_ingredients.json (41 sınıf, kural tabanlı; ticari ürün adı yok)
+  P IN:tablo[r1c1] Etken madde → BKÜ kimlik: bku_mrl_active_map.json (20 token: azoksistrobin, mancozeb, metalaksil, bakır bileşikleri vb.)
+  P IN:tablo[r1c1] Canlı BKÜ sorgusu: CSRF token alınır → MRL DataTables JSON çekilir → ruhsatlı ürün satırları eklenir
+  P IN:tablo[r1c1] BKÜ modül kataloğu: genel arama, ruhsatlı ürün indeksi, MRL oranı, geçici tavsiye, tavsiye arama ve alternatif mücadele.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 6. Etken maddeler bilgi bloğu ve BKÜ MRL özeti. (Mobil ekran görüntüsü)
+  P IN:tablo[r1c1] 3.6 Değerlendirme Metrikleri
+  P IN:tablo[r1c1] CNN performansı test kümesi (8.982 görsel) üzerinde evaluate_report.py ile ölçülmüştür.
+  P IN:tablo[r1c1] Tablo 1 — Test kümesi CNN performans özeti
+  [TABLO basla: 8 satir x ~2 sutun]
+    P IN:tablo[r1c1] Metrik
+    P IN:tablo[r1c2] Değer
+    P IN:tablo[r2c1] Top-1 doğruluk
+    P IN:tablo[r2c2] %95,1
+---
+    P IN:tablo[r8c1] Domates sağlıklı kabul oranı
+    P IN:tablo[r8c2] %91,5
+  [TABLO bitis]
+  P IN:tablo[r1c1] BKÜ değerlendirmesi: eşleşme oranı (haritada tanımlı token’lar), yanıt süresi (timeout 20–25 sn), lookupFailures ve bku_
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 7. Test kümesi karmaşıklık matrisi (confusion matrix).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+---
+    P IN:tablo[r8c2] %91,5
+  [TABLO bitis]
+  P IN:tablo[r1c1] BKÜ değerlendirmesi: eşleşme oranı (haritada tanımlı token’lar), yanıt süresi (timeout 20–25 sn), lookupFailures ve bku_
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 7. Test kümesi karmaşıklık matrisi (confusion matrix).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+---
+  [TABLO bitis]
+  P IN:tablo[r1c1] BKÜ değerlendirmesi: eşleşme oranı (haritada tanımlı token’lar), yanıt süresi (timeout 20–25 sn), lookupFailures ve bku_
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 7. Test kümesi karmaşıklık matrisi (confusion matrix).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+---
+  P IN:tablo[r1c1] BKÜ değerlendirmesi: eşleşme oranı (haritada tanımlı token’lar), yanıt süresi (timeout 20–25 sn), lookupFailures ve bku_
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 7. Test kümesi karmaşıklık matrisi (confusion matrix).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+  P IN:tablo[r1c1] Başlangıç hedefi test Top-1 ≥ %97 idi; elde edilen %95,1 değeri hibrit (saha + laboratuvar) veri setinin zorluğunu yansı
+---
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 7. Test kümesi karmaşıklık matrisi (confusion matrix).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+  P IN:tablo[r1c1] Başlangıç hedefi test Top-1 ≥ %97 idi; elde edilen %95,1 değeri hibrit (saha + laboratuvar) veri setinin zorluğunu yansı
+  [TABLO basla: 3 satir x ~1 sutun]
+---
+  P IN:tablo[r1c1] Şekil 7. Test kümesi karmaşıklık matrisi (confusion matrix).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+  P IN:tablo[r1c1] Başlangıç hedefi test Top-1 ≥ %97 idi; elde edilen %95,1 değeri hibrit (saha + laboratuvar) veri setinin zorluğunu yansı
+  [TABLO basla: 3 satir x ~1 sutun]
+    P IN:tablo[r1c1] DÖNEM SONU HEDEFLERİNİN DEĞERLENDİRİLMESİ
+---
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 8. Sınıf bazında F1 skorları (yeşil: sağlıklı sınıflar).
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+  P IN:tablo[r1c1] Başlangıç hedefi test Top-1 ≥ %97 idi; elde edilen %95,1 değeri hibrit (saha + laboratuvar) veri setinin zorluğunu yansı
+  [TABLO basla: 3 satir x ~1 sutun]
+    P IN:tablo[r1c1] DÖNEM SONU HEDEFLERİNİN DEĞERLENDİRİLMESİ
+    P IN:tablo[r1c1] s  Tablo 2 — Dönem hedefleri ve gerçekleşme durumu
+---
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 9. Güven skoru dağılımı — doğru ve yanlış tahminler
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+  P IN:tablo[r1c1] Başlangıç hedefi test Top-1 ≥ %97 idi; elde edilen %95,1 değeri hibrit (saha + laboratuvar) veri setinin zorluğunu yansı
+  [TABLO basla: 3 satir x ~1 sutun]
+    P IN:tablo[r1c1] DÖNEM SONU HEDEFLERİNİN DEĞERLENDİRİLMESİ
+    P IN:tablo[r1c1] s  Tablo 2 — Dönem hedefleri ve gerçekleşme durumu
+    [TABLO basla: 12 satir x ~3 sutun]
+      P IN:tablo[r1c1] Hedef
+---
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 10. Sağlıklı vs hastalık sınıfları güven karşılaştırması.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 11. Güven eşiği taraması — reddetme oranı ve kabul edilen doğruluk.
+  P IN:tablo[r1c1] [GORSEL(inline)] (bos paragraf)
+  P IN:tablo[r1c1] Şekil 12. Güven eşiği sonrası sınıf bazında kabul oranları.
+  P IN:tablo[r1c1] Başlangıç hedefi test Top-1 ≥ %97 idi; elde edilen %95,1 değeri hibrit (saha + laboratuvar) veri setinin zorluğunu yansı
+  [TABLO basla: 3 satir x ~1 sutun]
+    P IN:tablo[r1c1] DÖNEM SONU HEDEFLERİNİN DEĞERLENDİRİLMESİ
+    P IN:tablo[r1c1] s  Tablo 2 — Dönem hedefleri ve gerçekleşme durumu
+    [TABLO basla: 12 satir x ~3 sutun]
+      P IN:tablo[r1c1] Hedef
+      P IN:tablo[r1c2] Durum
+      P IN:tablo[r1c3] Açıklama
+---
+
+============================================================
+TESHIS
+============================================================
+>>> SORUN: Sekil 8 veya altindaki yazi TABLO HUCRESININ ICINDE.
+    Enter tabloya yeni satir ekler; baska sayfaya gecmez.
+    COZUM: Sol ust kose ok ile tabloyu sec > Delete. Icerigi tablo DISINA yapistir.
